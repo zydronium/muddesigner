@@ -66,13 +66,11 @@ namespace Mud.Engine.Runtime.Environment
         /// <summary>
         /// Gets or sets the name.
         /// </summary>
-        [PersistValue]
         public string Name { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether this instance is enabled.
         /// </summary>
-        [PersistValue]
         public bool IsEnabled { get; set; }
 
         /// <summary>
@@ -89,19 +87,16 @@ namespace Mud.Engine.Runtime.Environment
         /// <summary>
         /// Gets or sets the creation date.
         /// </summary>
-        [PersistValue(PersistValueAttribute.PersistStyle.StringRepresentation)]
         public DateTime CreationDate { get; set; }
 
         /// <summary>
         /// Gets or sets the current time of day.
         /// </summary>
-        [PersistValue(PersistValueAttribute.PersistStyle.RelatedPersistedObject)]
         public ITimeOfDayState CurrentTimeOfDay { get; set; }
 
         /// <summary>
         /// Gets or sets a collection of states that can be used for the time of day.
         /// </summary>
-        [PersistValue(PersistValueAttribute.PersistStyle.CollectionRelatedPersistedObject)]
         public IEnumerable<ITimeOfDayState> TimeOfDayStates
         {
             get
@@ -126,19 +121,16 @@ namespace Mud.Engine.Runtime.Environment
         /// <summary>
         /// Gets or sets hour many hours it takes in-game to complete 1 day.
         /// </summary>
-        [PersistValue]
         public int HoursPerDay { get; set; }
 
         /// <summary>
         /// Gets or sets the hours ratio. If set to 4, it takes 4 in-game hours to equal 1 real-world hour.
         /// </summary>
-        [PersistValue]
         public double GameDayToRealHourRatio { get; set; }
 
         /// <summary>
         /// Gets the game time ratio used to convert real-world time to game-time.
         /// </summary>
-        [PersistValue]
         public double GameTimeAdjustmentFactor
         {
             get

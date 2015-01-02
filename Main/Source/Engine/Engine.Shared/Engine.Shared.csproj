@@ -61,7 +61,6 @@
     <Compile Include="Environment\ITimeOfDayState.cs" />
     <Compile Include="Environment\ITravelDirection.cs" />
     <Compile Include="Environment\IWorld.cs" />
-    <Compile Include="Repositories\IWorldRepository.cs" />
     <Compile Include="Services\IWorldService.cs" />
     <Compile Include="Environment\IZone.cs" />
     <Compile Include="Environment\IZoneExtensions.cs" />

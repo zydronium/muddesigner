@@ -9,9 +9,6 @@ namespace Mud.Engine.Runtime.Core
     using System.Collections.Generic;
     using System.Linq;
     using System.Threading.Tasks;
-    using Mud.Engine.Runtime.Environment;
-    using Sullinger.ValidatableBase.Models;
-    using Sullinger.ValidatableBase.Models.ValidationRules;
     using Mud.Engine.Shared.Environment;
     using Mud.Engine.Shared.Core;
     using Mud.Engine.Shared.Services;
@@ -51,55 +48,46 @@ namespace Mud.Engine.Runtime.Core
         /// <summary>
         /// Gets or sets a value indicating whether this instance is multiplayer.
         /// </summary>
-        [PersistValue]
         public bool IsMultiplayer { get; set; }
 
         /// <summary>
         /// Gets or sets the name of the game being played.
         /// </summary>
-        [PersistValue]
         public string Name { get; set; }
 
         /// <summary>
         /// Gets or sets the description of the game.
         /// </summary>
-        [PersistValue]
         public string Description { get; set; }
 
         /// <summary>
         /// Gets or sets the current version of the game.
         /// </summary>
-        [PersistValue(PersistValueAttribute.PersistStyle.StringRepresentation)]
         public Version Version { get; set; }
 
         /// <summary>
         /// Gets or sets the website that users can visit to get information on the game.
         /// </summary>
-        [PersistValue]
         public string Website { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether [hide room names].
         /// </summary>
-        [PersistValue]
         public bool HideRoomNames { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether [enable automatic save].
         /// </summary>
-        [PersistValue]
         public bool EnableAutoSave { get; set; }
 
         /// <summary>
         /// Gets or sets the automatic save frequency in seconds.
         /// </summary>
-        [PersistValue]
         public int AutoSaveFrequency { get; set; }
 
         /// <summary>
         /// Gets or sets the last saved.
         /// </summary>
-        [PersistValue(PersistValueAttribute.PersistStyle.StringRepresentation)]
         public DateTime LastSaved { get; set; }
 
         /// <summary>

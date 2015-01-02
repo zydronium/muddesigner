@@ -47,11 +47,7 @@
     <Compile Include="Core\ExceptionFactoryResult.cs" />
     <Compile Include="Core\ExceptionFactory.cs" />
     <Compile Include="Core\ObjectExtensions.cs" />
-    <Compile Include="Core\PersistValueAttribute.cs" />
     <Compile Include="Core\DefaultGame.cs" />
-    <Compile Include="Core\ErrorMessage.cs" />
-    <Compile Include="Core\ValidationChangedEventArgs.cs" />
-    <Compile Include="Core\WarningMessage.cs" />
     <Compile Include="Environment\DefaultDoorway.cs" />
     <Compile Include="Environment\AfternoonState.cs" />
     <Compile Include="Environment\DefaultRealm.cs" />
@@ -72,11 +68,6 @@
     <Compile Include="Environment\RainyWeather.cs" />
     <Compile Include="Environment\ThunderstormWeather.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <Reference Include="ValidatableBase">
-      <HintPath>..\..\..\Resources\ValidatableBase.dll</HintPath>
-    </Reference>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Engine.Shared\Engine.Shared.csproj">

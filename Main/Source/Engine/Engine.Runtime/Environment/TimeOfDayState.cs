@@ -154,7 +154,7 @@ namespace Mud.Engine.Runtime.Environment
                     this.OnTimeUpdated();
                 },
                 this.CurrentTime);
-            this.timeOfDayClock.Start(interval, interval);
+            this.timeOfDayClock.Start(interval, interval, false);
         }
 
         /// <summary>

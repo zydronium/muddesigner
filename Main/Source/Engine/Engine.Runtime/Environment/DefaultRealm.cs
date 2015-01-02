@@ -44,13 +44,11 @@ namespace Mud.Engine.Runtime.Environment
         /// <summary>
         /// Gets or sets the offset from the World's current time for the Realm.
         /// </summary>
-        [PersistValue(PersistValueAttribute.PersistStyle.RelatedPersistedObject)]
         public ITimeOfDay TimeZoneOffset { get; set; }
 
         /// <summary>
         /// Gets or sets the time of day for the Realm.
         /// </summary>
-        [PersistValue(PersistValueAttribute.PersistStyle.RelatedPersistedObject)]
         public ITimeOfDay CurrentTimeOfDay { get; set; }
 
         /// <summary>
@@ -89,19 +87,16 @@ namespace Mud.Engine.Runtime.Environment
         /// <summary>
         /// Gets or sets the World that owns this realm..
         /// </summary>
-        [PersistValue(PersistValueAttribute.PersistStyle.RelatedPersistedObject)]
         public IWorld World { get; protected set; }
 
         /// <summary>
         /// Gets or sets the name.
         /// </summary>
-        [PersistValue]
         public string Name { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether this instance is enabled.
         /// </summary>
-        [PersistValue]
         public bool IsEnabled { get; set; }
 
         /// <summary>
@@ -118,7 +113,6 @@ namespace Mud.Engine.Runtime.Environment
         /// <summary>
         /// Gets or sets the creation date.
         /// </summary>
-        [PersistValue(PersistValueAttribute.PersistStyle.StringRepresentation)]
         public DateTime CreationDate { get; set; }
 
         /// <summary>

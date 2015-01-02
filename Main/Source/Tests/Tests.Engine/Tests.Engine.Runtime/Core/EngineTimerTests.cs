@@ -35,7 +35,7 @@ namespace Tests.Engine.Runtime.Core
 
             // Act
             initialTime = DateTime.Now;
-            engineTimer.Start(0, targetMilliseconds);
+            engineTimer.Start(0, targetMilliseconds, false);
             while (engineTimer.IsRunning) { Thread.Sleep(1); }
 
             // Assert

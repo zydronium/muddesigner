@@ -45,7 +45,6 @@ namespace Mud.Engine.Runtime.Environment
         /// <summary>
         /// Gets or sets the name.
         /// </summary>
-        [PersistValue]
         public string Name { get; set; }
 
         /// <summary>
@@ -56,19 +55,16 @@ namespace Mud.Engine.Runtime.Environment
         /// <summary>
         /// Gets or sets the creation date.
         /// </summary>
-        [PersistValue(PersistValueAttribute.PersistStyle.StringRepresentation)]
         public DateTime CreationDate { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether this instance is enabled.
         /// </summary>
-        [PersistValue]
         public bool IsEnabled { get; set; }
 
         /// <summary>
         /// Gets or sets the zone that owns this Room.
         /// </summary>
-        [PersistValue(PersistValueAttribute.PersistStyle.RelatedPersistedObject)]
         public IZone Zone { get; protected set; }
 
         /// <summary>

@@ -65,7 +65,6 @@ namespace Mud.Engine.Runtime.Character
         /// <summary>
         /// Gets or sets the name.
         /// </summary>
-        [PersistValue]
         public string Name { get; set; }
 
         /// <summary>
@@ -76,7 +75,6 @@ namespace Mud.Engine.Runtime.Character
         /// <summary>
         /// Gets or sets the current room that this character occupies.
         /// </summary>
-        [PersistValue(PersistValueAttribute.PersistStyle.RelatedPersistedObject)]
         public IRoom CurrentRoom
         {
             get

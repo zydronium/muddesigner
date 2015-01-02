@@ -43,13 +43,11 @@ namespace Mud.Engine.Runtime.Environment
         /// <summary>
         /// Gets or sets the direction that must be traveled in order to move from the departure room.
         /// </summary>
-        [PersistValue(PersistValueAttribute.PersistStyle.StringRepresentation)]
         public ITravelDirection DepartureDirection { get; set; }
 
         /// <summary>
         /// Gets or sets the arrival room.
         /// </summary>
-        [PersistValue(PersistValueAttribute.PersistStyle.RelatedPersistedObject)]
         public IRoom ArrivalRoom { get; protected set; }
 
         /// <summary>
