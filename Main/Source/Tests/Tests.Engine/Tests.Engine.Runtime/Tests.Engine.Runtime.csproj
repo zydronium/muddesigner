@@ -77,10 +77,6 @@
       <Project>{f27c159b-6412-46dc-8239-f0841c6801dc}</Project>
       <Name>Engine.Runtime</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\..\Engine\Engine.Shared\Engine.Shared.csproj">
-      <Project>{f00e107c-b42c-47d1-97ed-d4611648b372}</Project>
-      <Name>Engine.Shared</Name>
-    </ProjectReference>
   </ItemGroup>
   <Choose>
     <When Condition="'$(VisualStudioVersion)' == '10.0' And '$(IsCodedUITest)' == 'True'">
