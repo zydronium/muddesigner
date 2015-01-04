@@ -54,6 +54,8 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="FileStorageService.cs" />
+    <Compile Include="LoggingService.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
@@ -62,6 +64,14 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\..\..\Data\Data.FlatFile\Data.FlatFile.csproj">
+      <Project>{08f8d203-05db-4a39-8124-6ea8596b12c2}</Project>
+      <Name>Data.FlatFile</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\..\Data\Data.Shared\Data.Shared.csproj">
+      <Project>{bd2d7902-0802-40a4-bfed-c821b0cb6410}</Project>
+      <Name>Data.Shared</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\..\..\Engine\Engine.Components\Engine.Components.WindowsServer\Engine.Components.WindowsServer.csproj">
       <Project>{efcd4f40-a2cb-440b-a1c1-bad78b784471}</Project>
       <Name>Engine.Components.WindowsServer</Name>

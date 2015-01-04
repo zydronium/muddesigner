@@ -8,8 +8,8 @@
     <ProjectGuid>{08F8D203-05DB-4A39-8124-6EA8596B12C2}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Data.FlatFile</RootNamespace>
-    <AssemblyName>Data.FlatFile</AssemblyName>
+    <RootNamespace>Mud.Data.FlatFile</RootNamespace>
+    <AssemblyName>MudDesigner.Data.FlatFile</AssemblyName>
     <DefaultLanguage>en-US</DefaultLanguage>
     <FileAlignment>512</FileAlignment>
     <ProjectTypeGuids>{786C830F-07A1-408B-BD7F-6EE04809D6DB};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
@@ -35,20 +35,17 @@
   </PropertyGroup>
   <ItemGroup>
     <!-- A reference to the entire .NET Framework is automatically included -->
-    <ProjectReference Include="..\Data\Data.Shared\Data.Shared.csproj">
+    <ProjectReference Include="..\Data.Shared\Data.Shared.csproj">
       <Project>{bd2d7902-0802-40a4-bfed-c821b0cb6410}</Project>
       <Name>Data.Shared</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Engine\Engine.Runtime\Engine.Runtime.csproj">
+    <ProjectReference Include="..\..\Engine\Engine.Runtime\Engine.Runtime.csproj">
       <Project>{f27c159b-6412-46dc-8239-f0841c6801dc}</Project>
       <Name>Engine.Runtime</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Engine\Engine.Shared\Engine.Shared.csproj">
-      <Project>{f00e107c-b42c-47d1-97ed-d4611648b372}</Project>
-      <Name>Engine.Shared</Name>
-    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="TimeOfDayStateRepository.cs" />
     <Compile Include="WorldRepository.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

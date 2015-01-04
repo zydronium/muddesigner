@@ -1,8 +1,8 @@
 ﻿using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Mud.Engine.Runtime.Core;
 using System.Threading;
 using System.Diagnostics;
+using Mud.Engine.Runtime;
 
 namespace Tests.Engine.Runtime.Core
 {
@@ -17,7 +17,11 @@ namespace Tests.Engine.Runtime.Core
             int targetMilliseconds = 1000;
             DateTime initialTime;
             DateTime callbackTimeStamp = DateTime.Now;
-            var engineTimer = new EngineTimer<MessageFixture>((message, timer) =>
+            var engineTimer = new EngineTimer<MessageFixture>(new MessageFixture());
+
+            // Act
+            initialTime = DateTime.Now;
+            engineTimer.Start(0, targetMilliseconds, 0, (message, timer) =>
             {
                 // Skip the first interval, since it is done immediately.
                 if (callbackCount == 1)
@@ -30,12 +34,7 @@ namespace Tests.Engine.Runtime.Core
                     callbackCount++;
                     initialTime = DateTime.Now;
                 }
-            },
-            new MessageFixture());
-
-            // Act
-            initialTime = DateTime.Now;
-            engineTimer.Start(0, targetMilliseconds, false);
+            });
             while (engineTimer.IsRunning) { Thread.Sleep(1); }
 
             // Assert
@@ -52,17 +51,16 @@ namespace Tests.Engine.Runtime.Core
             int targetMilliseconds = 500; 
             DateTime initialTime;
             DateTime callbackTimeStamp = DateTime.Now;
-            var engineTimer = new EngineTimer<MessageFixture>((message, timer) =>
+            var engineTimer = new EngineTimer<MessageFixture>(new MessageFixture());
+
+            // Act
+            initialTime = DateTime.Now;
+            engineTimer.Start(targetMilliseconds, 0, 1, (message, timer) =>
             {
                 // Skip the first interval, since it is done immediately.
                 callbackTimeStamp = DateTime.Now;
                 timer.Stop();
-            },
-            new MessageFixture());
-
-            // Act
-            initialTime = DateTime.Now;
-            engineTimer.Start(targetMilliseconds, 0, true);
+            });
             while (engineTimer.IsRunning) { }
 
             // Assert

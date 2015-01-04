@@ -3,27 +3,21 @@
 //     Copyright (c) Johnathon Sullinger. All rights reserved.
 // </copyright>
 //-----------------------------------------------------------------------
-namespace Mud.Engine.Runtime.Environment
+namespace Mud.Engine.Runtime.Game.Environment
 {
     using System;
     using System.Collections.Generic;
-    using Mud.Engine.Runtime.Character;
-    using Mud.Engine.Runtime.Core;
-    using Mud.Engine.Shared.Core;
-    using Mud.Engine.Runtime.Environment;
-    using Mud.Engine.Shared.Environment;
-    using Mud.Engine.Shared.Environment;
-    using Mud.Engine.Shared.Character;
+    using Mud.Engine.Runtime.Game.Character;
 
     /// <summary>
     /// The default IZone Type for the engine.
     /// </summary>
-    public class DefaultZone : IZone
+    public class DefaultZone
     {
         /// <summary>
         /// The realm that owns this zone.
         /// </summary>
-        private IRealm realm;
+        private DefaultRealm realm;
 
         /// <summary>
         /// The weather states backing field.
@@ -33,7 +27,7 @@ namespace Mud.Engine.Runtime.Environment
         /// <summary>
         /// The rooms that this zone is responsible for managing.
         /// </summary>
-        private List<IRoom> rooms = new List<IRoom>();
+        private List<DefaultRoom> rooms = new List<DefaultRoom>();
 
         /// <summary>
         /// Initializes a new instance of the <see cref="DefaultZone"/> class.
@@ -73,7 +67,7 @@ namespace Mud.Engine.Runtime.Environment
         /// <summary>
         /// Gets or sets the rules that must be applied to this zone.
         /// </summary>
-        public ICollection<IZoneRule> Rules { get; set; }
+        //public ICollection<IZoneRule> Rules { get; set; }
 
         /// <summary>
         /// Gets or sets the current weather.
@@ -111,7 +105,7 @@ namespace Mud.Engine.Runtime.Environment
         /// <summary>
         /// Gets or sets the rooms within this Zone.
         /// </summary>
-        public IEnumerable<IRoom> Rooms
+        public IEnumerable<DefaultRoom> Rooms
         {
             get
             {
@@ -136,7 +130,7 @@ namespace Mud.Engine.Runtime.Environment
         /// <summary>
         /// Gets or sets the realm that owns this zone.
         /// </summary>
-        public IRealm Realm { get; protected set; }
+        public DefaultRealm Realm { get; protected set; }
 
         /// <summary>
         /// Gets or sets the identifier.
@@ -162,20 +156,21 @@ namespace Mud.Engine.Runtime.Environment
         /// Initializes the zone with the supplied realm.
         /// </summary>
         /// <param name="realm">The realm.</param>
-        public virtual void Initialize(IRealm realm)
+        public virtual void Initialize(DefaultRealm realm)
         {
             this.realm = realm;
 
             if (this.weatherStates.Count > 0)
             {
                 // Set up our weather clock and start performing weather changes.
-                var weatherClock = new EngineTimer<IWeatherState>((state, clock) => this.SetupWeather(), this.CurrentWeather);
+                var weatherClock = new EngineTimer<IWeatherState>(this.CurrentWeather);
 
                 // Convert the minutes specified with WeatherUpdateFrequency to in-game minutes using the GameTimeRatio.
                 weatherClock.Start(
                     0, 
                     TimeSpan.FromMinutes(this.WeatherUpdateFrequency * this.realm.World.GameTimeAdjustmentFactor).TotalMilliseconds,
-                    false);
+                    0,
+                    this.SetupWeather);
             }
         }
 
@@ -184,7 +179,7 @@ namespace Mud.Engine.Runtime.Environment
         /// </summary>
         /// <param name="room">The room.</param>
         /// <exception cref="System.NullReferenceException">Attempted to add a null Zone to the Realm.</exception>
-        public void AddRoomToZone(IRoom room)
+        public void AddRoomToZone(DefaultRoom room)
         {
             if (room == null)
             {
@@ -202,7 +197,7 @@ namespace Mud.Engine.Runtime.Environment
         /// Removes the room from zone.
         /// </summary>
         /// <param name="room">The room.</param>
-        public void RemoveRoomFromZone(IRoom room)
+        public void RemoveRoomFromZone(DefaultRoom room)
         {
             if (!this.rooms.Contains(room))
             {
@@ -212,6 +207,11 @@ namespace Mud.Engine.Runtime.Environment
             this.rooms.Remove(room);
             room.EnteredRoom -= this.RoomOccupancyChanged;
             room.LeftRoom -= this.RoomOccupancyChanged;
+        }
+
+        public bool HasRoom(DefaultRoom room)
+        {
+            throw new NotImplementedException();
         }
 
         /// <summary>
@@ -296,7 +296,7 @@ namespace Mud.Engine.Runtime.Environment
         /// <summary>
         /// Setups the weather up.
         /// </summary>
-        private void SetupWeather()
+        private void SetupWeather(IWeatherState state, EngineTimer<IWeatherState> timer)
         {
             // Set the current weather based on the probability of it changing.
             IWeatherState nextWeatherState = this.weatherStates.AnyOrDefaultFromWeight(weather => weather.OccurrenceProbability);

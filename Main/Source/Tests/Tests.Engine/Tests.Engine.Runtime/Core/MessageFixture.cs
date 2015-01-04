@@ -1,13 +1,6 @@
-﻿using Mud.Engine.Shared.Core;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Tests.Engine.Runtime.Core
+﻿namespace Tests.Engine.Runtime.Core
 {
-    public class MessageFixture : IMessage
+    public class MessageFixture
     {
         public string Message
         {

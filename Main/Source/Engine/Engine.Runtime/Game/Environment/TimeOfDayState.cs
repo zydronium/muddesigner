@@ -3,42 +3,46 @@
 //     Copyright (c) Johnathon Sullinger. All rights reserved.
 // </copyright>
 //-----------------------------------------------------------------------
-namespace Mud.Engine.Runtime.Environment
+namespace Mud.Engine.Runtime.Game.Environment
 {
     using System;
-    using Mud.Engine.Runtime.Core;
-    using Mud.Engine.Shared.Environment;
 
     /// <summary>
     /// Base class for all ITimeOfDayState implementations. 
     /// This handles starting the state clock and provides methods for resetting and disposing.
     /// </summary>
-    public abstract class TimeOfDayState : ITimeOfDayState
+    public class TimeOfDayState
     {
         /// <summary>
         /// The clock used to track the time of day.
         /// </summary>
-        private EngineTimer<ITimeOfDay> timeOfDayClock;
+        private EngineTimer<TimeOfDay> timeOfDayClock;
+
+        public TimeOfDayState()
+        {
+            this.StateStartTime = new TimeOfDay { Hour = 0, Minute = 0, HoursPerDay = 24 };
+            this.CurrentTime = this.StateStartTime.Clone();
+        }
 
         /// <summary>
         /// Occurs when the state's time is changed.
         /// </summary>
-        public event EventHandler<ITimeOfDay> TimeUpdated;
+        public event EventHandler<TimeOfDay> TimeUpdated;
 
         /// <summary>
         /// Gets the name of this state.
         /// </summary>
-        public abstract string Name { get; }
+        public string Name { get; set; }
 
         /// <summary>
         /// Gets or sets the time of day in the game that this state begins.
         /// </summary>
-        public abstract ITimeOfDay StateStartTime { get; set; }
+        public TimeOfDay StateStartTime { get; set; }
 
         /// <summary>
-        /// Gets or sets the current time.
+        /// Gets the current time.
         /// </summary>
-        public ITimeOfDay CurrentTime { get; protected set; }
+        public TimeOfDay CurrentTime { get; protected set; }
 
         /// <summary>
         /// Initializes the time of day state with the supplied in-game to real-world hours factor.
@@ -143,18 +147,16 @@ namespace Mud.Engine.Runtime.Environment
         /// </summary>
         /// <param name="interval">The interval.</param>
         /// <param name="callback">The callback.</param>
-        private void StartStateClock(double interval, Action<ITimeOfDay> callback)
+        private void StartStateClock(double interval, Action<TimeOfDay> callback)
         {
             // If the minute interval is less than 1 second,
             // then we increment by the hour to reduce excess update calls.
-            this.timeOfDayClock = new EngineTimer<ITimeOfDay>(
-                (state, clock) =>
+            this.timeOfDayClock = new EngineTimer<TimeOfDay>(this.CurrentTime);
+            this.timeOfDayClock.Start(interval, interval, 0, (state, clock) =>
                 {
                     callback(state);
                     this.OnTimeUpdated();
-                },
-                this.CurrentTime);
-            this.timeOfDayClock.Start(interval, interval, false);
+                });
         }
 
         /// <summary>
@@ -162,7 +164,7 @@ namespace Mud.Engine.Runtime.Environment
         /// </summary>
         private void OnTimeUpdated()
         {
-            EventHandler<ITimeOfDay> handler = this.TimeUpdated;
+            EventHandler<TimeOfDay> handler = this.TimeUpdated;
             if (handler == null)
             {
                 return;

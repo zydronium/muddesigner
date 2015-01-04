@@ -3,7 +3,7 @@
 //     Copyright (c) Johnathon Sullinger. All rights reserved.
 // </copyright>
 //-----------------------------------------------------------------------
-namespace Mud.Engine.Shared.Environment
+namespace Mud.Engine.Runtime.Game.Environment
 {
     using System;
 

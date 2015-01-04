@@ -3,16 +3,17 @@
 //     Copyright (c) Johnathon Sullinger. All rights reserved.
 // </copyright>
 //-----------------------------------------------------------------------
-namespace Mud.Engine.Runtime.Environment
+namespace Mud.Engine.Runtime.Game.Environment
 {
-    using Mud.Engine.Shared.Environment;
     using System;
+    using System.Linq;
+    using System.Reflection;
 
     /// <summary>
     /// Provides a means of representing a specific time of day in hours and minutes.
     /// Methods are provided to adjust the time of day if needed.
     /// </summary>
-    public class TimeOfDay : ITimeOfDay
+    public class TimeOfDay : ICloneableComponent<TimeOfDay>
     {
         /// <summary>
         /// Gets or sets the hour.
@@ -157,6 +158,11 @@ namespace Mud.Engine.Runtime.Environment
             }
 
             return string.Format("{0}:{1}", hour, minute);
+        }
+
+        public TimeOfDay Clone()
+        {
+            return new TimeOfDay { Hour = this.Hour, Minute = this.Minute, HoursPerDay = this.HoursPerDay };
         }
     }
 }

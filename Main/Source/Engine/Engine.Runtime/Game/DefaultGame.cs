@@ -3,28 +3,33 @@
 //     Copyright (c) Johnathon Sullinger. All rights reserved.
 // </copyright>
 //-----------------------------------------------------------------------
-namespace Mud.Engine.Runtime.Core
+namespace Mud.Engine.Runtime.Game
 {
     using System;
     using System.Collections.Generic;
     using System.Linq;
     using System.Threading.Tasks;
-    using Mud.Engine.Runtime.Environment;
-
+    using Mud.Engine.Runtime.Game.Environment;
+    using Mud.Engine.Runtime.Services;
 
     /// <summary>
     /// The Default engine implementation of the IGame interface. This implementation provides validation support via ValidationBase.
     /// </summary>
     public class DefaultGame
     {
+        private ILoggingService loggingService;
+
+        private IWorldService worldService;
+
         /// <summary>
         /// Initializes a new instance of the <see cref="DefaultGame" /> class.
         /// </summary>
         /// <param name="loggingService">The logging service.</param>
         /// <param name="worldService">The world service.</param>
-        public DefaultGame()
+        public DefaultGame(ILoggingService loggingService, IWorldService worldService)
         {
-            this.Version = new Version("0.0.0.1");
+            this.loggingService = loggingService;
+            this.worldService = worldService;
         }
 
         /// <summary>
@@ -50,7 +55,7 @@ namespace Mud.Engine.Runtime.Core
         /// <summary>
         /// Gets or sets the current version of the game.
         /// </summary>
-        public Version Version { get; set; }
+        public Version Version { get; set; } = new Version("0.0.0.1");
 
         /// <summary>
         /// Gets or sets the website that users can visit to get information on the game.
@@ -80,7 +85,7 @@ namespace Mud.Engine.Runtime.Core
         /// <summary>
         /// Gets or sets the current World for the game. Contains all of the Realms, Zones and Rooms.
         /// </summary>
-        public ICollection<DefaultWorld> Worlds { get; set; }
+        public ICollection<DefaultWorld> Worlds { get; set; } = new List<DefaultWorld>();
 
         /// <summary>
         /// The initialize method is responsible for restoring the world and state.

@@ -3,30 +3,26 @@
 //     Copyright (c) Johnathon Sullinger. All rights reserved.
 // </copyright>
 //-----------------------------------------------------------------------
-namespace Mud.Engine.Runtime.Environment
+namespace Mud.Engine.Runtime.Game.Environment
 {
     using System;
     using System.Collections.Generic;
     using System.Linq;
-    using Mud.Engine.Runtime.Environment;
-    using Mud.Engine.Runtime.Core;
-    using Mud.Engine.Shared.Environment;
-    using Mud.Engine.Shared.Environment;
 
     /// <summary>
     /// The Default World class used by the engine.
     /// </summary>
-    public class DefaultWorld : IWorld
+    public class DefaultWorld
     {
         /// <summary>
         /// The time of day states
         /// </summary>
-        private List<ITimeOfDayState> timeOfDayStates;
+        private List<TimeOfDayState> timeOfDayStates;
 
         /// <summary>
         /// The realms
         /// </summary>
-        private List<IRealm> realms = new List<IRealm>();
+        private List<DefaultRealm> realms = new List<DefaultRealm>();
 
         /// <summary>
         /// The time of day state manager
@@ -45,7 +41,7 @@ namespace Mud.Engine.Runtime.Environment
             this.GameDayToRealHourRatio = 0.75;
 
             // Set up default states for the time of day.
-            this.timeOfDayStates = new List<ITimeOfDayState> { new MorningState(), new AfternoonState(), new NightState() };
+            this.timeOfDayStates = new List<TimeOfDayState>();
             this.timeOfDayStateManager = new TimeOfDayStateManager(this.timeOfDayStates);
 
             // Must be in the constructor. If assigned within the Initialization method
@@ -92,12 +88,12 @@ namespace Mud.Engine.Runtime.Environment
         /// <summary>
         /// Gets or sets the current time of day.
         /// </summary>
-        public ITimeOfDayState CurrentTimeOfDay { get; set; }
+        public TimeOfDayState CurrentTimeOfDay { get; set; }
 
         /// <summary>
         /// Gets or sets a collection of states that can be used for the time of day.
         /// </summary>
-        public IEnumerable<ITimeOfDayState> TimeOfDayStates
+        public IEnumerable<TimeOfDayState> TimeOfDayStates
         {
             get
             {
@@ -142,7 +138,7 @@ namespace Mud.Engine.Runtime.Environment
         /// <summary>
         /// Gets or sets the realms in this world.
         /// </summary>
-        public IEnumerable<IRealm> Realms
+        public IEnumerable<DefaultRealm> Realms
         {
             get
             {
@@ -176,7 +172,7 @@ namespace Mud.Engine.Runtime.Environment
         /// The world must have all of its associated realms assigned before invoking Initialize.
         /// </summary>
         /// <param name="initialState">The optional initial state that the world must start with</param>
-        public virtual void Initialize(ITimeOfDayState initialState = null)
+        public virtual void Initialize(TimeOfDayState initialState = null)
         {
             // Set up our time of day clock.
             if (this.timeOfDayStates.Count > 0 && initialState == null)
@@ -206,7 +202,7 @@ namespace Mud.Engine.Runtime.Environment
         /// <exception cref="System.NullReferenceException">Attempted to add a null Realm to the world.
         /// or
         /// Adding a Realm to a World with a null Zones collection is not allowed.</exception>
-        public void AddRealmToWorld(IRealm realm)
+        public void AddRealmToWorld(DefaultRealm realm)
         {
             if (realm == null)
             {
@@ -240,7 +236,7 @@ namespace Mud.Engine.Runtime.Environment
         /// Adds a collection of realms to world.
         /// </summary>
         /// <param name="realm">The realm.</param>
-        public void AddRealmToWorld(IEnumerable<IRealm> realm)
+        public void AddRealmToWorld(IEnumerable<DefaultRealm> realm)
         {
             realm.AsParallel().ForAll(r => this.AddRealmToWorld(r));
         }
@@ -249,7 +245,7 @@ namespace Mud.Engine.Runtime.Environment
         /// Removes the realm from world.
         /// </summary>
         /// <param name="realm">The realm.</param>
-        public void RemoveRealmFromWorld(IRealm realm)
+        public void RemoveRealmFromWorld(DefaultRealm realm)
         {
             if (!this.Realms.Contains(realm))
             {
@@ -264,7 +260,7 @@ namespace Mud.Engine.Runtime.Environment
         /// <param name="state">The state.</param>
         /// <exception cref="System.InvalidOperationException">You can not have two states with the same start time in the same world.</exception>
         /// <exception cref="System.NullReferenceException">State's start time must not be null.</exception>
-        public void AddTimeOfDayState(ITimeOfDayState state)
+        public void AddTimeOfDayState(TimeOfDayState state)
         {
             // We prevent states with the same start time from being added to the world
             if (this.TimeOfDayStates.Any(s => s.StateStartTime.Equals(state)))
@@ -288,7 +284,7 @@ namespace Mud.Engine.Runtime.Environment
         {
             // These should all have their clocks disabled, but we ensure they are anyway.
             // This will also pick up our Current state during the process.
-            foreach (ITimeOfDayState state in this.TimeOfDayStates)
+            foreach (TimeOfDayState state in this.TimeOfDayStates)
             {
                 state.Reset();
             }
@@ -310,7 +306,7 @@ namespace Mud.Engine.Runtime.Environment
         /// </summary>
         /// <param name="oldTimeOfDay">The old time of day.</param>
         /// <param name="newTimeOfDay">The new time of day.</param>
-        protected virtual void OnTimeOfDayChanged(ITimeOfDayState oldTimeOfDay, ITimeOfDayState newTimeOfDay)
+        protected virtual void OnTimeOfDayChanged(TimeOfDayState oldTimeOfDay, TimeOfDayState newTimeOfDay)
         {
             // Our event handler
             EventHandler<TimeOfDayChangedEventArgs> handler = this.TimeOfDayChanged;
@@ -327,7 +323,7 @@ namespace Mud.Engine.Runtime.Environment
         /// Sets up the world clock.
         /// </summary>
         /// <param name="initialState">The initial state.</param>
-        private void SetupWorldClock(ITimeOfDayState initialState)
+        private void SetupWorldClock(TimeOfDayState initialState)
         {
             // We want to reset our current state before we set up the next state
             // The next state starts on a background thread and can cause listeners to access
@@ -352,14 +348,14 @@ namespace Mud.Engine.Runtime.Environment
         /// </summary>
         /// <param name="sender">The TimeOfDayState that caused the time change.</param>
         /// <param name="updatedTimeOfDay">The new time of day.</param>
-        private void CurrentTimeOfDayState_TimeUpdated(object sender, ITimeOfDay updatedTimeOfDay)
+        private void CurrentTimeOfDayState_TimeUpdated(object sender, TimeOfDay updatedTimeOfDay)
         {
             // Takes our current time of day within the time of day state, and updates the realms with it.
             this.UpdateTimeOfDayStatesForRealms();
 
             // Fetch the world time of day.
             // This acts as +0 GMT in-game. Each realm can have an offset via its own timezone.
-            ITimeOfDayState newTimeOfDay = this.timeOfDayStateManager.GetTimeOfDayState(updatedTimeOfDay);
+            TimeOfDayState newTimeOfDay = this.timeOfDayStateManager.GetTimeOfDayState(updatedTimeOfDay);
             if (this.CurrentTimeOfDay == newTimeOfDay)
             {
                 return;

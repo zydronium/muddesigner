@@ -3,11 +3,11 @@
 //     Copyright (c) Johnathon Sullinger. All rights reserved.
 // </copyright>
 //-----------------------------------------------------------------------
-namespace Mud.Engine.Runtime.Environment
+namespace Mud.Engine.Runtime.Game.Environment
 {
     using System;
     using System.Linq;
-    using Mud.Engine.Runtime.Character;
+    using Mud.Engine.Runtime.Game.Character;
 
     /// <summary>
     /// The default doorway class for the engine. Provides methods for connecting rooms, disconnecting rooms and traveling between rooms.
@@ -43,7 +43,7 @@ namespace Mud.Engine.Runtime.Environment
         /// <summary>
         /// Gets or sets the arrival room.
         /// </summary>
-        public IRoom ArrivalRoom { get; protected set; }
+        public DefaultRoom ArrivalRoom { get; protected set; }
 
         /// <summary>
         /// Connects two rooms together.
@@ -59,7 +59,7 @@ namespace Mud.Engine.Runtime.Environment
         /// or
         /// Can not connect rooms when the doorways collection is null.
         /// </exception>
-        public void ConnectRooms(IRoom departureRoom, IRoom arrivalRoom, bool createDoorwayForArrival = true)
+        public void ConnectRooms(DefaultRoom departureRoom, DefaultRoom arrivalRoom, bool createDoorwayForArrival = true)
         {
             if (departureRoom == null || arrivalRoom == null)
             {
@@ -84,7 +84,9 @@ namespace Mud.Engine.Runtime.Environment
             {
                 // Create a new doorway for the arrival room, so that you can leave the room once you are in it.
                 ITravelDirection oppositeDirection = this.DepartureDirection.GetOppositeDirection();
-                IDoorway arrivalDoorway = new DefaultDoorway(oppositeDirection);
+
+                // TODO: Create the doorway from a factory call.
+                DefaultDoorway arrivalDoorway = new DefaultDoorway(oppositeDirection);
                 arrivalDoorway.ConnectRooms(arrivalRoom, departureRoom, false);
             }
         }
@@ -103,9 +105,9 @@ namespace Mud.Engine.Runtime.Environment
             // This doorway always belongs to the departing room. We can get the departing room
             // by walking through the arrival rooms doorways and finding the opposite doorway.
             string oppositeDirection = this.DepartureDirection.GetOppositeDirection().Direction;
-            IDoorway oppositeDoorway = this.ArrivalRoom.Doorways
+            DefaultDoorway oppositeDoorway = this.ArrivalRoom.Doorways
                 .FirstOrDefault(d => d.DepartureDirection.Direction == oppositeDirection);
-            IRoom departureRoom = oppositeDoorway.ArrivalRoom;
+            DefaultRoom departureRoom = oppositeDoorway.ArrivalRoom;
 
             // Remove the doorway from the opposite room.
             oppositeDoorway.ArrivalRoom.Doorways.Remove(oppositeDoorway);

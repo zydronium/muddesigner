@@ -3,10 +3,10 @@
 //     Copyright (c) Johnathon Sullinger. All rights reserved.
 // </copyright>
 //-----------------------------------------------------------------------
-namespace Mud.Engine.Shared.Networking
+namespace Mud.Engine.Runtime.Networking
 {
+    using Mud.Engine.Runtime.Game.Character;
     using System;
-    using Mud.Engine.Shared.Character;
 
     /// <summary>
     /// Used when a Connection event is fired from the server.
@@ -17,7 +17,7 @@ namespace Mud.Engine.Shared.Networking
         /// Initializes a new instance of the <see cref="ServerConnectionEventArgs"/> class.
         /// </summary>
         /// <param name="player">The player.</param>
-        public ServerConnectionEventArgs(IPlayer player)
+        public ServerConnectionEventArgs(DefaultPlayer player)
         {
             this.Player = player;
         }
@@ -28,6 +28,6 @@ namespace Mud.Engine.Shared.Networking
         /// <value>
         /// The player.
         /// </value>
-        public IPlayer Player { get; private set; }
+        public DefaultPlayer Player { get; private set; }
     }
 }

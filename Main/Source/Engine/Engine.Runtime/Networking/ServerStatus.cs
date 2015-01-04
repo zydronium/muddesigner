@@ -3,7 +3,7 @@
 //     Copyright (c) Johnathon Sullinger. All rights reserved.
 // </copyright>
 //-----------------------------------------------------------------------
-namespace Mud.Engine.Shared.Networking
+namespace Mud.Engine.Runtime.Networking
 {
     /// <summary>
     /// Provides status values for the server to use, indicating its current state.

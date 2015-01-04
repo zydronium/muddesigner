@@ -3,10 +3,10 @@
 //     Copyright (c) Johnathon Sullinger. All rights reserved.
 // </copyright>
 //-----------------------------------------------------------------------
-namespace Mud.Engine.Shared.Environment
+namespace Mud.Engine.Runtime.Game.Environment
 {
+    using Mud.Engine.Runtime.Game.Character;
     using System;
-    using Mud.Engine.Shared.Character;
 
     /// <summary>
     /// Event arguments for when a rooms occupancy status changes.
@@ -19,7 +19,7 @@ namespace Mud.Engine.Shared.Environment
         /// <param name="occupant">The occupant.</param>
         /// <param name="departureRoom">The departure room.</param>
         /// <param name="arrivalRoom">The arrival room.</param>
-        public OccupancyChangedEventArgs(ICharacter occupant, IRoom departureRoom, IRoom arrivalRoom)
+        public OccupancyChangedEventArgs(ICharacter occupant, DefaultRoom departureRoom, DefaultRoom arrivalRoom)
         {
             this.Occupant = occupant;
             this.DepartureRoom = departureRoom;
@@ -34,11 +34,11 @@ namespace Mud.Engine.Shared.Environment
         /// <summary>
         /// Gets the departure room.
         /// </summary>
-        public IRoom DepartureRoom { get; private set; }
+        public DefaultRoom DepartureRoom { get; private set; }
 
         /// <summary>
         /// Gets the arrival room.
         /// </summary>
-        public IRoom ArrivalRoom { get; private set; }
+        public DefaultRoom ArrivalRoom { get; private set; }
     }
 }

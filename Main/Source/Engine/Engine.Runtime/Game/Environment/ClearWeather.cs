@@ -3,8 +3,7 @@
 //     Copyright (c) Johnathon Sullinger. All rights reserved.
 // </copyright>
 //-----------------------------------------------------------------------
-using Mud.Engine.Shared.Environment;
-namespace Mud.Engine.Runtime.Environment
+namespace Mud.Engine.Runtime.Game.Environment
 {
     /// <summary>
     /// Represents clear skies, with no weather effects.

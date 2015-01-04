@@ -3,20 +3,15 @@
 //     Copyright (c) Johnathon Sullinger. All rights reserved.
 // </copyright>
 //-----------------------------------------------------------------------
-namespace Mud.Engine.Runtime.Environment
+namespace Mud.Engine.Runtime.Game.Environment
 {
     using System;
     using System.Collections.Generic;
-    using Mud.Engine.Runtime.Environment;
-    using Mud.Engine.Runtime.Core;
-    using Mud.Engine.Shared.Environment;
-    using Mud.Engine.Shared.Environment;
-    using Mud.Engine.Shared.Core;
 
     /// <summary>
     /// The Default Realm class for the engine.
     /// </summary>
-    public class DefaultRealm : IRealm, IPersistedObject
+    public class DefaultRealm
     {
         /// <summary>
         /// The time of day state manager
@@ -26,7 +21,7 @@ namespace Mud.Engine.Runtime.Environment
         /// <summary>
         /// The collection of zones for this realm
         /// </summary>
-        private List<IZone> zones = new List<IZone>();
+        private List<DefaultZone> zones = new List<DefaultZone>();
 
         /// <summary>
         /// Initializes a new instance of the <see cref="DefaultRealm"/> class.
@@ -44,17 +39,17 @@ namespace Mud.Engine.Runtime.Environment
         /// <summary>
         /// Gets or sets the offset from the World's current time for the Realm.
         /// </summary>
-        public ITimeOfDay TimeZoneOffset { get; set; }
+        public TimeOfDay TimeZoneOffset { get; set; }
 
         /// <summary>
         /// Gets or sets the time of day for the Realm.
         /// </summary>
-        public ITimeOfDay CurrentTimeOfDay { get; set; }
+        public TimeOfDay CurrentTimeOfDay { get; set; }
 
         /// <summary>
         /// Gets or sets the zones within this Realm.
         /// </summary>
-        public IEnumerable<IZone> Zones
+        public IEnumerable<DefaultZone> Zones
         {
             get
             {
@@ -87,7 +82,7 @@ namespace Mud.Engine.Runtime.Environment
         /// <summary>
         /// Gets or sets the World that owns this realm..
         /// </summary>
-        public IWorld World { get; protected set; }
+        public DefaultWorld World { get; protected set; }
 
         /// <summary>
         /// Gets or sets the name.
@@ -125,7 +120,7 @@ namespace Mud.Engine.Runtime.Environment
         /// or
         /// A valid TimeOfDay instance is required to initialize a realm.
         /// </exception>
-        public virtual void Initialize(IWorld world, ITimeOfDay worldTimeOfDay)
+        public virtual void Initialize(DefaultWorld world, TimeOfDay worldTimeOfDay)
         {
             if (world == null)
             {
@@ -150,7 +145,7 @@ namespace Mud.Engine.Runtime.Environment
         /// <exception cref="System.NullReferenceException">Attempted to add a null Zone to the Realm.
         /// or
         /// Adding a Zone to a Realm with a null Rooms collection is not allowed.</exception>
-        public void AddZoneToRealm(IZone zone)
+        public void AddZoneToRealm(DefaultZone zone)
         {
             if (zone == null)
             {
@@ -176,7 +171,7 @@ namespace Mud.Engine.Runtime.Environment
         /// A Time Zone offset can not be applied when both the TimeZoneOffset and World properties are null.
         /// </exception>
         /// <exception cref="System.ArgumentOutOfRangeException">You can not have a negative time-zone for realms. They must all be forward offsets from the world's current time.</exception>
-        public void ApplyTimeZoneOffset(ITimeOfDay timeOfDay)
+        public void ApplyTimeZoneOffset(TimeOfDay timeOfDay)
         {
             if (timeOfDay == null)
             {
@@ -214,9 +209,9 @@ namespace Mud.Engine.Runtime.Environment
         /// Gets the state of the current time of day.
         /// </summary>
         /// <returns>Returns an instance representing the current time of day state.</returns>
-        public ITimeOfDayState GetCurrentTimeOfDayState()
+        public TimeOfDayState GetCurrentTimeOfDayState()
         {
-            ITimeOfDayState state = this.timeOfDayStateManager.GetTimeOfDayState(this.CurrentTimeOfDay);
+            TimeOfDayState state = this.timeOfDayStateManager.GetTimeOfDayState(this.CurrentTimeOfDay);
 
             if (state == null)
             {

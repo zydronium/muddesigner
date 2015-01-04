@@ -1,15 +1,12 @@
-﻿using Mud.Engine.Shared.Environment;
-using System;
+﻿using Mud.Engine.Runtime.Game.Environment;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
-namespace Data.Shared
+namespace Mud.Data.Shared
 {
 
     public interface IWorldRepository
     {
-        Task<IEnumerable<IWorld>> GetWorlds();
+        Task<IEnumerable<DefaultWorld>> GetWorlds();
     }
 }

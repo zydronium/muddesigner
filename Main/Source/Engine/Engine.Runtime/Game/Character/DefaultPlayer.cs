@@ -3,20 +3,16 @@
 //     Copyright (c) Johnathon Sullinger. All rights reserved.
 // </copyright>
 //-----------------------------------------------------------------------
-namespace Mud.Engine.Runtime.Character
+namespace Mud.Engine.Runtime.Game.Character
 {
     using System;
     using Mud.Engine.Runtime;
-    using Mud.Engine.Runtime.Environment;
-    using Mud.Engine.Runtime.Core;
-    using Mud.Engine.Shared.Environment;
-
-
+    using Mud.Engine.Runtime.Game.Environment;
 
     /// <summary>
     /// The Default Engine implementation of IPlayer.
     /// </summary>
-    public class DefaultPlayer
+    public class DefaultPlayer : ICharacter
     { 
         /// <summary>
         /// The CurrentRoom property backing field.
@@ -69,7 +65,7 @@ namespace Mud.Engine.Runtime.Character
         /// <summary>
         /// Gets the game.
         /// </summary>
-        public DefaultGame Game { get; private set; }
+        public DefaultGame Game { get; set; }
 
         /// <summary>
         /// Gets or sets the current room that this character occupies.

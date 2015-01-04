@@ -1,11 +1,8 @@
-﻿using Mud.Engine.Shared.Character;
+﻿using Mud.Engine.Runtime.Game.Character;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace Mud.Engine.Runtime.Core
+namespace Mud.Engine.Runtime
 {
     /// <summary>
     /// Provides helper methods for quickly throwing exceptions based on conditions.

@@ -3,13 +3,12 @@
 //     Copyright (c) Johnathon Sullinger. All rights reserved.
 // </copyright>
 //-----------------------------------------------------------------------
-namespace Mud.Engine.Shared.Networking
+namespace Mud.Engine.Runtime.Networking
 {
+    using Mud.Engine.Runtime.Game;
+    using Mud.Engine.Runtime.Game.Character;
     using System;
     using System.Collections.Generic;
-    using Mud.Engine.Shared.Character;
-using Mud.Engine.Shared.Commanding;
-    using Mud.Engine.Shared.Core;
 
     /// <summary>
     /// Provides a contract for objects wanting to implement a server.
@@ -26,20 +25,18 @@ using Mud.Engine.Shared.Commanding;
         /// </summary>
         event EventHandler<ServerConnectionEventArgs> PlayerDisconnected;
 
-        IPlayerConnectCommand ConnectionCommand { get; set; }
-
         /// <summary>
         /// Gets the game.
         /// </summary>
         /// <value>
         /// The game.
         /// </value>
-        IGame Game { get; }
+        DefaultGame Game { get; }
 
         /// <summary>
         /// Gets a collection of current user connections.
         /// </summary>
-        ICollection<IPlayer> ConnectedPlayers { get; }
+        ICollection<DefaultPlayer> ConnectedPlayers { get; }
 
         /// <summary>
         /// Gets or sets the port that the server is running on.
@@ -91,8 +88,8 @@ using Mud.Engine.Shared.Commanding;
         /// </summary>
         /// <typeparam name="TPlayer">The type of the player.</typeparam>
         /// <param name="game">The game.</param>
-        void Start<TPlayer>(IGame game)
-            where TPlayer : class, IPlayer, new();
+        void Start<TPlayer>(DefaultGame game)
+            where TPlayer : DefaultPlayer, new();
 
         /// <summary>
         /// Stops the server.
@@ -103,7 +100,7 @@ using Mud.Engine.Shared.Commanding;
         /// Disconnects the specified IServerPlayer object.
         /// </summary>
         /// <param name="player">The player.</param>
-        void Disconnect(IPlayer player);
+        void Disconnect(DefaultPlayer player);
 
         /// <summary>
         /// Disconnects everyone from the server..

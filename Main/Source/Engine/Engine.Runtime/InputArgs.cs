@@ -5,7 +5,6 @@
 //-----------------------------------------------------------------------
 namespace Mud.Engine.Runtime
 {
-    using Mud.Engine.Shared.Core;
     using System;
 
     /// <summary>

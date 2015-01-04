@@ -3,7 +3,7 @@
 //     Copyright (c) Johnathon Sullinger. All rights reserved.
 // </copyright>
 //-----------------------------------------------------------------------
-namespace Mud.Engine.Shared.Environment
+namespace Mud.Engine.Runtime.Game.Environment
 {
     using System;
 
@@ -17,7 +17,7 @@ namespace Mud.Engine.Shared.Environment
         /// </summary>
         /// <param name="transitionFrom">The transition from.</param>
         /// <param name="transitionTo">The transition to.</param>
-        public TimeOfDayChangedEventArgs(ITimeOfDayState transitionFrom, ITimeOfDayState transitionTo)
+        public TimeOfDayChangedEventArgs(TimeOfDayState transitionFrom, TimeOfDayState transitionTo)
         {
             this.TransitioningFrom = transitionFrom;
             this.TransitioningTo = transitionTo;
@@ -26,11 +26,11 @@ namespace Mud.Engine.Shared.Environment
         /// <summary>
         /// Gets the state that is being transitioned away from.
         /// </summary>
-        public ITimeOfDayState TransitioningFrom { get; private set; }
+        public TimeOfDayState TransitioningFrom { get; private set; }
 
         /// <summary>
         /// Gets the state that is being transitioned to.
         /// </summary>
-        public ITimeOfDayState TransitioningTo { get; private set; }
+        public TimeOfDayState TransitioningTo { get; private set; }
     }
 }

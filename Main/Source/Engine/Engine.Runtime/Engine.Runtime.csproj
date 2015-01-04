@@ -41,23 +41,24 @@
     <Compile Include="EngineTimer.cs" />
     <Compile Include="ExceptionFactoryResult.cs" />
     <Compile Include="ExceptionFactory.cs" />
+    <Compile Include="Game\Character\ICharacter.cs" />
+    <Compile Include="Game\Environment\ITravelDirection.cs" />
+    <Compile Include="Game\Environment\IWeatherState.cs" />
     <Compile Include="Game\Environment\TimeOfDayChangedEventArgs.cs" />
     <Compile Include="Game\Environment\WeatherStateChangedEventArgs.cs" />
+    <Compile Include="ICloneableComponent.cs" />
     <Compile Include="ICollectionExtensions.cs" />
-    <Compile Include="Networking\IPlayerConnectCommand.cs" />
+    <Compile Include="Services\ILoggingService.cs" />
     <Compile Include="Networking\IServer.cs" />
     <Compile Include="Networking\ServerConnectionEventArgs.cs" />
     <Compile Include="Networking\ServerStatus.cs" />
     <Compile Include="ObjectExtensions.cs" />
     <Compile Include="Game\DefaultGame.cs" />
     <Compile Include="Game\Environment\DefaultDoorway.cs" />
-    <Compile Include="Game\Environment\AfternoonState.cs" />
     <Compile Include="Game\Environment\DefaultRealm.cs" />
     <Compile Include="Game\Environment\DefaultRoom.cs" />
     <Compile Include="Game\Environment\DefaultWorld.cs" />
     <Compile Include="Game\Environment\DefaultZone.cs" />
-    <Compile Include="Game\Environment\MorningState.cs" />
-    <Compile Include="Game\Environment\NightState.cs" />
     <Compile Include="Game\Environment\TimeOfDay.cs" />
     <Compile Include="Game\Environment\TimeOfDayState.cs" />
     <Compile Include="Game\Environment\TimeOfDayStateManager.cs" />
@@ -72,6 +73,7 @@
     <Compile Include="Game\Environment\OccupancyChangedEventArgs.cs" />
     <Compile Include="InputArgs.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Services\IWorldService.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

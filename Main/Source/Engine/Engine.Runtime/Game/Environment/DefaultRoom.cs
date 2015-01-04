@@ -3,26 +3,24 @@
 //     Copyright (c) Johnathon Sullinger. All rights reserved.
 // </copyright>
 //-----------------------------------------------------------------------
-namespace Mud.Engine.Runtime.Environment
+namespace Mud.Engine.Runtime.Game.Environment
 {
     using System;
     using System.Collections.Generic;
-    using Mud.Engine.Runtime.Character;
-    using Mud.Engine.Runtime.Core;
-    using Mud.Engine.Shared.Environment;
-    using Mud.Engine.Shared.Character;
+    using Mud.Engine.Runtime.Game.Character;
+
 
     /// <summary>
     /// The Default engine Room Type.
     /// </summary>
-    public class DefaultRoom : IRoom
+    public class DefaultRoom
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="DefaultRoom"/> class.
         /// </summary>
         public DefaultRoom()
         {
-            this.Doorways = new List<IDoorway>();
+            this.Doorways = new List<DefaultDoorway>();
             this.Occupants = new List<ICharacter>();
             this.CreationDate = DateTime.Now;
         }
@@ -65,12 +63,12 @@ namespace Mud.Engine.Runtime.Environment
         /// <summary>
         /// Gets or sets the zone that owns this Room.
         /// </summary>
-        public IZone Zone { get; protected set; }
+        public DefaultZone Zone { get; protected set; }
 
         /// <summary>
         /// Gets or sets the doorways that this Room has, linked to other IRooms.
         /// </summary>
-        public ICollection<IDoorway> Doorways { get; protected set; }
+        public ICollection<DefaultDoorway> Doorways { get; protected set; }
 
         /// <summary>
         /// Gets or sets the occupants within this Room..
@@ -81,7 +79,7 @@ namespace Mud.Engine.Runtime.Environment
         /// Initializes the room with the given zone.
         /// </summary>
         /// <param name="zone">The zone that represents the owner of this room.</param>
-        public virtual void Initialize(IZone zone)
+        public virtual void Initialize(DefaultZone zone)
         {
             this.Zone = zone;
         }
@@ -119,7 +117,7 @@ namespace Mud.Engine.Runtime.Environment
         /// </summary>
         /// <param name="character">The character.</param>
         /// <param name="arrivalRoom">The arrival room.</param>
-        public void RemoveOccupantFromRoom(ICharacter character, IRoom arrivalRoom)
+        public void RemoveOccupantFromRoom(ICharacter character, DefaultRoom arrivalRoom)
         {
             if (character == null)
             {
@@ -135,7 +133,7 @@ namespace Mud.Engine.Runtime.Environment
         /// </summary>
         /// <param name="character">The character.</param>
         /// <param name="departingRoom">The departing room.</param>
-        protected virtual void OnEnteringRoom(ICharacter character, IRoom departingRoom)
+        protected virtual void OnEnteringRoom(ICharacter character, DefaultRoom departingRoom)
         {
             EventHandler<OccupancyChangedEventArgs> handler = this.EnteredRoom;
             if (handler == null)
@@ -151,7 +149,7 @@ namespace Mud.Engine.Runtime.Environment
         /// </summary>
         /// <param name="character">The character.</param>
         /// <param name="arrivalRoom">The arrival room.</param>
-        protected virtual void OnLeavingRoom(ICharacter character, IRoom arrivalRoom)
+        protected virtual void OnLeavingRoom(ICharacter character, DefaultRoom arrivalRoom)
         {
             EventHandler<OccupancyChangedEventArgs> handler = this.LeftRoom;
             if (handler == null)

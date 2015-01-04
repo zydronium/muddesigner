@@ -3,9 +3,8 @@
 //     Copyright (c) Johnathon Sullinger. All rights reserved.
 // </copyright>
 //-----------------------------------------------------------------------
-namespace Mud.Engine.Runtime.Environment
+namespace Mud.Engine.Runtime.Game.Environment
 {
-    using Mud.Engine.Shared.Environment;
     using System;
     using System.Collections.Generic;
     using System.Threading.Tasks;
@@ -18,13 +17,13 @@ namespace Mud.Engine.Runtime.Environment
         /// <summary>
         /// The time of day states provided by an external source
         /// </summary>
-        private IEnumerable<ITimeOfDayState> timeOfDayStates;
+        private IEnumerable<TimeOfDayState> timeOfDayStates;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="TimeOfDayStateManager"/> class.
         /// </summary>
         /// <param name="states">The states.</param>
-        internal TimeOfDayStateManager(IEnumerable<ITimeOfDayState> states)
+        internal TimeOfDayStateManager(IEnumerable<TimeOfDayState> states)
         {
             this.timeOfDayStates = states;
         }
@@ -36,9 +35,9 @@ namespace Mud.Engine.Runtime.Environment
         /// <returns>
         /// Returns an instance of ITimeOfDayState that represents the current time of day in the game.
         /// </returns>
-        internal ITimeOfDayState GetTimeOfDayState(DateTime? currentTime = null)
+        internal TimeOfDayState GetTimeOfDayState(DateTime? currentTime = null)
         {
-            ITimeOfDay time = new TimeOfDay();
+            TimeOfDay time = new TimeOfDay();
             time.Hour = currentTime.Value.Hour;
             time.Minute = currentTime.Value.Minute;
 
@@ -52,10 +51,10 @@ namespace Mud.Engine.Runtime.Environment
         /// <returns>
         /// Returns an instance of ITimeOfDayState that represents the current time of day in the game.
         /// </returns>
-        internal ITimeOfDayState GetTimeOfDayState(ITimeOfDay currentGameTime = null)
+        internal TimeOfDayState GetTimeOfDayState(TimeOfDay currentGameTime = null)
         {
-            ITimeOfDayState inProgressState = null;
-            ITimeOfDayState nextState = null;
+            TimeOfDayState inProgressState = null;
+            TimeOfDayState nextState = null;
 
             Parallel.Invoke(
                 () => inProgressState = this.GetInProgressState(currentGameTime),
@@ -81,10 +80,10 @@ namespace Mud.Engine.Runtime.Environment
         /// Returns an instance of ITimeOfDayState that represents the current time of day if an instance with a StartTime 
         /// before the current world-time can be found 
         /// </returns>
-        private ITimeOfDayState GetInProgressState(ITimeOfDay currentTime)
+        private TimeOfDayState GetInProgressState(TimeOfDay currentTime)
         {
-            ITimeOfDayState inProgressState = null;
-            foreach (ITimeOfDayState state in this.timeOfDayStates)
+            TimeOfDayState inProgressState = null;
+            foreach (TimeOfDayState state in this.timeOfDayStates)
             {
                 // If the state is already in progress, w
                 if (state.StateStartTime.Hour <= currentTime.Hour ||
@@ -118,10 +117,10 @@ namespace Mud.Engine.Runtime.Environment
         /// Returns an instance of ITimeOfDayState that represents the up coming time of day if an instance with a StartTime 
         /// after the current world-time can be found 
         /// </returns>
-        private ITimeOfDayState GetNextState(ITimeOfDay currentTime)
+        private TimeOfDayState GetNextState(TimeOfDay currentTime)
         {
-            ITimeOfDayState nextState = null;
-            foreach (ITimeOfDayState state in this.timeOfDayStates)
+            TimeOfDayState nextState = null;
+            foreach (TimeOfDayState state in this.timeOfDayStates)
             {
                 // If this state is a future state, then preserve it as a possible next state.
                 if (state.StateStartTime.Hour > currentTime.Hour ||
