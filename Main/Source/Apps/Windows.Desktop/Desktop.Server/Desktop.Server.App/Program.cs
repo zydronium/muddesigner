@@ -20,6 +20,8 @@ namespace Mud.Apps.Windows.Desktop.Server.App
     using Mud.Data.Shared;
     using Mud.Apps.Desktop.Windows.ServerApp;
     using Mud.Engine.Runtime.Services;
+    using System.Threading.Tasks;
+
 
     /// <summary>
     /// The Mud Designer Telnet Server.
@@ -54,7 +56,8 @@ namespace Mud.Apps.Windows.Desktop.Server.App
 
             try
             {
-                game.Initialize();
+                Task initializationTask = game.Initialize();
+                initializationTask.Wait();
             }
             catch (Exception)
             {
@@ -87,7 +90,13 @@ namespace Mud.Apps.Windows.Desktop.Server.App
             // Check if the server has not stopped. If not, we stop.
             if (server.Status != ServerStatus.Stopped)
             {
-                server.Stop();
+                Task<bool> requestResult = game.RequestShutdown();
+                requestResult.Wait();
+
+                if (requestResult.Result)
+                {
+                    server.Stop();
+                }
             }
         }
 

@@ -15,11 +15,15 @@ namespace Mud.Engine.Runtime.Game
     /// <summary>
     /// The Default engine implementation of the IGame interface. This implementation provides validation support via ValidationBase.
     /// </summary>
-    public class DefaultGame
+    public class DefaultGame : GameComponent
     {
         private ILoggingService loggingService;
 
         private IWorldService worldService;
+
+        private List<Func<Task>> asyncShutdownCallbacks = new List<Func<Task>>();
+
+        private List<Action> shutdownCallbacks = new List<Action>();
 
         /// <summary>
         /// Initializes a new instance of the <see cref="DefaultGame" /> class.
@@ -32,15 +36,16 @@ namespace Mud.Engine.Runtime.Game
             this.worldService = worldService;
         }
 
+        public event Func<DefaultGame, GameShutdownArgs, Task> ShutdownRequested;
+
+        public event EventHandler ShutdownCompleted;
+
+        public event Func<DefaultGame, WorldLoadedArgs, Task> WorldLoaded;
+
         /// <summary>
         /// Gets or sets the unique identifier.
         /// </summary>
         public int Id { get; set; }
-
-        /// <summary>
-        /// Gets or sets a value indicating whether this instance is multiplayer.
-        /// </summary>
-        public bool IsMultiplayer { get; set; }
 
         /// <summary>
         /// Gets or sets the name of the game being played.
@@ -78,6 +83,13 @@ namespace Mud.Engine.Runtime.Game
         public int AutoSaveFrequency { get; set; }
 
         /// <summary>
+        /// Gets or sets a value indicating whether this instance is multiplayer.
+        /// </summary>
+        public bool IsMultiplayer { get; set; }
+
+        public bool IsRunning { get; protected set; }
+
+        /// <summary>
         /// Gets or sets the last saved.
         /// </summary>
         public DateTime LastSaved { get; set; }
@@ -91,15 +103,105 @@ namespace Mud.Engine.Runtime.Game
         /// The initialize method is responsible for restoring the world and state.
         /// </summary>
         /// <returns>Returns the Task associated with the await call.</returns>
-        public virtual Task Initialize()
+        public async override Task Load()
         {
-            //this.Worlds = new List<IWorld>(await this.worldService.GetAllWorlds(true));
+            this.Worlds = new List<DefaultWorld>(await this.worldService.GetAllWorlds());
 
             if (this.Worlds.Count == 0)
             {
-                // Log.
             }
-            return Task.FromResult(0);
+            else
+            {
+                foreach (DefaultWorld world in this.Worlds)
+                {
+                    await this.OnWorldLoaded(world);
+                    world.Initialize();
+                }
+            }
+        }
+
+        /// <summary>
+        /// Attempts to shut down the game. 
+        /// This method will fire the ShutdownCompleted event after all of the Delete events have completed.
+        /// </summary>
+        /// <returns></returns>
+        public virtual async Task<bool> RequestShutdown()
+        {
+            bool isCanceled = false;
+
+            // TODO: Return a cancellation object that holds the sender and member for logging.
+            await this.OnShutdownRequested((sender, member) => isCanceled = true);
+
+            if (isCanceled)
+            {
+                return false;
+            }
+
+            await this.Delete();
+            this.OnShutdownCompleted();
+
+            return true;
+        }
+
+        public override async Task Unload()
+        {
+            foreach (var world in this.Worlds)
+            {
+                await this.worldService.SaveWorld(world);
+
+                // Let the world perform clean up and notify it's subscribers it is going away.
+                // world.Delete();
+            }
+        }
+
+        protected virtual async Task OnWorldLoaded(DefaultWorld world)
+        {
+            var handler = this.WorldLoaded;
+            if (handler == null)
+            {
+                return;
+            }
+
+            await handler(this, new WorldLoadedArgs(world));
+        }
+
+        protected virtual async Task OnShutdownRequested(Action<IGameComponent, string> cancelCallback)
+        {
+            Func<DefaultGame, GameShutdownArgs, Task> handler = this.ShutdownRequested;
+
+            if (handler == null)
+            {
+                return;
+            }
+
+            var invocationList = (Func<DefaultGame, GameShutdownArgs, Task>[])handler.GetInvocationList();
+            Task[] handlerTasks = new Task[invocationList.Length];
+
+            for (int i = 0; i < invocationList.Length; i++)
+            {
+                handlerTasks[i] = invocationList[i](this, new GameShutdownArgs(cancelCallback));
+            }
+
+            await Task.WhenAll(handlerTasks);
+        }
+
+        protected virtual void OnShutdownCompleted()
+        {
+            var handler = this.ShutdownCompleted;
+            if (handler == null)
+            {
+                return;
+            }
+
+            handler(this, new EventArgs());
+        }
+
+        private async Task SaveWorlds()
+        {
+            foreach (DefaultWorld world in this.Worlds)
+            {
+                await this.worldService.SaveWorld(world);
+            }
         }
     }
 }

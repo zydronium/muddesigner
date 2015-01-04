@@ -7,5 +7,7 @@ namespace Mud.Engine.Runtime.Services
     public interface IWorldService
     {
         Task<IEnumerable<DefaultWorld>> GetAllWorlds();
+
+        Task SaveWorld(DefaultWorld world);
     }
 }

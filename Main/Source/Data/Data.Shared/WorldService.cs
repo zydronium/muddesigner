@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Mud.Engine.Runtime.Game.Environment;
+using System;
 
 namespace Mud.Data.Shared
 {
@@ -17,6 +18,11 @@ namespace Mud.Data.Shared
         public async Task<IEnumerable<DefaultWorld>> GetAllWorlds()
         {
             return await this.worldRepository.GetWorlds();
+        }
+
+        public Task SaveWorld(DefaultWorld world)
+        {
+            throw new NotImplementedException();
         }
     }
 }

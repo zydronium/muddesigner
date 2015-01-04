@@ -22,11 +22,6 @@ namespace Mud.Engine.Runtime
         private Task timerTask;
 
         /// <summary>
-        /// The callback
-        /// </summary>
-        private Action<T, EngineTimer<T>> callback;
-
-        /// <summary>
         /// How many times we have fired the timer thus far.
         /// </summary>
         private long fireCount = 0;
