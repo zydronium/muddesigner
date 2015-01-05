@@ -52,6 +52,7 @@
     <Compile Include="Game\GameShutdownArgs.cs" />
     <Compile Include="Game\IComponent.cs" />
     <Compile Include="Game\IGameComponent.cs" />
+    <Compile Include="Game\IInitializableComponent.cs" />
     <Compile Include="Game\WorldLoadedArgs.cs" />
     <Compile Include="ICloneableComponent.cs" />
     <Compile Include="ICollectionExtensions.cs" />

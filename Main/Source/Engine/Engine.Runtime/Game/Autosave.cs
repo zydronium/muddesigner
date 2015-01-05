@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Mud.Engine.Runtime.Game
 {
-    public class Autosave<T> : GameComponent
+    public class Autosave<T> : IInitializableComponent
     {
         /// <summary>
         /// The autosave timer
@@ -22,6 +22,7 @@ namespace Mud.Engine.Runtime.Game
             ExceptionFactory
                 .ThrowIf<ArgumentNullException>(itemToSave == null, "Can not save a null item.")
                 .Or(saveDelegate == null, "Save delegate must not be null.");
+
             this.ItemToSave = itemToSave;
             this.saveDelegate = saveDelegate;
             this.AutoSaveFrequency = 0;
@@ -44,7 +45,7 @@ namespace Mud.Engine.Runtime.Game
             }
         }
 
-        protected override Task Load()
+        public Task Initialize()
         {
             // Set up our auto-save if the frequency is set for it.
             if (this.AutoSaveFrequency <= 0)
@@ -64,7 +65,7 @@ namespace Mud.Engine.Runtime.Game
             return Task.FromResult(true);
         }
 
-        protected override Task Unload()
+        public Task Delete()
         {
             this.autosaveTimer.Stop();
             return Task.FromResult(true);
