@@ -93,7 +93,7 @@ namespace Mud.Engine.Runtime.Game.Environment
         /// <summary>
         /// Gets or sets a collection of states that can be used for the time of day.
         /// </summary>
-        public IEnumerable<TimeOfDayState> TimeOfDayStates
+        public ICollection<TimeOfDayState> TimeOfDayStates
         {
             get
             {

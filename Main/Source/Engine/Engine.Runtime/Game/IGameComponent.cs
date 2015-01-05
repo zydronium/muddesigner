@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 
 namespace Mud.Engine.Runtime.Game
 {
-    public interface IGameComponent
+    public interface IGameComponent : IComponent
     {
         event Func<IGameComponent, Task> Loading;
 
@@ -16,9 +16,5 @@ namespace Mud.Engine.Runtime.Game
         Task Initialize();
 
         Task Delete();
-
-        Task Load();
-
-        Task Unload();
     }
 }

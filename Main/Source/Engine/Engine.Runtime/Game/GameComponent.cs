@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace Mud.Engine.Runtime.Game
@@ -31,6 +28,8 @@ namespace Mud.Engine.Runtime.Game
         /// </summary>
         public event EventHandler<EventArgs> Deleted;
 
+        public int Id { get; set; }
+
         /// <summary>
         /// Initializes the game component.
         /// </summary>
@@ -59,9 +58,9 @@ namespace Mud.Engine.Runtime.Game
         /// Called during initialization of the component
         /// </summary>
         /// <returns></returns>
-        public abstract Task Load();
+        protected abstract Task Load();
 
-        public abstract Task Unload();
+        protected abstract Task Unload();
 
         protected virtual async Task LoadingBegan()
         {

@@ -10,6 +10,7 @@ namespace Tests.Engine.Runtime.Core
     public class EngineTimerTests
     {
         [TestMethod]
+        [TestCategory("Runtime - EngineTimer")]
         public void Engine_timer_fires_at_proper_interval()
         {
             // Arrange
@@ -17,7 +18,7 @@ namespace Tests.Engine.Runtime.Core
             int targetMilliseconds = 1000;
             DateTime initialTime;
             DateTime callbackTimeStamp = DateTime.Now;
-            var engineTimer = new EngineTimer<MessageFixture>(new MessageFixture());
+            var engineTimer = new EngineTimer<object>(new object());
 
             // Act
             initialTime = DateTime.Now;
@@ -44,14 +45,16 @@ namespace Tests.Engine.Runtime.Core
             // We allow a variance of 20ms from the target time since we loose time from when we capture the initial date and fire the actual interval.
             Assert.IsTrue(difference.TotalMilliseconds < (targetMilliseconds + 20) && difference.TotalMilliseconds > (targetMilliseconds - 20));
         }
+
         [TestMethod]
+        [TestCategory("Runtime - EngineTimer")]
         public void Engine_timer_fires_with_delay_time()
         {
             // Arrange
             int targetMilliseconds = 500; 
             DateTime initialTime;
             DateTime callbackTimeStamp = DateTime.Now;
-            var engineTimer = new EngineTimer<MessageFixture>(new MessageFixture());
+            var engineTimer = new EngineTimer<object>(new object());
 
             // Act
             initialTime = DateTime.Now;

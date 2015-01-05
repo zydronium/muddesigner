@@ -129,7 +129,7 @@ namespace Mud.Engine.Components.WindowsServer
         {
             // Ensure we have a valid game.
             ExceptionFactory
-                .ThrowExceptionIf<ArgumentNullException>(game == null, () => new ArgumentNullException("game", "Game must not be null!"))
+                .ThrowIf<ArgumentNullException>(game == null, () => new ArgumentNullException("game", "Game must not be null!"))
                 .ElseDo(() => this.Game = game);
 
             ////if (this.ConnectionCommand == null)
@@ -146,9 +146,8 @@ namespace Mud.Engine.Components.WindowsServer
 
             // Validate our settings.
             ExceptionFactory
-                .ThrowExceptionIf<InvalidOperationException>(this.Port <= 0, "Invalid Port number used. Recommended number is 23 or 4000");
-            ExceptionFactory
-                .ThrowExceptionIf<InvalidOperationException>(this.MaxConnections < 2, "Invalid MaxConnections number used. Must be greater than 1.");
+                .ThrowIf<InvalidOperationException>(this.Port <= 0, "Invalid Port number used. Recommended number is 23 or 4000")
+                .Or(this.MaxConnections < 2, "Invalid MaxConnections number used. Must be greater than 1.");
 
             // Get our server address information
             IPHostEntry serverHost = Dns.GetHostEntry(Dns.GetHostName());

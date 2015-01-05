@@ -47,7 +47,7 @@ namespace Mud.Data.FlatFile
                 IEnumerable<string> worldStates = await this.storageService.LoadMultipleValuesFromKeyAsync(
                     file, 
                     world.GetPropertyName(p => p.TimeOfDayStates));
-                world.TimeOfDayStates = availableStates.Where(state => worldStates.Any(worldState => worldState == state.Name));
+                world.TimeOfDayStates = availableStates.Where(state => worldStates.Any(worldState => worldState == state.Name)).ToList();
 
                 // Restore the previous time of day state of the world
                 // TODO: Some time look at preserving not just the state, but the state.CurrentTime as well.

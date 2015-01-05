@@ -41,13 +41,16 @@
     <Compile Include="EngineTimer.cs" />
     <Compile Include="ExceptionFactoryResult.cs" />
     <Compile Include="ExceptionFactory.cs" />
+    <Compile Include="Game\Autosave.cs" />
     <Compile Include="Game\Character\ICharacter.cs" />
     <Compile Include="Game\Environment\ITravelDirection.cs" />
     <Compile Include="Game\Environment\IWeatherState.cs" />
     <Compile Include="Game\Environment\TimeOfDayChangedEventArgs.cs" />
     <Compile Include="Game\Environment\WeatherStateChangedEventArgs.cs" />
     <Compile Include="Game\GameComponent.cs" />
+    <Compile Include="Game\GameInformation.cs" />
     <Compile Include="Game\GameShutdownArgs.cs" />
+    <Compile Include="Game\IComponent.cs" />
     <Compile Include="Game\IGameComponent.cs" />
     <Compile Include="Game\WorldLoadedArgs.cs" />
     <Compile Include="ICloneableComponent.cs" />

@@ -21,10 +21,6 @@ namespace Mud.Engine.Runtime.Game
 
         private IWorldService worldService;
 
-        private List<Func<Task>> asyncShutdownCallbacks = new List<Func<Task>>();
-
-        private List<Action> shutdownCallbacks = new List<Action>();
-
         /// <summary>
         /// Initializes a new instance of the <see cref="DefaultGame" /> class.
         /// </summary>
@@ -32,61 +28,35 @@ namespace Mud.Engine.Runtime.Game
         /// <param name="worldService">The world service.</param>
         public DefaultGame(ILoggingService loggingService, IWorldService worldService)
         {
+            ExceptionFactory.
+                ThrowIf<ArgumentNullException>(loggingService == null, "Logging service can not be null.", this)
+                .Or(worldService == null, "World service can not be null.");
+
             this.loggingService = loggingService;
             this.worldService = worldService;
+
+            this.Information = new GameInformation();
+            this.Autosave = new Autosave<DefaultGame>(this, this.SaveWorlds) { AutoSaveFrequency = 1 };
         }
 
-        public event Func<DefaultGame, GameShutdownArgs, Task> ShutdownRequested;
-
-        public event EventHandler ShutdownCompleted;
-
+        /// <summary>
+        /// Occurs when a world is loaded, prior to initialization of the world.
+        /// </summary>
         public event Func<DefaultGame, WorldLoadedArgs, Task> WorldLoaded;
 
         /// <summary>
-        /// Gets or sets the unique identifier.
+        /// Gets information pertaining to the game.
         /// </summary>
-        public int Id { get; set; }
+        public GameInformation Information { get; protected set; }
 
         /// <summary>
-        /// Gets or sets the name of the game being played.
+        /// Gets the Autosaver responsible for automatically saving the game at a set interval.
         /// </summary>
-        public string Name { get; set; }
+        public Autosave<DefaultGame> Autosave { get; protected set; }
 
         /// <summary>
-        /// Gets or sets the description of the game.
+        /// Gets a value indicating that the initialized or not.
         /// </summary>
-        public string Description { get; set; }
-
-        /// <summary>
-        /// Gets or sets the current version of the game.
-        /// </summary>
-        public Version Version { get; set; } = new Version("0.0.0.1");
-
-        /// <summary>
-        /// Gets or sets the website that users can visit to get information on the game.
-        /// </summary>
-        public string Website { get; set; }
-
-        /// <summary>
-        /// Gets or sets a value indicating whether [hide room names].
-        /// </summary>
-        public bool HideRoomNames { get; set; }
-
-        /// <summary>
-        /// Gets or sets a value indicating whether [enable automatic save].
-        /// </summary>
-        public bool EnableAutoSave { get; set; }
-
-        /// <summary>
-        /// Gets or sets the automatic save frequency in seconds.
-        /// </summary>
-        public int AutoSaveFrequency { get; set; }
-
-        /// <summary>
-        /// Gets or sets a value indicating whether this instance is multiplayer.
-        /// </summary>
-        public bool IsMultiplayer { get; set; }
-
         public bool IsRunning { get; protected set; }
 
         /// <summary>
@@ -103,7 +73,7 @@ namespace Mud.Engine.Runtime.Game
         /// The initialize method is responsible for restoring the world and state.
         /// </summary>
         /// <returns>Returns the Task associated with the await call.</returns>
-        public async override Task Load()
+        protected async override Task Load()
         {
             this.Worlds = new List<DefaultWorld>(await this.worldService.GetAllWorlds());
 
@@ -118,42 +88,36 @@ namespace Mud.Engine.Runtime.Game
                     world.Initialize();
                 }
             }
+
+            await this.Autosave.Initialize();
+            this.IsRunning = true;
         }
 
         /// <summary>
-        /// Attempts to shut down the game. 
-        /// This method will fire the ShutdownCompleted event after all of the Delete events have completed.
+        /// Called when the game is deleted.
+        /// Handles clean up of the autosave timer, saving the game state and cleaning up objects.
         /// </summary>
         /// <returns></returns>
-        public virtual async Task<bool> RequestShutdown()
+        protected override async Task Unload()
         {
-            bool isCanceled = false;
+            await this.Autosave.Delete();
 
-            // TODO: Return a cancellation object that holds the sender and member for logging.
-            await this.OnShutdownRequested((sender, member) => isCanceled = true);
+            var worldsToSave = this.Worlds.ToArray();
+            await this.SaveWorlds();
 
-            if (isCanceled)
+            foreach (var world in worldsToSave)
             {
-                return false;
-            }
-
-            await this.Delete();
-            this.OnShutdownCompleted();
-
-            return true;
-        }
-
-        public override async Task Unload()
-        {
-            foreach (var world in this.Worlds)
-            {
-                await this.worldService.SaveWorld(world);
-
                 // Let the world perform clean up and notify it's subscribers it is going away.
                 // world.Delete();
+                this.Worlds.Remove(world);
             }
         }
 
+        /// <summary>
+        /// Occurs when a world is loaded, prior to initialization of the world.
+        /// </summary>
+        /// <param name="world">The world.</param>
+        /// <returns></returns>
         protected virtual async Task OnWorldLoaded(DefaultWorld world)
         {
             var handler = this.WorldLoaded;
@@ -163,37 +127,6 @@ namespace Mud.Engine.Runtime.Game
             }
 
             await handler(this, new WorldLoadedArgs(world));
-        }
-
-        protected virtual async Task OnShutdownRequested(Action<IGameComponent, string> cancelCallback)
-        {
-            Func<DefaultGame, GameShutdownArgs, Task> handler = this.ShutdownRequested;
-
-            if (handler == null)
-            {
-                return;
-            }
-
-            var invocationList = (Func<DefaultGame, GameShutdownArgs, Task>[])handler.GetInvocationList();
-            Task[] handlerTasks = new Task[invocationList.Length];
-
-            for (int i = 0; i < invocationList.Length; i++)
-            {
-                handlerTasks[i] = invocationList[i](this, new GameShutdownArgs(cancelCallback));
-            }
-
-            await Task.WhenAll(handlerTasks);
-        }
-
-        protected virtual void OnShutdownCompleted()
-        {
-            var handler = this.ShutdownCompleted;
-            if (handler == null)
-            {
-                return;
-            }
-
-            handler(this, new EventArgs());
         }
 
         private async Task SaveWorlds()

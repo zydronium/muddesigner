@@ -11,6 +11,11 @@ namespace Mud.Engine.Runtime.Game
     {
         private Action<IGameComponent, string> cancelcallback;
 
+        public GameShutdownArgs()
+        {
+            cancelcallback = (sender, caller) => { }; 
+        }
+
         public GameShutdownArgs(Action<IGameComponent, string> cancelShutdownCallback)
         {
             this.cancelcallback = cancelShutdownCallback;

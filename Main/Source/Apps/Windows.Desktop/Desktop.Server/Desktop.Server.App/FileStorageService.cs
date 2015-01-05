@@ -206,6 +206,11 @@ namespace Mud.Apps.Desktop.Windows.ServerApp
                 "\{Environment.CurrentDirectory}" :
                 "\{Environment.CurrentDirectory}\\\{path}";
 
+            if (!Directory.Exists(currentDirectory))
+            {
+                Directory.CreateDirectory(currentDirectory);
+            }
+
             return await Task.Run(() => Directory.GetFiles(currentDirectory, extension, SearchOption.AllDirectories));
         }
     }

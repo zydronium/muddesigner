@@ -77,7 +77,6 @@ namespace Mud.Apps.Windows.Desktop.Server.App
             // Start the server. The DefaultPlayer Type will be instanced when each new player connects.
             // TODO: 11/2/14 - Add a non-generic Start method accepting a Type for IoC support.
             server.Start<DefaultPlayer>(game);
-            game.IsMultiplayer = true;
 
             SetupGameWorld(game);
 
@@ -90,13 +89,12 @@ namespace Mud.Apps.Windows.Desktop.Server.App
             // Check if the server has not stopped. If not, we stop.
             if (server.Status != ServerStatus.Stopped)
             {
-                Task<bool> requestResult = game.RequestShutdown();
-                requestResult.Wait();
+                // TODO: Convert Server.Stop to Server.Delete to be consistent.
+                server.Stop();
 
-                if (requestResult.Result)
-                {
-                    server.Stop();
-                }
+                // Delete the game.
+                Task requestResult = game.Delete();
+                requestResult.Wait();
             }
         }
 
