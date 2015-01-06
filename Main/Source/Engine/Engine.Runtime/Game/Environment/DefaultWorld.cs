@@ -8,11 +8,13 @@ namespace Mud.Engine.Runtime.Game.Environment
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using System.Threading.Tasks;
+
 
     /// <summary>
     /// The Default World class used by the engine.
     /// </summary>
-    public class DefaultWorld
+    public class DefaultWorld : GameComponent
     {
         /// <summary>
         /// The time of day states
@@ -159,40 +161,12 @@ namespace Mud.Engine.Runtime.Game.Environment
         /// <summary>
         /// Gets the number of realms.
         /// </summary>
-        public int NumberOfRealms 
-        { 
+        public int NumberOfRealms
+        {
             get
             {
                 return this.realms.Count;
             }
-        }
-
-        /// <summary>
-        /// Initializes the world by starting the world clock and the associated Realm clocks.
-        /// The world must have all of its associated realms assigned before invoking Initialize.
-        /// </summary>
-        /// <param name="initialState">The optional initial state that the world must start with</param>
-        public virtual void Initialize(TimeOfDayState initialState = null)
-        {
-            // Set up our time of day clock.
-            if (this.timeOfDayStates.Count > 0 && initialState == null)
-            {
-                // If we do not have an initial state, then we create a state based on our current real-world time.
-                initialState = this.timeOfDayStateManager.GetTimeOfDayState(DateTime.Now);
-                if (initialState == null)
-                {
-                    initialState = this.TimeOfDayStates
-                        .OrderBy(s => s.StateStartTime.Hour)
-                        .ThenBy(s => s.StateStartTime.Minute)
-                        .FirstOrDefault();
-                }
-            }
-
-            // If an initial state is provided, then we hand it off to the setup method.
-            this.SetupWorldClock(initialState);
-
-            // Notify listeners that our time of day has changed.
-            this.OnTimeOfDayChanged(null, this.CurrentTimeOfDay);
         }
 
         /// <summary>
@@ -236,7 +210,7 @@ namespace Mud.Engine.Runtime.Game.Environment
         /// Adds a collection of realms to world.
         /// </summary>
         /// <param name="realm">The realm.</param>
-        public void AddRealmToWorld(IEnumerable<DefaultRealm> realm)
+        public void AddRealmsToWorld(IEnumerable<DefaultRealm> realm)
         {
             realm.AsParallel().ForAll(r => this.AddRealmToWorld(r));
         }
@@ -278,19 +252,6 @@ namespace Mud.Engine.Runtime.Game.Environment
         }
 
         /// <summary>
-        /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
-        /// </summary>
-        public void Dispose()
-        {
-            // These should all have their clocks disabled, but we ensure they are anyway.
-            // This will also pick up our Current state during the process.
-            foreach (TimeOfDayState state in this.TimeOfDayStates)
-            {
-                state.Reset();
-            }
-        }
-
-        /// <summary>
         /// Returns a <see cref="System.String" /> that represents this instance.
         /// </summary>
         /// <returns>
@@ -299,6 +260,50 @@ namespace Mud.Engine.Runtime.Game.Environment
         public override string ToString()
         {
             return string.Format("{0} - {1} - with {2} realms.", this.Name, this.CurrentTimeOfDay.Name, this.NumberOfRealms);
+        }
+
+        /// <summary>
+        /// Initializes the world by starting the world clock and the associated Realm clocks.
+        /// The world must have all of its associated realms assigned before invoking Initialize.
+        /// </summary>
+        /// <param name="initialState">The optional initial state that the world must start with</param>
+        protected override Task Load()
+        {
+            // If we do not have an initial state, then we create a state based on our current real-world time.
+            var initialState = this.timeOfDayStateManager.GetTimeOfDayState(DateTime.Now);
+
+            // If none exists within our current real-world time, then just grab the first state and assign it.
+            if (initialState == null)
+            {
+                initialState = this.TimeOfDayStates
+                    .OrderBy(s => s.StateStartTime.Hour)
+                    .ThenBy(s => s.StateStartTime.Minute)
+                    .FirstOrDefault();
+
+                ExceptionFactory.ThrowIf<InvalidOperationException>(initialState == null, "No time of day states added to the world.");
+            }
+
+            // If an initial state is provided, then we hand it off to the setup method.
+            this.SetupWorldClock(initialState);
+
+            // Notify listeners that our time of day has changed.
+            this.OnTimeOfDayChanged(null, this.CurrentTimeOfDay);
+            return Task.FromResult(true);
+        }
+
+        /// <summary>
+        /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+        /// </summary>
+        protected override Task Unload()
+        {
+            // These should all have their clocks disabled, but we ensure they are anyway.
+            // This will also pick up our Current state during the process.
+            foreach (TimeOfDayState state in this.TimeOfDayStates)
+            {
+                state.Reset();
+            }
+
+            return Task.FromResult(true);
         }
 
         /// <summary>
