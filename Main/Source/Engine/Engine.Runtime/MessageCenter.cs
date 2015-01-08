@@ -7,12 +7,23 @@ using System.Threading.Tasks;
 
 namespace Mud.Engine.Runtime
 {
+    /// <summary>
+    /// The mediator for all messaging
+    /// </summary>
     public static class MessageCenter
     {
-        private static Dictionary<Type, IHandler> listeners =
-            new Dictionary<Type, IHandler>();
+        /// <summary>
+        /// Collection of subscribed listeners
+        /// </summary>
+        private static Dictionary<Type, SubscriptionHandler> listeners =
+            new Dictionary<Type, SubscriptionHandler>();
 
-        public static IHandler Subscribe<T>() where T : class, IMessage
+        /// <summary>
+        /// Subscribe publications for the message type specified.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        public static SubscriptionHandler Subscribe<T>() where T : class, IMessage
         {
             var handler = new ChatMessageHandler();
             listeners.Add(typeof(T), handler);
@@ -20,6 +31,11 @@ namespace Mud.Engine.Runtime
             return handler;
         }
 
+        /// <summary>
+        /// Publishes the specified message to all subscribers
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="message">The message.</param>
         public static void Publish<T>(T message) where T : class, IMessage
         {
             if (!listeners.ContainsKey(typeof(T)))
@@ -27,28 +43,94 @@ namespace Mud.Engine.Runtime
                 return;
             }
 
-            IHandler handler = listeners[typeof(T)];
+            SubscriptionHandler handler = listeners[typeof(T)];
             message.Dispatch(handler);
         }
     }
 
-    public interface IHandler
+    /// <summary>
+    /// Provides a contract to Types wanting to subscribe to published messages 
+    /// with conditions and a callback.
+    /// </summary>
+    public interface SubscriptionHandler
     {
-        IHandler If(Func<IMessage, bool> condition);
+        SubscriptionHandler If(Func<IMessage, bool> condition);
 
-        IHandler Dispatch(Action<IMessage> message);
+        SubscriptionHandler Dispatch(Action<IMessage> message);
     }
 
-    public interface IMessageHandler<TMessageType> : IHandler
+    /// <summary>
+    /// Processes a subscription message.
+    /// </summary>
+    /// <typeparam name="TMessageType">The type of the message type.</typeparam>
+    public interface ISubscriptionProcessor<TMessageType> : SubscriptionHandler
     {
         void ProcessMessage(TMessageType message);
     }
 
-    public interface IMessage
+    /// <summary>
+    /// Handles chat message subscriptions
+    /// </summary>
+    public class ChatMessageHandler : ISubscriptionProcessor<ChatMessage>
     {
-        void Dispatch(IHandler handler);
+        private List<Action<IMessage>> callbacks = new List<Action<IMessage>>();
+
+        private List<Func<IMessage, bool>> conditions = new List<Func<IMessage, bool>>();
+
+        /// <summary>
+        /// Registers a callback for when a chat message is published by the MessageCenter
+        /// </summary>
+        /// <param name="message">The message.</param>
+        /// <returns></returns>
+        public SubscriptionHandler Dispatch(Action<IMessage> message)
+        {
+            this.callbacks.Add(message);
+            return this;
+        }
+
+        /// <summary>
+        /// Provides conditional values that will be evaluated upon a publish from the MessageCenter.
+        /// If any of the results return false, the callbacks will not be dispatched.
+        /// </summary>
+        /// <param name="condition">The condition.</param>
+        /// <returns></returns>
+        public SubscriptionHandler If(Func<IMessage, bool> condition)
+        {
+            this.conditions.Add(condition);
+            return this;
+        }
+
+        /// <summary>
+        /// Processes the message by verifying the callbacks can be invoked, then invoking them.
+        /// </summary>
+        /// <param name="message">The message.</param>
+        public void ProcessMessage(ChatMessage message)
+        {
+            // If any of the conditions fail, don't process.
+            if (!conditions.Any(condition => condition(message)))
+            {
+                return;
+            }
+
+            // Invoke each callback.
+            foreach (var callback in this.callbacks)
+            {
+                callback(message);
+            }
+        }
     }
 
+    /// <summary>
+    /// A contract for objects wanting to dispatch message notifications.
+    /// </summary>
+    public interface IMessage
+    {
+        void Dispatch(SubscriptionHandler handler);
+    }
+
+    /// <summary>
+    /// A chat message.
+    /// </summary>
     public class ChatMessage : MessageBase<ChatMessage>
     {
         public ChatMessage(string message)
@@ -59,68 +141,46 @@ namespace Mud.Engine.Runtime
         public string Message { get; private set; }
     }
 
+    /// <summary>
+    /// Provides methods for dispatching notifications to subscription handlers
+    /// </summary>
+    /// <typeparam name="TMessageType">The type of the message type.</typeparam>
     public class MessageBase<TMessageType> : IMessage where TMessageType : class, IMessage
     {
-        public Type MessageType
+        /// <summary>
+        /// Dispatches this message instance to the given handler for processing.
+        /// </summary>
+        /// <param name="handler">The handler.</param>
+        public void Dispatch(SubscriptionHandler handler)
         {
-            get
-            {
-                return typeof(TMessageType);
-            }
-        }
-
-        public void Dispatch(IHandler handler)
-        {
+            // We must convert ourself to our generic type.
             var msg = this as TMessageType;
             if (msg == null)
             {
                 return;
             }
 
-            this.Dispatch(handler, msg);
+            // Dispatch ourself strongly typed to a protected version
+            // of the Dispatch method. 
+            this.Dispatch(handler as ISubscriptionProcessor<TMessageType>, msg);
         }
 
-        protected void Dispatch(IHandler handler, TMessageType message)
+        /// <summary>
+        /// Dispatches the given message to the given handler.
+        /// Children classes can override this method to perform custom dispatching
+        /// if needed.
+        /// </summary>
+        /// <param name="target">The handler.</param>
+        /// <param name="message">The message.</param>
+        protected virtual void Dispatch(ISubscriptionProcessor<TMessageType> target, TMessageType message)
         {
-            var target = handler as IMessageHandler<TMessageType>;
             if (target == null)
             {
                 return;
             }
 
+            // Let the handler process this message.
             target.ProcessMessage(message);
-        }
-    }
-
-    public class ChatMessageHandler : IMessageHandler<ChatMessage>
-    {
-        private List<Action<IMessage>> callbacks = new List<Action<IMessage>>();
-
-        private List<Func<IMessage, bool>> conditions = new List<Func<IMessage, bool>>();
-
-        public IHandler Dispatch(Action<IMessage> message)
-        {
-            this.callbacks.Add(message);
-            return this;
-        }
-
-        public IHandler If(Func<IMessage, bool> condition)
-        {
-            this.conditions.Add(condition);
-            return this;
-        }
-
-        public void ProcessMessage(ChatMessage message)
-        {
-            if (!conditions.Any(condition => condition(message)))
-            {
-                return;
-            }
-
-            foreach (var callback in this.callbacks)
-            {
-                callback(message);
-            }
         }
     }
 }
