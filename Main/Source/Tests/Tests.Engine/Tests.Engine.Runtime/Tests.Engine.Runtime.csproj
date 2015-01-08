@@ -68,6 +68,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ExceptionFactoryTests.cs" />
     <Compile Include="ExceptionFactoryResultTests.cs" />
+    <Compile Include="SubscriptionResultTests.cs" />
   </ItemGroup>
   <ItemGroup />
   <ItemGroup>

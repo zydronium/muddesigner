@@ -57,6 +57,7 @@
     <Compile Include="ICloneableComponent.cs" />
     <Compile Include="ICollectionExtensions.cs" />
     <Compile Include="IEngineComponent.cs" />
+    <Compile Include="MessageCenter.cs" />
     <Compile Include="Services\ILoggingService.cs" />
     <Compile Include="Networking\IServer.cs" />
     <Compile Include="Networking\ServerConnectionEventArgs.cs" />

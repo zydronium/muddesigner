@@ -101,7 +101,7 @@ namespace Tests.Engine.Runtime.Core
             
             // Assert
             // Verify that the world initialize method is called.
-            worldMock.Verify(w => w.Initialize(null), "World Initialize was not called.");
+            worldMock.Verify(w => w.Initialize(), "World Initialize was not called.");
         }
 
         [TestMethod]
