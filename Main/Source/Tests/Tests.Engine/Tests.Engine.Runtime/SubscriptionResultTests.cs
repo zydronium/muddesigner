@@ -15,21 +15,22 @@ namespace Tests.Engine.Runtime
             int x = 1;
             int y = 2;
             int z = 3;
+            var center = ChatCenter.CurrentCenter;
 
             // Subscribe
-            MessageCenter.Subscribe<ChatMessage>()
+            center.Subscribe<ChatMessage>()
                 .If(msg => x == 1)
                 .If(msg => y == 2)
                 .If(msg => z == 3)
                 .Dispatch(msg => x = 3)
                 .Dispatch(msg =>
                 {
-                    y = 10;
+                    y = 10;                                                                                                                                                                                                                                 
                     z = 15;
                 });
 
             // Act
-            MessageCenter.Publish(new ChatMessage(string.Empty));
+            center.Publish(new ChatMessage(string.Empty));
 
             // Assert
             Assert.AreEqual(3, x);
@@ -38,10 +39,23 @@ namespace Tests.Engine.Runtime
         }
 
         [TestMethod]
-        public void Chat_message_is_delivered()
+        public void Object_can_unsubscribe()
         {
+            // Arrange
             var chatHandler = new ChatMessageHandler();
-            MessageCenter.Subscribe<ChatMessage>();
+            int y = 2;
+            var callback = new Action<IMessage>(msg => y = 10);
+
+            // Subscribe
+            ISubscriptionHandler handler = ChatCenter.CurrentCenter.Subscribe<ChatMessage>()
+                .Dispatch(callback);
+            handler.Unsubscribe();
+
+            // Act
+            ChatCenter.CurrentCenter.Publish(new ChatMessage(string.Empty));
+
+            // Assert
+            Assert.AreEqual(2, y);
         }
     }
 }

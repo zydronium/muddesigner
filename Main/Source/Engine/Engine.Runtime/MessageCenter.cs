@@ -2,33 +2,63 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace Mud.Engine.Runtime
 {
+    public interface INotificationCenter
+    {
+        ISubscriptionHandler Subscribe<T>() where T : class, IMessage;
+
+        void Publish<T>(T message) where T : class, IMessage;
+    }
+
     /// <summary>
     /// The mediator for all messaging
     /// </summary>
-    public static class MessageCenter
+    public class ChatCenter : INotificationCenter
     {
         /// <summary>
         /// Collection of subscribed listeners
         /// </summary>
-        private static Dictionary<Type, SubscriptionHandler> listeners =
-            new Dictionary<Type, SubscriptionHandler>();
+        private Dictionary<Type, List<ISubscriptionHandler>> listeners =
+            new Dictionary<Type, List<ISubscriptionHandler>>();
+
+        private static ChatCenter _centerSingleton = new ChatCenter();
+
+        private ChatCenter()
+        {
+        }
 
         /// <summary>
         /// Subscribe publications for the message type specified.
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <returns></returns>
-        public static SubscriptionHandler Subscribe<T>() where T : class, IMessage
+        public ISubscriptionHandler Subscribe<T>() where T : class, IMessage
         {
+            Type messageType = typeof(T);
+
+            if (!listeners.ContainsKey(messageType))
+            {
+                listeners.Add(messageType, new List<ISubscriptionHandler>());
+            }
+
+            // TODO: Move instancing of the handler in to a factory that does a lookup on <T> and returns the right handler.
             var handler = new ChatMessageHandler();
-            listeners.Add(typeof(T), handler);
+            listeners[messageType].Add(handler);
 
             return handler;
+        }
+
+        public static ChatCenter CurrentCenter
+        {
+            get
+            {
+                return _centerSingleton;
+            }
         }
 
         /// <summary>
@@ -36,15 +66,27 @@ namespace Mud.Engine.Runtime
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="message">The message.</param>
-        public static void Publish<T>(T message) where T : class, IMessage
+        public void Publish<T>(T message) where T : class, IMessage
         {
             if (!listeners.ContainsKey(typeof(T)))
             {
                 return;
             }
 
-            SubscriptionHandler handler = listeners[typeof(T)];
-            message.Dispatch(handler);
+            foreach (var handler in listeners[typeof(T)])
+            {
+                message.Dispatch(handler);
+            }
+        }
+
+        internal void Unsubscribe<T>(ISubscriptionHandler handler) where T : class, IMessage
+        {
+            if (!listeners.ContainsKey(typeof(T)))
+            {
+                return;
+            }
+
+            listeners.Remove(typeof(T));
         }
     }
 
@@ -52,18 +94,20 @@ namespace Mud.Engine.Runtime
     /// Provides a contract to Types wanting to subscribe to published messages 
     /// with conditions and a callback.
     /// </summary>
-    public interface SubscriptionHandler
+    public interface ISubscriptionHandler
     {
-        SubscriptionHandler If(Func<IMessage, bool> condition);
+        ISubscriptionHandler If(Func<IMessage, bool> condition);
 
-        SubscriptionHandler Dispatch(Action<IMessage> message);
+        ISubscriptionHandler Dispatch(Action<IMessage> message);
+
+        void Unsubscribe();
     }
 
     /// <summary>
     /// Processes a subscription message.
     /// </summary>
     /// <typeparam name="TMessageType">The type of the message type.</typeparam>
-    public interface ISubscriptionProcessor<TMessageType> : SubscriptionHandler
+    public interface ISubscriptionProcessor<TMessageType> : ISubscriptionHandler
     {
         void ProcessMessage(TMessageType message);
     }
@@ -82,7 +126,7 @@ namespace Mud.Engine.Runtime
         /// </summary>
         /// <param name="message">The message.</param>
         /// <returns></returns>
-        public SubscriptionHandler Dispatch(Action<IMessage> message)
+        public ISubscriptionHandler Dispatch(Action<IMessage> message)
         {
             this.callbacks.Add(message);
             return this;
@@ -94,10 +138,17 @@ namespace Mud.Engine.Runtime
         /// </summary>
         /// <param name="condition">The condition.</param>
         /// <returns></returns>
-        public SubscriptionHandler If(Func<IMessage, bool> condition)
+        public ISubscriptionHandler If(Func<IMessage, bool> condition)
         {
             this.conditions.Add(condition);
             return this;
+        }
+
+        public void Unsubscribe()
+        {
+            this.callbacks.Clear();
+            this.conditions.Clear();
+            ChatCenter.CurrentCenter.Unsubscribe<ChatMessage>(this);
         }
 
         /// <summary>
@@ -107,7 +158,7 @@ namespace Mud.Engine.Runtime
         public void ProcessMessage(ChatMessage message)
         {
             // If any of the conditions fail, don't process.
-            if (!conditions.Any(condition => condition(message)))
+            if (conditions.Any(condition => !condition(message)))
             {
                 return;
             }
@@ -125,7 +176,7 @@ namespace Mud.Engine.Runtime
     /// </summary>
     public interface IMessage
     {
-        void Dispatch(SubscriptionHandler handler);
+        void Dispatch(ISubscriptionHandler handler);
     }
 
     /// <summary>
@@ -151,7 +202,7 @@ namespace Mud.Engine.Runtime
         /// Dispatches this message instance to the given handler for processing.
         /// </summary>
         /// <param name="handler">The handler.</param>
-        public void Dispatch(SubscriptionHandler handler)
+        public void Dispatch(ISubscriptionHandler handler)
         {
             // We must convert ourself to our generic type.
             var msg = this as TMessageType;
@@ -160,9 +211,15 @@ namespace Mud.Engine.Runtime
                 return;
             }
 
+            var target = handler as ISubscriptionProcessor<TMessageType>;
+            if (target == null)
+            {
+                return;
+            }
+
             // Dispatch ourself strongly typed to a protected version
-            // of the Dispatch method. 
-            this.Dispatch(handler as ISubscriptionProcessor<TMessageType>, msg);
+            // of the Dispatch method.
+            this.Dispatch(target, msg);
         }
 
         /// <summary>
@@ -174,11 +231,6 @@ namespace Mud.Engine.Runtime
         /// <param name="message">The message.</param>
         protected virtual void Dispatch(ISubscriptionProcessor<TMessageType> target, TMessageType message)
         {
-            if (target == null)
-            {
-                return;
-            }
-
             // Let the handler process this message.
             target.ProcessMessage(message);
         }
