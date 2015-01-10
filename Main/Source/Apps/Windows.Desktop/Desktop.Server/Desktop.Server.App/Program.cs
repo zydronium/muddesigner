@@ -22,7 +22,6 @@ namespace Mud.Apps.Windows.Desktop.Server.App
     using Mud.Engine.Runtime.Services;
     using System.Threading.Tasks;
 
-
     /// <summary>
     /// The Mud Designer Telnet Server.
     /// </summary>
@@ -125,6 +124,7 @@ namespace Mud.Apps.Windows.Desktop.Server.App
         /// <param name="e">The e.</param>
         private static void Player_MessageSent(object sender, InputArgs e)
         {
+            Console.WriteLine(e.Message);
         }
 
         /// <summary>

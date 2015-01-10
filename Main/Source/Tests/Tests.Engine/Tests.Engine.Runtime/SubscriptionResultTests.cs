@@ -11,51 +11,37 @@ namespace Tests.Engine.Runtime
         public void Conditions_for_publish_are_met_and_dispatched()
         {
             // Arrange
-            var chatHandler = new ChatMessageHandler();
-            int x = 1;
-            int y = 2;
-            int z = 3;
-            var center = ChatCenter.CurrentCenter;
+            string badMessage = "Bad Message";
+            string expectedMessage = "expected.";
+            string receivedMessage = string.Empty;
 
             // Subscribe
-            center.Subscribe<ChatMessage>()
-                .If(msg => x == 1)
-                .If(msg => y == 2)
-                .If(msg => z == 3)
-                .Dispatch(msg => x = 3)
-                .Dispatch(msg =>
-                {
-                    y = 10;                                                                                                                                                                                                                                 
-                    z = 15;
-                });
+            ChatCenter.CurrentCenter.Subscribe<ChatMessage>()
+                .If(msg => !string.IsNullOrWhiteSpace(msg.Message))
+                .If(msg => !msg.Message.Equals(badMessage))
+                .Dispatch(msg => receivedMessage = msg.Message);
 
             // Act
-            center.Publish(new ChatMessage(string.Empty));
+            ChatCenter.CurrentCenter.Publish(new ChatMessage(expectedMessage));
 
             // Assert
-            Assert.AreEqual(3, x);
-            Assert.AreEqual(10, y);
-            Assert.AreEqual(15, z);
+            Assert.AreEqual(expectedMessage, receivedMessage);
         }
 
         [TestMethod]
         public void Object_can_unsubscribe()
         {
             // Arrange
-            var chatHandler = new ChatMessageHandler();
-            int y = 2;
-            var callback = new Action<IMessage>(msg => y = 10);
-
-            // Subscribe
+            string receivedMessage = string.Empty;
             ISubscriptionHandler handler = ChatCenter.CurrentCenter.Subscribe<ChatMessage>()
-                .Dispatch(callback);
-            handler.Unsubscribe();
+                .Dispatch(msg => receivedMessage = msg.Message);
 
             // Act
-            ChatCenter.CurrentCenter.Publish(new ChatMessage(string.Empty));
+            handler.Unsubscribe();
+            ChatCenter.CurrentCenter.Publish(new ChatMessage("Some message"));
 
             // Assert
-            Assert.AreEqual(2, y);
+            Assert.AreEqual(string.Empty, receivedMessage);
         }
     }
 }

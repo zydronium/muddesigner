@@ -10,7 +10,7 @@ namespace Mud.Engine.Runtime
 {
     public interface INotificationCenter
     {
-        ISubscriptionHandler Subscribe<T>() where T : class, IMessage;
+        ISubscriptionProcessor<T> Subscribe<T>() where T : class, IMessage;
 
         void Publish<T>(T message) where T : class, IMessage;
     }
@@ -32,12 +32,20 @@ namespace Mud.Engine.Runtime
         {
         }
 
+        public static ChatCenter CurrentCenter
+        {
+            get
+            {
+                return _centerSingleton;
+            }
+        }
+
         /// <summary>
         /// Subscribe publications for the message type specified.
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <returns></returns>
-        public ISubscriptionHandler Subscribe<T>() where T : class, IMessage
+        public ISubscriptionProcessor<T> Subscribe<T>() where T : class, IMessage
         {
             Type messageType = typeof(T);
 
@@ -47,18 +55,10 @@ namespace Mud.Engine.Runtime
             }
 
             // TODO: Move instancing of the handler in to a factory that does a lookup on <T> and returns the right handler.
-            var handler = new ChatMessageHandler();
+            var handler = new ChatMessageHandler<ChatMessage>();
             listeners[messageType].Add(handler);
 
-            return handler;
-        }
-
-        public static ChatCenter CurrentCenter
-        {
-            get
-            {
-                return _centerSingleton;
-            }
+            return handler as ISubscriptionProcessor<T>;
         }
 
         /// <summary>
@@ -102,10 +102,6 @@ namespace Mud.Engine.Runtime
     /// </summary>
     public interface ISubscriptionHandler
     {
-        ISubscriptionHandler If(Func<IMessage, bool> condition);
-
-        ISubscriptionHandler Dispatch(Action<IMessage> message);
-
         void Unsubscribe();
     }
 
@@ -113,26 +109,30 @@ namespace Mud.Engine.Runtime
     /// Processes a subscription message.
     /// </summary>
     /// <typeparam name="TMessageType">The type of the message type.</typeparam>
-    public interface ISubscriptionProcessor<TMessageType> : ISubscriptionHandler
+    public interface ISubscriptionProcessor<TMessageType> : ISubscriptionHandler where TMessageType : class, IMessage
     {
+        ISubscriptionProcessor<TMessageType> If(Func<TMessageType, bool> condition);
+
+        ISubscriptionProcessor<TMessageType> Dispatch(Action<TMessageType> message);
+
         void ProcessMessage(TMessageType message);
     }
 
     /// <summary>
     /// Handles chat message subscriptions
     /// </summary>
-    public class ChatMessageHandler : ISubscriptionProcessor<ChatMessage>
+    public class ChatMessageHandler<T> : ISubscriptionProcessor<T> where T : ChatMessage
     {
-        private List<Action<IMessage>> callbacks = new List<Action<IMessage>>();
+        private List<Action<T>> callbacks = new List<Action<T>>();
 
-        private List<Func<IMessage, bool>> conditions = new List<Func<IMessage, bool>>();
+        private List<Func<T, bool>> conditions = new List<Func<T, bool>>();
 
         /// <summary>
         /// Registers a callback for when a chat message is published by the MessageCenter
         /// </summary>
         /// <param name="message">The message.</param>
         /// <returns></returns>
-        public ISubscriptionHandler Dispatch(Action<IMessage> message)
+        public ISubscriptionProcessor<T> Dispatch(Action<T> message)
         {
             this.callbacks.Add(message);
             return this;
@@ -144,7 +144,7 @@ namespace Mud.Engine.Runtime
         /// </summary>
         /// <param name="condition">The condition.</param>
         /// <returns></returns>
-        public ISubscriptionHandler If(Func<IMessage, bool> condition)
+        public ISubscriptionProcessor<T> If(Func<T, bool> condition)
         {
             this.conditions.Add(condition);
             return this;
@@ -161,7 +161,7 @@ namespace Mud.Engine.Runtime
         /// Processes the message by verifying the callbacks can be invoked, then invoking them.
         /// </summary>
         /// <param name="message">The message.</param>
-        public void ProcessMessage(ChatMessage message)
+        public void ProcessMessage(T message)
         {
             // If any of the conditions fail, don't process.
             if (conditions.Any(condition => !condition(message)))
