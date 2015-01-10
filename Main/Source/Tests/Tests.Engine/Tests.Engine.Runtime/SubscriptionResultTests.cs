@@ -16,13 +16,14 @@ namespace Tests.Engine.Runtime
             string receivedMessage = string.Empty;
 
             // Subscribe
-            ChatCenter.CurrentCenter.Subscribe<ChatMessage>()
+            NotificationManager.CurrentCenter
+                .Subscribe<ChatMessage>()
                 .If(msg => !string.IsNullOrWhiteSpace(msg.Message))
                 .If(msg => !msg.Message.Equals(badMessage))
-                .Dispatch(msg => receivedMessage = msg.Message);
+                .Register(msg => receivedMessage = msg.Message);
 
             // Act
-            ChatCenter.CurrentCenter.Publish(new ChatMessage(expectedMessage));
+            NotificationManager.CurrentCenter.Publish(new ChatMessage(expectedMessage));
 
             // Assert
             Assert.AreEqual(expectedMessage, receivedMessage);
@@ -33,12 +34,12 @@ namespace Tests.Engine.Runtime
         {
             // Arrange
             string receivedMessage = string.Empty;
-            ISubscriptionHandler handler = ChatCenter.CurrentCenter.Subscribe<ChatMessage>()
-                .Dispatch(msg => receivedMessage = msg.Message);
+            ISubscription handler = NotificationManager.CurrentCenter.Subscribe<ChatMessage>()
+                .Register(msg => receivedMessage = msg.Message);
 
             // Act
             handler.Unsubscribe();
-            ChatCenter.CurrentCenter.Publish(new ChatMessage("Some message"));
+            NotificationManager.CurrentCenter.Publish(new ChatMessage("Some message"));
 
             // Assert
             Assert.AreEqual(string.Empty, receivedMessage);

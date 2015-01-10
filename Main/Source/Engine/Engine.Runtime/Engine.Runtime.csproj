@@ -38,6 +38,8 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="ChatMessage.cs" />
+    <Compile Include="ChatMessageHandler.cs" />
     <Compile Include="EngineTimer.cs" />
     <Compile Include="ExceptionFactoryResult.cs" />
     <Compile Include="ExceptionFactory.cs" />
@@ -57,7 +59,12 @@
     <Compile Include="ICloneableComponent.cs" />
     <Compile Include="ICollectionExtensions.cs" />
     <Compile Include="IEngineComponent.cs" />
-    <Compile Include="MessageCenter.cs" />
+    <Compile Include="IMessage.cs" />
+    <Compile Include="INotificationCenter.cs" />
+    <Compile Include="INotificationHandler.cs" />
+    <Compile Include="ISubscription.cs" />
+    <Compile Include="MessageBase.cs" />
+    <Compile Include="NotificationManager.cs" />
     <Compile Include="Services\ILoggingService.cs" />
     <Compile Include="Networking\IServer.cs" />
     <Compile Include="Networking\ServerConnectionEventArgs.cs" />
