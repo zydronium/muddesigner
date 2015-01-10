@@ -81,12 +81,18 @@ namespace Mud.Engine.Runtime
 
         internal void Unsubscribe<T>(ISubscriptionHandler handler) where T : class, IMessage
         {
-            if (!listeners.ContainsKey(typeof(T)))
+            Type messageType = typeof(T);
+            if (!listeners.ContainsKey(messageType))
             {
                 return;
             }
+            else if (listeners[messageType].Count == 0)
+            {
+                listeners.Remove(messageType);
+                return;
+            }
 
-            listeners.Remove(typeof(T));
+            listeners[messageType].Remove(handler);
         }
     }
 
