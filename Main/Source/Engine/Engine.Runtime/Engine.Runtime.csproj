@@ -64,6 +64,7 @@
     <Compile Include="INotificationHandler.cs" />
     <Compile Include="ISubscription.cs" />
     <Compile Include="MessageBase.cs" />
+    <Compile Include="NotificationHandlerFactory.cs" />
     <Compile Include="NotificationManager.cs" />
     <Compile Include="Services\ILoggingService.cs" />
     <Compile Include="Networking\IServer.cs" />

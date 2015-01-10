@@ -51,16 +51,19 @@ namespace Mud.Engine.Runtime
         {
             Type messageType = typeof(T);
 
+            // Create our key if it doesn't exist along with an empty collection as the value.
             if (!listeners.ContainsKey(messageType))
             {
                 listeners.Add(messageType, new List<ISubscription>());
             }
 
-            // TODO: Move instancing of the handler in to a factory that does a lookup on <T> and returns the right handler.
-            var handler = new ChatMessageHandler<ChatMessage>();
-            listeners[messageType].Add(handler);
+            // Create a new handler for <T> from the notification handler factory.
+            var handlerFactory = new NotificationHandlerFactory<T>();
+            var handler = handlerFactory.CreateNotificationHandlerForMessage();
 
-            return handler as INotificationHandler<T>;
+            // Add our handler to our listener collection so we can publish to it later, then return it.
+            listeners[messageType].Add(handler);
+            return handler;
         }
 
         /// <summary>
