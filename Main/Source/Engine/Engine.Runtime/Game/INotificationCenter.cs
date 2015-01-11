@@ -3,7 +3,7 @@
 //     Copyright (c) Johnathon Sullinger. All rights reserved.
 // </copyright>
 //-----------------------------------------------------------------------
-namespace Mud.Engine.Runtime
+namespace Mud.Engine.Runtime.Game
 {
     /// <summary>
     /// Provides a contract for Mediators to use when handling notifications between objects.

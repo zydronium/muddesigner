@@ -3,7 +3,7 @@
 //     Copyright (c) Johnathon Sullinger. All rights reserved.
 // </copyright>
 //-----------------------------------------------------------------------
-namespace Mud.Engine.Runtime
+namespace Mud.Engine.Runtime.Game
 {
     using System;
 
@@ -24,9 +24,9 @@ namespace Mud.Engine.Runtime
         /// <summary>
         /// Registers the specified action for callback when a notification is fired for T.
         /// </summary>
-        /// <param name="message">The message.</param>
+        /// <param name="message">The message being posted along with the subscription registered to receive the post.</param>
         /// <returns></returns>
-        INotificationHandler<TMessageType> Register(Action<TMessageType> message);
+        INotificationHandler<TMessageType> Register(Action<TMessageType, ISubscription> message);
 
         /// <summary>
         /// Processes the message, invoking the registered callbacks if their conditions are met.

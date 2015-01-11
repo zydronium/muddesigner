@@ -3,7 +3,7 @@
 //     Copyright (c) Johnathon Sullinger. All rights reserved.
 // </copyright>
 //-----------------------------------------------------------------------
-namespace Mud.Engine.Runtime
+namespace Mud.Engine.Runtime.Game
 {
     using System;
     using System.Collections.Generic;
@@ -12,12 +12,12 @@ namespace Mud.Engine.Runtime
     /// <summary>
     /// Handles chat message subscriptions
     /// </summary>
-    public class ChatMessageHandler<T> : INotificationHandler<T> where T : ChatMessage
+    internal class ChatMessageHandler<T> : INotificationHandler<T> where T : ChatMessage
     {
         /// <summary>
         /// The callbacks invoked when the handler processes the messages.
         /// </summary>
-        private List<Action<T>> callbacks = new List<Action<T>>();
+        private List<Action<T, ISubscription>> callbacks = new List<Action<T, ISubscription>>();
 
         /// <summary>
         /// The conditions that must be met in order to fire the callbacks.
@@ -29,7 +29,7 @@ namespace Mud.Engine.Runtime
         /// </summary>
         /// <param name="message">The message.</param>
         /// <returns></returns>
-        public INotificationHandler<T> Register(Action<T> message)
+        public INotificationHandler<T> Register(Action<T, ISubscription> message)
         {
             this.callbacks.Add(message);
             return this;
@@ -74,7 +74,7 @@ namespace Mud.Engine.Runtime
             // Invoke each callback.
             foreach (var callback in this.callbacks)
             {
-                callback(message);
+                callback(message, this);
             }
         }
     }

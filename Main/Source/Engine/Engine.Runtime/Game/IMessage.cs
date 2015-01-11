@@ -3,7 +3,7 @@
 //     Copyright (c) Johnathon Sullinger. All rights reserved.
 // </copyright>
 //-----------------------------------------------------------------------
-namespace Mud.Engine.Runtime
+namespace Mud.Engine.Runtime.Game
 {
     /// <summary>
     /// A contract for objects wanting to dispatch message notifications.

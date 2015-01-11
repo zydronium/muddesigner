@@ -3,10 +3,10 @@
 //     Copyright (c) Johnathon Sullinger. All rights reserved.
 // </copyright>
 //-----------------------------------------------------------------------
-namespace Mud.Engine.Runtime
+namespace Mud.Engine.Runtime.Game
 {
     using System;
-    using System.Collections.Generic;
+    using System.Collections.Concurrent;
 
     /// <summary>
     /// The mediator for all messaging
@@ -16,8 +16,8 @@ namespace Mud.Engine.Runtime
         /// <summary>
         /// Collection of subscribed listeners
         /// </summary>
-        private Dictionary<Type, List<ISubscription>> listeners =
-            new Dictionary<Type, List<ISubscription>>();
+        private ConcurrentDictionary<Type, ConcurrentBag<ISubscription>> listeners =
+            new ConcurrentDictionary<Type, ConcurrentBag<ISubscription>>();
 
         /// <summary>
         /// The singleton instance for the NotificationManager
@@ -54,7 +54,7 @@ namespace Mud.Engine.Runtime
             // Create our key if it doesn't exist along with an empty collection as the value.
             if (!listeners.ContainsKey(messageType))
             {
-                listeners.Add(messageType, new List<ISubscription>());
+                listeners.TryAdd(messageType, new ConcurrentBag<ISubscription>());
             }
 
             // Create a new handler for <T> from the notification handler factory.
@@ -98,11 +98,12 @@ namespace Mud.Engine.Runtime
             }
             else if (listeners[messageType].Count == 0)
             {
-                listeners.Remove(messageType);
+                var collection = new ConcurrentBag<ISubscription>();
+                listeners.TryRemove(messageType, out collection);
                 return;
             }
 
-            listeners[messageType].Remove(handler);
+            listeners[messageType].TryTake(out handler);
         }
     }
 }

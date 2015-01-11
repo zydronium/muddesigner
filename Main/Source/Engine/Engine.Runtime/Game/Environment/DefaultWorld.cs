@@ -10,7 +10,6 @@ namespace Mud.Engine.Runtime.Game.Environment
     using System.Linq;
     using System.Threading.Tasks;
 
-
     /// <summary>
     /// The Default World class used by the engine.
     /// </summary>
@@ -196,7 +195,8 @@ namespace Mud.Engine.Runtime.Game.Environment
 
             try
             {
-                realm.Initialize(this, this.CurrentTimeOfDay.CurrentTime);
+                // We are ok with execution continuing before Initialize() is completed, as we do not rely on it being fully set up.
+                realm.Initialize();
             }
             catch (NullReferenceException)
             {

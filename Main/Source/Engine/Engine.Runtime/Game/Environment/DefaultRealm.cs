@@ -7,11 +7,12 @@ namespace Mud.Engine.Runtime.Game.Environment
 {
     using System;
     using System.Collections.Generic;
+    using System.Threading.Tasks;
 
     /// <summary>
     /// The Default Realm class for the engine.
     /// </summary>
-    public class DefaultRealm
+    public class DefaultRealm : GameComponent
     {
         /// <summary>
         /// The time of day state manager
@@ -26,8 +27,16 @@ namespace Mud.Engine.Runtime.Game.Environment
         /// <summary>
         /// Initializes a new instance of the <see cref="DefaultRealm"/> class.
         /// </summary>
-        public DefaultRealm()
+        public DefaultRealm(DefaultWorld world, TimeOfDay worldTimeOfDay)
         {
+            ExceptionFactory
+                .ThrowIf<ArgumentNullException>(world == null, "A valid world instance must be supplied.")
+                .Or(worldTimeOfDay == null, "A valid TImeOfDay instance is required to initialize a realm.");
+
+            this.World = world;
+            this.timeOfDayStateManager = new TimeOfDayStateManager(world.TimeOfDayStates);
+            this.ApplyTimeZoneOffset(worldTimeOfDay);
+
             this.CreationDate = DateTime.Now;
         }
 
@@ -109,34 +118,6 @@ namespace Mud.Engine.Runtime.Game.Environment
         /// Gets or sets the creation date.
         /// </summary>
         public DateTime CreationDate { get; set; }
-
-        /// <summary>
-        /// Initializes the realm. Weather states are set up and time zone offsets are applied.
-        /// </summary>
-        /// <param name="world">The world this realm belongs to.</param>
-        /// <param name="worldTimeOfDay">The world time of day.</param>
-        /// <exception cref="System.NullReferenceException">
-        /// A valid world instance must be supplied.
-        /// or
-        /// A valid TimeOfDay instance is required to initialize a realm.
-        /// </exception>
-        public virtual void Initialize(DefaultWorld world, TimeOfDay worldTimeOfDay)
-        {
-            if (world == null)
-            {
-                throw new NullReferenceException("A valid world instance must be supplied.");
-            }
-
-            if (worldTimeOfDay == null)
-            {
-                throw new NullReferenceException("A valid TImeOfDay instance is required to initialize a realm.");
-            }
-
-            this.World = world;
-            this.timeOfDayStateManager = new TimeOfDayStateManager(world.TimeOfDayStates);
-
-            this.ApplyTimeZoneOffset(worldTimeOfDay);
-        }
 
         /// <summary>
         /// Adds the given zone to this instance.
@@ -221,6 +202,46 @@ namespace Mud.Engine.Runtime.Game.Environment
             {
                 return state;
             }
+        }
+
+        /// <summary>
+        /// Loads the component and any resources or dependencies it might have.
+        /// Called during initialization of the component
+        /// </summary>
+        /// <returns></returns>
+        protected override Task Load()
+        {
+            // If we have a time zone offset to apply, then we apply it when ever the World's time is changed.
+            if (this.TimeZoneOffset != null)
+            {
+                this.World.TimeOfDayChanged += this.WorldTimeChanged;
+            }
+
+            return Task.FromResult(true);
+        }
+
+        /// <summary>
+        /// Unloads this instance.
+        /// </summary>
+        /// <returns></returns>
+        protected override Task Unload()
+        {
+            if (this.TimeZoneOffset != null)
+            {
+                this.World.TimeOfDayChanged -= this.WorldTimeChanged;
+            }
+
+            return Task.FromResult(true);
+        }
+
+        /// <summary>
+        /// Gets called when the owning world has its Time changed.
+        /// </summary>
+        /// <param name="sender">The sender.</param>
+        /// <param name="e">The <see cref="TimeOfDayChangedEventArgs"/> instance containing the event data.</param>
+        protected virtual void WorldTimeChanged(object sender, TimeOfDayChangedEventArgs e)
+        {
+            this.ApplyTimeZoneOffset(e.TransitioningTo.CurrentTime);
         }
     }
 }

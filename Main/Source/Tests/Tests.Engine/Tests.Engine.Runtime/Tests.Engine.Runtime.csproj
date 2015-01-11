@@ -62,15 +62,17 @@
     </Otherwise>
   </Choose>
   <ItemGroup>
-    <Compile Include="Game\DefaultGameTests.cs" />
-    <Compile Include="EngineTimerTests.cs" />
-    <Compile Include="Game\AutosaveTests.cs" />
+    <Compile Include="Tests\Game\DefaultGameTests.cs" />
+    <Compile Include="Tests\EngineTimer.Tests.cs" />
+    <Compile Include="Tests\Game\AutosaveTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="ExceptionFactoryTests.cs" />
-    <Compile Include="ExceptionFactoryResultTests.cs" />
-    <Compile Include="SubscriptionResultTests.cs" />
+    <Compile Include="Tests\ExceptionFactory.Tests.cs" />
+    <Compile Include="Tests\ExceptionFactoryResult.Tests.cs" />
+    <Compile Include="Tests\Game\SubscriptionResultTests.cs" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Folder Include="Tests\Game\Character\" />
+  </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
     <None Include="packages.config" />

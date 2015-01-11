@@ -19,17 +19,23 @@ namespace Mud.Engine.Runtime.Game.Environment
         /// <param name="occupant">The occupant.</param>
         /// <param name="departureRoom">The departure room.</param>
         /// <param name="arrivalRoom">The arrival room.</param>
-        public OccupancyChangedEventArgs(ICharacter occupant, DefaultRoom departureRoom, DefaultRoom arrivalRoom)
+        public OccupancyChangedEventArgs(ICharacter occupant, ITravelDirection travelDirection, DefaultRoom departureRoom, DefaultRoom arrivalRoom)
         {
             this.Occupant = occupant;
             this.DepartureRoom = departureRoom;
             this.ArrivalRoom = arrivalRoom;
+            this.TravelDirection = travelDirection;
         }
 
         /// <summary>
         /// Gets the occupant that triggered this event.
         /// </summary>
         public ICharacter Occupant { get; private set; }
+
+        /// <summary>
+        /// Gets the direction that the occupant traveled when leaving the departure room.
+        /// </summary>
+        public ITravelDirection TravelDirection { get; private set; }
 
         /// <summary>
         /// Gets the departure room.

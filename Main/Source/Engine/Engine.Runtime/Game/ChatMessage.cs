@@ -3,12 +3,12 @@
 //     Copyright (c) Johnathon Sullinger. All rights reserved.
 // </copyright>
 //-----------------------------------------------------------------------
-namespace Mud.Engine.Runtime
+namespace Mud.Engine.Runtime.Game
 {
     /// <summary>
     /// A chat message.
     /// </summary>
-    public class ChatMessage : MessageBase<ChatMessage>
+    public abstract class ChatMessage : MessageBase<ChatMessage>
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="ChatMessage"/> class.

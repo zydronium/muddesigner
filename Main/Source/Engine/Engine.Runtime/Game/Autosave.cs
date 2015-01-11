@@ -1,11 +1,17 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
+﻿//-----------------------------------------------------------------------
+// <copyright file="AutoSave.cs" company="Sully">
+//     Copyright (c) Johnathon Sullinger. All rights reserved.
+// </copyright>
+//-----------------------------------------------------------------------
 namespace Mud.Engine.Runtime.Game
 {
+    using System;
+    using System.Threading.Tasks;
+
+    /// <summary>
+    /// Provides auto-save support to an object.
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
     public class Autosave<T> : IInitializableComponent
     {
         /// <summary>
@@ -13,10 +19,21 @@ namespace Mud.Engine.Runtime.Game
         /// </summary>
         private EngineTimer<T> autosaveTimer;
 
+        /// <summary>
+        /// The item to save when the timer fires
+        /// </summary>
         private T ItemToSave;
 
+        /// <summary>
+        /// The delegate to call when the timer fires
+        /// </summary>
         private Func<Task> saveDelegate;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="Autosave{T}"/> class.
+        /// </summary>
+        /// <param name="itemToSave">The item to save.</param>
+        /// <param name="saveDelegate">The save delegate.</param>
         public Autosave(T itemToSave, Func<Task> saveDelegate)
         {
             ExceptionFactory
@@ -45,6 +62,10 @@ namespace Mud.Engine.Runtime.Game
             }
         }
 
+        /// <summary>
+        /// Initializes this instance.
+        /// </summary>
+        /// <returns></returns>
         public Task Initialize()
         {
             // Set up our auto-save if the frequency is set for it.

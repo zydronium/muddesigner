@@ -32,6 +32,7 @@ namespace Mud.Engine.Runtime.Game.Environment
         /// <param name="departureDirection">The departure direction.</param>
         public DefaultDoorway(ITravelDirection departureDirection)
         {
+            ExceptionFactory.ThrowIf<ArgumentNullException>(departureDirection == null);
             this.DepartureDirection = departureDirection;
         }
 
@@ -44,6 +45,8 @@ namespace Mud.Engine.Runtime.Game.Environment
         /// Gets or sets the arrival room.
         /// </summary>
         public DefaultRoom ArrivalRoom { get; protected set; }
+
+        public DefaultRoom DepartureRoom { get; protected set; }
 
         /// <summary>
         /// Connects two rooms together.
@@ -59,23 +62,22 @@ namespace Mud.Engine.Runtime.Game.Environment
         /// or
         /// Can not connect rooms when the doorways collection is null.
         /// </exception>
-        public void ConnectRooms(DefaultRoom departureRoom, DefaultRoom arrivalRoom, bool createDoorwayForArrival = true)
+        public virtual void ConnectRooms(DefaultRoom departureRoom, DefaultRoom arrivalRoom, bool createDoorwayForArrival = true)
         {
-            if (departureRoom == null || arrivalRoom == null)
-            {
-                throw new NullReferenceException("Neither the departure room or arrival room can be null");
-            }
-            else if (this.DepartureDirection == null)
-            {
-                throw new NullReferenceException("Can not connect rooms when the DepartureDirection is null.");
-            }
-            else if (departureRoom.Doorways == null)
-            {
-                throw new NullReferenceException("Can not connect rooms when the doorways collection is null.");
-            }
+            ExceptionFactory
+                .ThrowIf<ArgumentNullException>(
+                    departureRoom == null || arrivalRoom == null,
+                    "Neither the departure room or arrival room can be null")
+                .Or<NullReferenceException>(
+                    this.DepartureDirection == null,
+                    "Can not connect rooms when the DepartureDirection is null.")
+                .Or(
+                    departureRoom.Doorways == null,
+                    "Can not connect rooms when the doorways collection is null.");
 
             // Set up the departure room first.
             this.ArrivalRoom = arrivalRoom;
+            this.DepartureRoom = departureRoom;
 
             departureRoom.Doorways.Add(this);
 
@@ -94,7 +96,7 @@ namespace Mud.Engine.Runtime.Game.Environment
         /// <summary>
         /// Disconnects the two connected rooms.
         /// </summary>
-        public void DisconnectRoom()
+        public virtual void DisconnectRoom()
         {
             // If this doorway isn't set up, then there is nothing to disconnect.
             if (this.DepartureDirection == null || this.ArrivalRoom == null)
@@ -107,6 +109,11 @@ namespace Mud.Engine.Runtime.Game.Environment
             string oppositeDirection = this.DepartureDirection.GetOppositeDirection().Direction;
             DefaultDoorway oppositeDoorway = this.ArrivalRoom.Doorways
                 .FirstOrDefault(d => d.DepartureDirection.Direction == oppositeDirection);
+
+            ExceptionFactory.ThrowIf<InvalidOperationException>(
+                oppositeDoorway == null,
+                "Opposite direction does not have a connected room.");
+
             DefaultRoom departureRoom = oppositeDoorway.ArrivalRoom;
 
             // Remove the doorway from the opposite room.
@@ -124,12 +131,11 @@ namespace Mud.Engine.Runtime.Game.Environment
         /// <exception cref="System.NullReferenceException">Occupant can not be null when traversing doorways.</exception>
         public void TraverseDoorway(ICharacter occupant)
         {
-            if (occupant == null)
-            {
-                throw new NullReferenceException("Occupant can not be null when traversing doorways.");
-            }
+            ExceptionFactory.ThrowIf<ArgumentNullException>(
+                occupant == null,
+                "Occupant can not be null when traversing doorways.");
 
-            this.ArrivalRoom.AddOccupantToRoom(occupant);
+            this.ArrivalRoom.MoveOccupantToRoom(occupant, this.DepartureRoom);
         }
 
         /// <summary>

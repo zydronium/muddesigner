@@ -4,7 +4,7 @@ using System.Threading;
 using System.Diagnostics;
 using Mud.Engine.Runtime;
 
-namespace Tests.Engine.Runtime.Core
+namespace Tests.Engine.Runtime
 {
     [TestClass]
     public class EngineTimerTests

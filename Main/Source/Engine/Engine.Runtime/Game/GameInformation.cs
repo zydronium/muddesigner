@@ -1,13 +1,20 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
+﻿//-----------------------------------------------------------------------
+// <copyright file="GameInformation.cs" company="Sully">
+//     Copyright (c) Johnathon Sullinger. All rights reserved.
+// </copyright>
+//-----------------------------------------------------------------------
 namespace Mud.Engine.Runtime.Game
 {
+    using System;
+
+    /// <summary>
+    /// Provides meta-information for the currently running game.
+    /// </summary>
     public class GameInformation : IComponent
     {
+        /// <summary>
+        /// Gets or sets the unique identifier.
+        /// </summary>
         public int Id { get; set; }
 
         /// <summary>

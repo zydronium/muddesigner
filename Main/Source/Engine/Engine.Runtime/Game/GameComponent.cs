@@ -1,8 +1,13 @@
-﻿using System;
-using System.Threading.Tasks;
-
+﻿//-----------------------------------------------------------------------
+// <copyright file="GameComponent.cs" company="Sully">
+//     Copyright (c) Johnathon Sullinger. All rights reserved.
+// </copyright>
+//-----------------------------------------------------------------------
 namespace Mud.Engine.Runtime.Game
 {
+    using System;
+    using System.Threading.Tasks;
+
     /// <summary>
     /// The root class for all game Types.
     /// </summary>
@@ -28,6 +33,9 @@ namespace Mud.Engine.Runtime.Game
         /// </summary>
         public event EventHandler<EventArgs> Deleted;
 
+        /// <summary>
+        /// Gets or sets the unique identifier.
+        /// </summary>
         public int Id { get; set; }
 
         /// <summary>
@@ -60,8 +68,18 @@ namespace Mud.Engine.Runtime.Game
         /// <returns></returns>
         protected abstract Task Load();
 
+        /// <summary>
+        /// Unloads this instance and any resources or dependencies it might be using.
+        /// Called during deletion of the component.
+        /// </summary>
+        /// <returns></returns>
         protected abstract Task Unload();
 
+        /// <summary>
+        /// This gets called when initialization of the component begins. 
+        /// This is called prior to Load() being invoked.
+        /// </summary>
+        /// <returns></returns>
         protected virtual async Task LoadingBegan()
         {
             var handler = this.Loading;
@@ -73,6 +91,10 @@ namespace Mud.Engine.Runtime.Game
             await handler(this);
         }
 
+        /// <summary>
+        /// Called when initialization is completed. Provides last-chance initialization support.
+        /// Called after Load() has completed.
+        /// </summary>
         protected virtual void LoadingCompleted()
         {
             var handler = this.Loaded;
@@ -84,6 +106,11 @@ namespace Mud.Engine.Runtime.Game
             handler(this, new EventArgs());
         }
 
+        /// <summary>
+        /// This gets called when deletion of the component begins. 
+        /// This is called prior to Unload() being invoked.
+        /// </summary>
+        /// <returns></returns>
         protected virtual async Task OnDeleteRequested()
         {
             var handler = this.Deleting;
@@ -95,6 +122,10 @@ namespace Mud.Engine.Runtime.Game
             await handler(this);
         }
 
+        /// <summary>
+        /// Called when Deletion is completed. Provides last-chance clean-up support.
+        /// Called after Unload() has completed.
+        /// </summary>
         protected virtual void OnDeleted()
         {
             var handler = this.Deleted;

@@ -3,13 +3,13 @@
 //     Copyright (c) Johnathon Sullinger. All rights reserved.
 // </copyright>
 //-----------------------------------------------------------------------
-namespace Mud.Engine.Runtime
+namespace Mud.Engine.Runtime.Game
 {
     /// <summary>
     /// Provides methods for dispatching notifications to subscription handlers
     /// </summary>
     /// <typeparam name="TMessageType">The type of the message type.</typeparam>
-    public class MessageBase<TMessageType> : IMessage where TMessageType : class, IMessage
+    public abstract class MessageBase<TMessageType> : IMessage where TMessageType : class, IMessage
     {
         /// <summary>
         /// Dispatches this message instance to the given handler for processing.

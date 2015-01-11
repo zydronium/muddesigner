@@ -6,13 +6,14 @@
 namespace Mud.Engine.Runtime.Game.Character
 {
     using System;
+    using System.Threading.Tasks;
     using Mud.Engine.Runtime;
     using Mud.Engine.Runtime.Game.Environment;
 
     /// <summary>
     /// The Default Engine implementation of IPlayer.
     /// </summary>
-    public class DefaultPlayer : ICharacter
+    public class DefaultPlayer : GameComponent, ICharacter
     { 
         /// <summary>
         /// The CurrentRoom property backing field.
@@ -22,8 +23,9 @@ namespace Mud.Engine.Runtime.Game.Character
         /// <summary>
         /// Initializes a new instance of the <see cref="DefaultPlayer"/> class.
         /// </summary>
-        public DefaultPlayer()
+        public DefaultPlayer(DefaultGame game)
         {
+            this.Game = game;
             this.Id = 0;
         }
 
@@ -70,60 +72,36 @@ namespace Mud.Engine.Runtime.Game.Character
         /// <summary>
         /// Gets or sets the current room that this character occupies.
         /// </summary>
-        public DefaultRoom CurrentRoom
+        public DefaultRoom CurrentRoom { get; set; }
+
+        /// <summary>
+        /// Moves this character to the given room going in the specified direction.
+        /// </summary>
+        /// <param name="direction">The direction.</param>
+        /// <param name="newRoom">The new room.</param>
+        public void Move(ITravelDirection direction, DefaultRoom newRoom)
         {
-            get
-            {
-                return this.currentRoom;
-            }
-
-            set
-            {
-                DefaultRoom departingRoom = this.currentRoom;
-                this.currentRoom = value;
-
-                this.OnRoomChanged(departingRoom, value);
-            }
+            this.OnRoomChanged(direction, this.CurrentRoom, newRoom);
         }
 
         /// <summary>
-        /// Initializes this instance with the given game.
+        /// Loads the component and any resources or dependencies it might have.
+        /// Called during initialization of the component
         /// </summary>
-        /// <param name="game">The game.</param>
-        public void Initialize(DefaultGame game)
+        /// <returns></returns>
+        protected override Task Load()
         {
-            this.Game = game;
-
-            // TODO: Fetch permissions and handle log-in.
-            this.OnLoaded();
+            return Task.FromResult(true);
         }
 
         /// <summary>
-        /// Called when the player is loaded.
+        /// Unloads this instance and any resources or dependencies it might be using.
+        /// Called during deletion of the component.
         /// </summary>
-        protected virtual void OnLoaded()
+        /// <returns></returns>
+        protected override Task Unload()
         {
-            EventHandler handler = this.Loaded;
-            if (handler == null)
-            {
-                return;
-            }
-
-            handler(this, new EventArgs());
-        }
-
-        /// <summary>
-        /// Called when the player is unloaded.
-        /// </summary>
-        protected virtual void OnUnloaded()
-        {
-            EventHandler handler = this.Unloaded;
-            if (handler == null)
-            {
-                return;
-            }
-
-            handler(this, new EventArgs());
+            return Task.FromResult(true);
         }
 
         /// <summary>
@@ -131,7 +109,7 @@ namespace Mud.Engine.Runtime.Game.Character
         /// </summary>
         /// <param name="departingRoom">The departing room.</param>
         /// <param name="arrivalRoom">The arrival room.</param>
-        protected virtual void OnRoomChanged(DefaultRoom departingRoom, DefaultRoom arrivalRoom)
+        protected virtual void OnRoomChanged(ITravelDirection direction, DefaultRoom departingRoom, DefaultRoom arrivalRoom)
         {
             EventHandler<OccupancyChangedEventArgs> handler = this.RoomChanged;
             if (handler == null)
@@ -139,7 +117,7 @@ namespace Mud.Engine.Runtime.Game.Character
                 return;
             }
 
-            handler(this, new OccupancyChangedEventArgs(this, departingRoom, arrivalRoom));
+            handler(this, new OccupancyChangedEventArgs(this, direction, departingRoom, arrivalRoom));
         }
     }
 }

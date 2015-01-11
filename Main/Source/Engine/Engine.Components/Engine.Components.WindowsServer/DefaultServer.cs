@@ -14,6 +14,8 @@ namespace Mud.Engine.Components.WindowsServer
     using System.Linq;
     using System.Net;
     using System.Net.Sockets;
+    using System.Threading.Tasks;
+
 
     /// <summary>
     /// The Default Desktop game Server
@@ -124,22 +126,12 @@ namespace Mud.Engine.Components.WindowsServer
         /// or
         /// Invalid MaxConnections number used. Must be greater than 1.
         /// </exception>
-        public void Start<TPlayer>(DefaultGame game)
-            where TPlayer : DefaultPlayer, new()
+        public void Start(DefaultGame game)
         {
             // Ensure we have a valid game.
             ExceptionFactory
                 .ThrowIf<ArgumentNullException>(game == null, () => new ArgumentNullException("game", "Game must not be null!"))
                 .ElseDo(() => this.Game = game);
-
-            ////if (this.ConnectionCommand == null)
-            ////{
-            ////    throw new NullReferenceException("ConnectionCommand can not be null. A command must be given for execution upon player connection");
-            ////}
-            ////else
-            ////{
-            ////    this.ConnectionCommand.Initialize<TPlayer>();
-            ////}
 
             this.Status = ServerStatus.Starting;
             //// this.Logger("Starting network server.");
@@ -159,7 +151,7 @@ namespace Mud.Engine.Components.WindowsServer
             this.serverSocket.Listen(this.MaxQueuedConnections);
 
             // Begin listening for connections.
-            IAsyncResult result = this.serverSocket.BeginAccept(new AsyncCallback(this.ConnectClient<TPlayer>), this.serverSocket);
+            IAsyncResult result = this.serverSocket.BeginAccept(new AsyncCallback(this.ConnectClient), this.serverSocket);
 
             this.Status = ServerStatus.Running;
         }
@@ -275,17 +267,20 @@ namespace Mud.Engine.Components.WindowsServer
         /// </summary>
         /// <typeparam name="TPlayer">The type of the player.</typeparam>
         /// <param name="result">The async result.</param>
-        private void ConnectClient<TPlayer>(IAsyncResult result)
-            where TPlayer : DefaultPlayer, new()
+        private void ConnectClient(IAsyncResult result)
         {
             // Fetch the next incoming connection.
-            this.serverSocket.BeginAccept(new AsyncCallback(this.ConnectClient<TPlayer>), this.serverSocket);
+            this.serverSocket.BeginAccept(new AsyncCallback(this.ConnectClient), this.serverSocket);
 
             // Cast the invoker to IPlayer. If the Invoker is not an IPlayer, we want to throw an exception.
-            DefaultPlayer player = Activator.CreateInstance<TPlayer>();
+            DefaultPlayer player = CharacterFactory.CreatePlayer(this.Game);
 
-            // Register for the events we need to now of and initialize the player.
-            player.Initialize(this.Game);
+            // Initialize the player.
+            Task task = player.Initialize();
+
+            // Since we are running on a background thread to begin with, we will just wait for the 
+            // player initialization operation to complete.
+            task.Wait();
 
             lock (this.ConnectedPlayers)
             {

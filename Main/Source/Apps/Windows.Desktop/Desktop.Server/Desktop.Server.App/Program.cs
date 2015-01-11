@@ -75,7 +75,7 @@ namespace Mud.Apps.Windows.Desktop.Server.App
 
             // Start the server. The DefaultPlayer Type will be instanced when each new player connects.
             // TODO: 11/2/14 - Add a non-generic Start method accepting a Type for IoC support.
-            server.Start<DefaultPlayer>(game);
+            server.Start(game);
 
             SetupGameWorld(game);
 
@@ -144,6 +144,8 @@ namespace Mud.Apps.Windows.Desktop.Server.App
             builder.RegisterType<WorldRepository>().As<IWorldRepository>();
             builder.RegisterType<TimeOfDayStateRepository>().As<ITimeOfDayStateRepository>();
             container = builder.Build();
+
+            CharacterFactory.Initialize<DefaultPlayer>();
         }
 
         /// <summary>
@@ -179,12 +181,14 @@ namespace Mud.Apps.Windows.Desktop.Server.App
             world.TimeOfDayChanged += World_TimeOfDayChanged;
 
             // Set up the Realm.
-            DefaultRealm realm = new DefaultRealm();
+            DefaultRealm realm = new DefaultRealm(world, new TimeOfDay { Hour = 3, HoursPerDay = 10 });
             realm.TimeZoneOffset = new TimeOfDay { Hour = 3, Minute = 10, HoursPerDay = world.HoursPerDay };
             realm.Name = "Realm 1";
 
             // Initialize the environment.
-            world.Initialize();
+            Task task = world.Initialize();
+            task.Wait();
+
             world.AddRealmToWorld(realm);
             realm.AddZoneToRealm(zone);
             realm.AddZoneToRealm(zone2);

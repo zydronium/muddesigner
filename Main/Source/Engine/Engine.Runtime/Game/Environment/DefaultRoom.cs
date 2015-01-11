@@ -7,8 +7,8 @@ namespace Mud.Engine.Runtime.Game.Environment
 {
     using System;
     using System.Collections.Generic;
+    using System.Linq;
     using Mud.Engine.Runtime.Game.Character;
-
 
     /// <summary>
     /// The Default engine Room Type.
@@ -89,7 +89,7 @@ namespace Mud.Engine.Runtime.Game.Environment
         /// </summary>
         /// <param name="character">The character.</param>
         /// <exception cref="System.NullReferenceException">Attempted to add a null character to the Room.</exception>
-        public void AddOccupantToRoom(ICharacter character)
+        public void MoveOccupantToRoom(ICharacter character, DefaultRoom departingRoom)
         {
             // We don't allow the user to enter a disabled room.
             if (!this.IsEnabled)
@@ -104,11 +104,22 @@ namespace Mud.Engine.Runtime.Game.Environment
             }
 
             // Remove the character from their previous room.
-            character.CurrentRoom.RemoveOccupantFromRoom(character, this);
+            //Find the doorway that the character traveled through
+            DefaultDoorway doorwayTraveledThrough = 
+                departingRoom.Doorways.FirstOrDefault(door => door.ArrivalRoom == this);
+
+            // Get the opposite direction of the doorways travel direction. This will be the direction that they entered from
+            // within this instance's available entry points.
+            ITravelDirection enteredDirection = doorwayTraveledThrough.DepartureDirection.GetOppositeDirection();
+
+            // Handle removing the occupant from the previous room. The character might handle this for us
+            // so our RemoveOccupantFromRoom implementation will try to remove safely.
+            departingRoom.TryRemoveOccupantFromRoom(character, doorwayTraveledThrough.DepartureDirection, this);
 
             this.Occupants.Add(character);
-            this.OnEnteringRoom(character, character.CurrentRoom);
 
+            // Notify our event handles that the character has entered the room.
+            this.OnEnteringRoom(character, enteredDirection, departingRoom);
             character.CurrentRoom = this;
         }
 
@@ -117,7 +128,7 @@ namespace Mud.Engine.Runtime.Game.Environment
         /// </summary>
         /// <param name="character">The character.</param>
         /// <param name="arrivalRoom">The arrival room.</param>
-        public void RemoveOccupantFromRoom(ICharacter character, DefaultRoom arrivalRoom)
+        protected void TryRemoveOccupantFromRoom(ICharacter character, ITravelDirection leavingDirection, DefaultRoom arrivalRoom)
         {
             if (character == null)
             {
@@ -125,7 +136,7 @@ namespace Mud.Engine.Runtime.Game.Environment
             }
 
             this.Occupants.Remove(character);
-            this.OnLeavingRoom(character, arrivalRoom);
+            this.OnLeavingRoom(character, leavingDirection, arrivalRoom);
         }
 
         /// <summary>
@@ -133,7 +144,7 @@ namespace Mud.Engine.Runtime.Game.Environment
         /// </summary>
         /// <param name="character">The character.</param>
         /// <param name="departingRoom">The departing room.</param>
-        protected virtual void OnEnteringRoom(ICharacter character, DefaultRoom departingRoom)
+        protected virtual void OnEnteringRoom(ICharacter character, ITravelDirection enteringDirection, DefaultRoom departingRoom)
         {
             EventHandler<OccupancyChangedEventArgs> handler = this.EnteredRoom;
             if (handler == null)
@@ -141,7 +152,7 @@ namespace Mud.Engine.Runtime.Game.Environment
                 return;
             }
 
-            handler(this, new OccupancyChangedEventArgs(character, departingRoom, this));
+            handler(this, new OccupancyChangedEventArgs(character, enteringDirection, departingRoom, this));
         }
 
         /// <summary>
@@ -149,7 +160,7 @@ namespace Mud.Engine.Runtime.Game.Environment
         /// </summary>
         /// <param name="character">The character.</param>
         /// <param name="arrivalRoom">The arrival room.</param>
-        protected virtual void OnLeavingRoom(ICharacter character, DefaultRoom arrivalRoom)
+        protected virtual void OnLeavingRoom(ICharacter character, ITravelDirection enteringDirection, DefaultRoom arrivalRoom)
         {
             EventHandler<OccupancyChangedEventArgs> handler = this.LeftRoom;
             if (handler == null)
@@ -157,7 +168,7 @@ namespace Mud.Engine.Runtime.Game.Environment
                 return;
             }
 
-            handler(this, new OccupancyChangedEventArgs(character, this, arrivalRoom));
+            handler(this, new OccupancyChangedEventArgs(character, enteringDirection, this, arrivalRoom));
         }
     }
 }

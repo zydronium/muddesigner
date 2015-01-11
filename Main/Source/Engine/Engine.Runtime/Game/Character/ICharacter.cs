@@ -1,20 +1,18 @@
-﻿using Mud.Engine.Runtime.Game.Environment;
-using System;
-
+﻿//-----------------------------------------------------------------------
+// <copyright file="ICharacter.cs" company="Sully">
+//     Copyright (c) Johnathon Sullinger. All rights reserved.
+// </copyright>
+//-----------------------------------------------------------------------
 namespace Mud.Engine.Runtime.Game.Character
 {
-    public interface ICharacter
+    using Mud.Engine.Runtime.Game.Environment;
+    using System;
+
+    /// <summary>
+    /// Defines what makes up a Character within the game.
+    /// </summary>
+    public interface ICharacter : IGameComponent
     {
-        /// <summary>
-        /// Occurs when the object is loaded.
-        /// </summary>
-        event EventHandler Loaded;
-
-        /// <summary>
-        /// Occurs when being unloaded.
-        /// </summary>
-        event EventHandler Unloaded;
-
         /// <summary>
         /// Occurs when the instance receives an IMessage.
         /// </summary>
@@ -29,11 +27,6 @@ namespace Mud.Engine.Runtime.Game.Character
         /// Occurs when the character changes rooms.
         /// </summary>
         event EventHandler<OccupancyChangedEventArgs> RoomChanged;
-
-        /// <summary>
-        /// Gets or sets the unique identifier.
-        /// </summary>
-        int Id { get; set; }
 
         /// <summary>
         /// Gets or sets the name.
@@ -51,9 +44,10 @@ namespace Mud.Engine.Runtime.Game.Character
         DefaultRoom CurrentRoom {get;set;}
 
         /// <summary>
-        /// Initializes this instance with the given game.
+        /// Moves this character to the given room going in the specified direction.
         /// </summary>
-        /// <param name="game">The game.</param>
-        void Initialize(DefaultGame game);
+        /// <param name="direction">The direction.</param>
+        /// <param name="newRoom">The new room.</param>
+        void Move(ITravelDirection direction, DefaultRoom newRoom);
     }
 }

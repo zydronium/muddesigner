@@ -88,8 +88,7 @@ namespace Mud.Engine.Runtime.Networking
         /// </summary>
         /// <typeparam name="TPlayer">The type of the player.</typeparam>
         /// <param name="game">The game.</param>
-        void Start<TPlayer>(DefaultGame game)
-            where TPlayer : DefaultPlayer, new();
+        void Start(DefaultGame game);
 
         /// <summary>
         /// Stops the server.

@@ -65,11 +65,6 @@ namespace Mud.Engine.Runtime.Game.Environment
         }
 
         /// <summary>
-        /// Gets or sets the rules that must be applied to this zone.
-        /// </summary>
-        //public ICollection<IZoneRule> Rules { get; set; }
-
-        /// <summary>
         /// Gets or sets the current weather.
         /// </summary>
         public IWeatherState CurrentWeather { get; set; }
