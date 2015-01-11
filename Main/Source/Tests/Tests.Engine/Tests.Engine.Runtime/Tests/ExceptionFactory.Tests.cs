@@ -2,7 +2,6 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Mud.Engine.Runtime;
 using Moq;
-using Mud.Engine.Runtime.Game.Character;
 using System.Collections.Generic;
 using Mud.Engine.Runtime.Game;
 

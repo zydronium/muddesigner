@@ -6,9 +6,19 @@ using Mud.Engine.Runtime;
 
 namespace Tests.Engine.Runtime
 {
+    /// <summary>
+    /// Unit Tests for the EngineTimer class.
+    /// </summary>
     [TestClass]
     public class EngineTimerTests
     {
+        /// <summary>
+        /// Ensures that the timer fires at the correct interval.
+        /// 
+        /// Since there is some time lost due to having to invoke the callback
+        /// and actually get to the Stop() method, we Assert if we are within a 
+        /// set range of milliseconds. We will never hit the target time exactly.
+        /// </summary>
         [TestMethod]
         [TestCategory("Runtime - EngineTimer")]
         public void Engine_timer_fires_at_proper_interval()
@@ -46,6 +56,9 @@ namespace Tests.Engine.Runtime
             Assert.IsTrue(difference.TotalMilliseconds < (targetMilliseconds + 20) && difference.TotalMilliseconds > (targetMilliseconds - 20));
         }
 
+        /// <summary>
+        /// Ensures the EngineTimer fires after a set delay.
+        /// </summary>
         [TestMethod]
         [TestCategory("Runtime - EngineTimer")]
         public void Engine_timer_fires_with_delay_time()

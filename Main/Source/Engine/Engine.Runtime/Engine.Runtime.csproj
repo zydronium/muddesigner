@@ -38,6 +38,7 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="ActionFromTask.cs" />
     <Compile Include="Game\Character\CharacterFactory.cs" />
     <Compile Include="Game\ChatMessage.cs" />
     <Compile Include="Game\ChatMessageHandler.cs" />

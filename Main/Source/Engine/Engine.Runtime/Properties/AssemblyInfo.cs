@@ -1,4 +1,5 @@
-﻿//-----------------------------------------------------------------------
+﻿using System.Runtime.CompilerServices;
+//-----------------------------------------------------------------------
 // <copyright file="AssemblyInfo.cs" company="Sully">
 //     Copyright (c) Johnathon Sullinger. All rights reserved.
 // </copyright>
@@ -31,3 +32,6 @@ using System.Resources;
 // [assembly: AssemblyVersion("1.0.*")]
 [assembly: AssemblyVersion("1.0.0.0")]
 [assembly: AssemblyFileVersion("1.0.0.0")]
+[assembly: InternalsVisibleTo("Engine.Runtime.Tests")]
+[assembly: InternalsVisibleTo("MudDesigner.Engine.Explorables")]
+

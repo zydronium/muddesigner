@@ -4,7 +4,7 @@ using Moq;
 using Mud.Engine.Runtime.Game.Character;
 using Mud.Engine.Runtime.Game;
 
-namespace Tests.Engine.Runtime
+namespace Tests.Engine.Runtime.Game
 {
     [TestClass]
     public class SubscriptionResultTests

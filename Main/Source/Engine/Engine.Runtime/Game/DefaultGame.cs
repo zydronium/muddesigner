@@ -85,7 +85,7 @@ namespace Mud.Engine.Runtime.Game
                 foreach (DefaultWorld world in this.Worlds)
                 {
                     await this.OnWorldLoaded(world);
-                    world.Initialize();
+                    await world.Initialize();
                 }
             }
 

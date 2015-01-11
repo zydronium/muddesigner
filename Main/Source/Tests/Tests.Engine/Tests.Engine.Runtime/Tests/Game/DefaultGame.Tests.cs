@@ -1,17 +1,15 @@
 ﻿using System;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Moq;
-using Autofac;
-using System.Threading.Tasks;
-using Mud.Engine.Runtime;
-using Mud.Engine.Runtime.Game;
-using Mud.Engine.Runtime.Services;
 using System.Collections.Generic;
+using System.Threading.Tasks;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Autofac;
+using Moq;
+using Moq.Protected;
+using Mud.Engine.Runtime.Game;
 using Mud.Engine.Runtime.Game.Environment;
-using System.Linq;
-using System.Threading;
+using Mud.Engine.Runtime.Services;
 
-namespace Tests.Engine.Runtime.Core
+namespace Tests.Engine.Runtime.Game
 {
     [TestClass]
     public class DefaultGameTests
@@ -82,26 +80,23 @@ namespace Tests.Engine.Runtime.Core
         public async Task Initializes_loaded_worlds()
         {
             // Arrange
-            var worldMock = new Mock<DefaultWorld>();
-            var worldServiceMock = new Mock<IWorldService>();
-
-            // Get our mocked instance and set up the time of day states needed
-            // by the initialize method call.
-            var world = worldMock.Object;
+            var world = new DefaultWorld();
+            bool worldLoaded = false;
+            world.Loaded += (sender, args) => worldLoaded = true;
             world.TimeOfDayStates = new List<TimeOfDayState> { new TimeOfDayState() };
 
             // Set up the world service to return our mocked World.
+            var worldServiceMock = new Mock<IWorldService>();
             worldServiceMock
                 .Setup(service => service.GetAllWorlds())
-                .ReturnsAsync(new List<DefaultWorld> { worldMock.Object });
+                .ReturnsAsync(new List<DefaultWorld> { world });
             var game = new DefaultGame(container.Resolve<ILoggingService>(), worldServiceMock.Object);
 
             // Act
             await game.Initialize();
-            
+
             // Assert
-            // Verify that the world initialize method is called.
-            worldMock.Verify(w => w.Initialize(), "World Initialize was not called.");
+            Assert.IsTrue(worldLoaded);
         }
 
         [TestMethod]
