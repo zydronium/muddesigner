@@ -6,14 +6,32 @@
 namespace Mud.Engine.Runtime.Game
 {
     /// <summary>
-    /// A contract for objects wanting to dispatch message notifications.
+    /// Allows for receiving the content of a message
     /// </summary>
     public interface IMessage
     {
         /// <summary>
-        /// Dispatches the specified handler for message processing.
+        /// Gets the content.
         /// </summary>
-        /// <param name="handler">The handler.</param>
-        void Dispatch(ISubscription handler);
+        /// <returns>Returns the content of the message</returns>
+        object GetContent();
+    }
+
+    /// <summary>
+    /// Allows for receiving the content of a message
+    /// </summary>
+    /// <typeparam name="TContent">The type of the content.</typeparam>
+    public interface IMessage<TContent> : IMessage where TContent : class
+    {
+        /// <summary>
+        /// Gets the content of the message.
+        /// </summary>
+        TContent Content { get; }
+
+        /// <summary>
+        /// Gets the content of the message.
+        /// </summary>
+        /// <returns>Returns the message content</returns>
+        new TContent GetContent();
     }
 }

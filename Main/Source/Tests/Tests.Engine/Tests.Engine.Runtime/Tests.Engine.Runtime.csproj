@@ -62,14 +62,17 @@
     </Otherwise>
   </Choose>
   <ItemGroup>
+    <Compile Include="Fixtures\SecondaryNotificationFixture.cs" />
+    <Compile Include="Fixtures\MessageFixture.cs" />
+    <Compile Include="Fixtures\TestNotificationFixture.cs" />
     <Compile Include="Tests\Game\DefaultGame.Tests.cs" />
     <Compile Include="Tests\EngineTimer.Tests.cs" />
     <Compile Include="Tests\Game\Autosave.Tests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Tests\ExceptionFactory.Tests.cs" />
     <Compile Include="Tests\ExceptionFactoryResult.Tests.cs" />
-    <Compile Include="Tests\Game\SubscriptionResult.Tests.cs" />
     <Compile Include="Tests\Game\GameComponent.Tests.cs" />
+    <Compile Include="Tests\Game\NotificationManager.Tests.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Tests\Game\Character\" />

@@ -20,34 +20,11 @@ namespace Mud.Engine.Runtime.Game
             new ConcurrentDictionary<Type, ConcurrentBag<ISubscription>>();
 
         /// <summary>
-        /// The singleton instance for the NotificationManager
-        /// </summary>
-        private static NotificationManager _centerSingleton = new NotificationManager();
-
-        /// <summary>
-        /// Prevents a default instance of the <see cref="NotificationManager"/> class from being created.
-        /// </summary>
-        private NotificationManager()
-        {
-        }
-
-        /// <summary>
-        /// Gets the singleton instance.
-        /// </summary>
-        public static NotificationManager CurrentCenter
-        {
-            get
-            {
-                return _centerSingleton;
-            }
-        }
-
-        /// <summary>
         /// Subscribe publications for the message type specified.
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <returns></returns>
-        public INotificationHandler<T> Subscribe<T>() where T : class, IMessage
+        public ISubscription Subscribe<T>(INotification<T> handler) where T : class, IMessage
         {
             Type messageType = typeof(T);
 
@@ -56,10 +33,6 @@ namespace Mud.Engine.Runtime.Game
             {
                 listeners.TryAdd(messageType, new ConcurrentBag<ISubscription>());
             }
-
-            // Create a new handler for <T> from the notification handler factory.
-            var handlerFactory = new NotificationHandlerFactory<T>();
-            var handler = handlerFactory.CreateNotificationHandlerForMessage();
 
             // Add our handler to our listener collection so we can publish to it later, then return it.
             listeners[messageType].Add(handler);
@@ -78,32 +51,30 @@ namespace Mud.Engine.Runtime.Game
                 return;
             }
 
-            foreach (var handler in listeners[typeof(T)])
+            foreach (INotification<T> handler in listeners[typeof(T)])
             {
-                message.Dispatch(handler);
+                handler.ProcessMessage(message);
             }
         }
 
         /// <summary>
         /// Unsubscribes the specified handler by removing their handler from our collection.
         /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="handler">The handler.</param>
-        internal void Unsubscribe<T>(ISubscription handler) where T : class, IMessage
+        /// <typeparam name="T">The message Type you want to unsubscribe from</typeparam>
+        /// <param name="subscription">The subscription to unsubscribe.</param>
+        public void Unsubscribe<T>(ISubscription subscription) where T : class, IMessage
         {
             Type messageType = typeof(T);
-            if (!listeners.ContainsKey(messageType))
+
+            // If the key doesn't exist or has an empty collection we just return.
+            // We will leave the key in there for future subscriptions to use.
+            if (!listeners.ContainsKey(messageType) || listeners[messageType].Count == 0)
             {
-                return;
-            }
-            else if (listeners[messageType].Count == 0)
-            {
-                var collection = new ConcurrentBag<ISubscription>();
-                listeners.TryRemove(messageType, out collection);
                 return;
             }
 
-            listeners[messageType].TryTake(out handler);
+            // Remove the subscription from the collection associated with the key.
+            listeners[messageType].TryTake(out subscription);
         }
     }
 }

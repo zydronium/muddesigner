@@ -41,7 +41,7 @@
     <Compile Include="ActionFromTask.cs" />
     <Compile Include="Game\Character\CharacterFactory.cs" />
     <Compile Include="Game\ChatMessage.cs" />
-    <Compile Include="Game\ChatMessageHandler.cs" />
+    <Compile Include="Game\ChatMessageNotification.cs" />
     <Compile Include="EngineTimer.cs" />
     <Compile Include="ExceptionFactoryResult.cs" />
     <Compile Include="ExceptionFactory.cs" />
@@ -61,10 +61,9 @@
     <Compile Include="ICollectionExtensions.cs" />
     <Compile Include="Game\IMessage.cs" />
     <Compile Include="Game\INotificationCenter.cs" />
-    <Compile Include="Game\INotificationHandler.cs" />
+    <Compile Include="Game\INotification.cs" />
     <Compile Include="Game\ISubscription.cs" />
     <Compile Include="Game\MessageBase.cs" />
-    <Compile Include="Game\NotificationHandlerFactory.cs" />
     <Compile Include="Game\NotificationManager.cs" />
     <Compile Include="Services\ILoggingService.cs" />
     <Compile Include="Networking\IServer.cs" />

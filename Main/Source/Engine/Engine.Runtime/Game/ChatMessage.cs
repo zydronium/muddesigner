@@ -8,7 +8,7 @@ namespace Mud.Engine.Runtime.Game
     /// <summary>
     /// A chat message.
     /// </summary>
-    public abstract class ChatMessage : MessageBase<ChatMessage>
+    public abstract class ChatMessage : MessageBase<string>
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="ChatMessage"/> class.

@@ -12,8 +12,14 @@ namespace Mud.Engine.Runtime.Game
     public interface ISubscription
     {
         /// <summary>
+        /// Gets the notification manager.
+        /// </summary>
+        INotificationCenter NotificationManager { get; }
+
+        /// <summary>
         /// Unsubscribes the registerd callbacks from receiving notifications.
         /// </summary>
+        /// <param name="notificationCenter">The notification center.</param>
         void Unsubscribe();
     }
 }

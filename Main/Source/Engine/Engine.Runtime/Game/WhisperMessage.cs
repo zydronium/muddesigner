@@ -5,6 +5,7 @@
 //-----------------------------------------------------------------------
 namespace Mud.Engine.Runtime.Game
 {
+    using System;
     using Mud.Engine.Runtime.Game.Character;
 
     /// <summary>

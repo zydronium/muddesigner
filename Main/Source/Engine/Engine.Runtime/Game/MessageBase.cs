@@ -9,43 +9,33 @@ namespace Mud.Engine.Runtime.Game
     /// Provides methods for dispatching notifications to subscription handlers
     /// </summary>
     /// <typeparam name="TMessageType">The type of the message type.</typeparam>
-    public abstract class MessageBase<TMessageType> : IMessage where TMessageType : class, IMessage
+    public abstract class MessageBase<TContentType> : IMessage<TContentType> where TContentType : class
     {
         /// <summary>
-        /// Dispatches this message instance to the given handler for processing.
+        /// Gets the content of the message.
         /// </summary>
-        /// <param name="handler">The handler.</param>
-        public void Dispatch(ISubscription handler)
+        public TContentType Content { get; protected set; }
+
+        /// <summary>
+        /// Gets the content of the message.
+        /// </summary>
+        /// <returns>
+        /// Returns the message content
+        /// </returns>
+        public TContentType GetContent()
         {
-            // We must convert ourself to our generic type.
-            var msg = this as TMessageType;
-            if (msg == null)
-            {
-                return;
-            }
-
-            var target = handler as INotificationHandler<TMessageType>;
-            if (target == null)
-            {
-                return;
-            }
-
-            // Dispatch ourself strongly typed to a protected version
-            // of the Dispatch method.
-            this.Dispatch(target, msg);
+            return this.Content;
         }
 
         /// <summary>
-        /// Dispatches the given message to the given handler.
-        /// Children classes can override this method to perform custom dispatching
-        /// if needed.
+        /// Gets the content.
         /// </summary>
-        /// <param name="target">The handler.</param>
-        /// <param name="message">The message.</param>
-        protected virtual void Dispatch(INotificationHandler<TMessageType> target, TMessageType message)
+        /// <returns>
+        /// Returns the content of the message
+        /// </returns>
+        object IMessage.GetContent()
         {
-            // Let the handler process this message.
-            target.ProcessMessage(message);
+            return this.GetContent();
         }
     }
 }
