@@ -11,15 +11,16 @@ namespace Mud.Engine.Runtime.Game
     /// <summary>
     /// Used when an object needs to send a private message to a character.
     /// </summary>
-    public class WhisperMessage : ChatMessage
+    public class WhisperMessage : MessageBase<string>
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="WhisperMessage"/> class.
         /// </summary>
         /// <param name="message">The message.</param>
         /// <param name="target">The target.</param>
-        public WhisperMessage(string message, ICharacter target) : base(message)
+        public WhisperMessage(string message, ICharacter target)
         {
+            this.Content = message;
             this.Target = target;
         }
 

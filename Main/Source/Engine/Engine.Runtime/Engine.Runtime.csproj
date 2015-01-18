@@ -40,7 +40,7 @@
   <ItemGroup>
     <Compile Include="ActionFromTask.cs" />
     <Compile Include="Game\Character\CharacterFactory.cs" />
-    <Compile Include="Game\ChatMessage.cs" />
+    <Compile Include="Game\ShoutMessage.cs" />
     <Compile Include="Game\Notification.cs" />
     <Compile Include="EngineTimer.cs" />
     <Compile Include="ExceptionFactoryResult.cs" />

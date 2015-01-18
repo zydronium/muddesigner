@@ -8,20 +8,15 @@ namespace Mud.Engine.Runtime.Game
     /// <summary>
     /// A chat message.
     /// </summary>
-    public abstract class ChatMessage : MessageBase<string>
+    public class ShoutMessage : MessageBase<string>
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="ChatMessage"/> class.
+        /// Initializes a new instance of the <see cref="ShoutMessage"/> class.
         /// </summary>
         /// <param name="message">The message.</param>
-        public ChatMessage(string message)
+        public ShoutMessage(string message)
         {
-            this.Message = message;
+            this.Content = message;
         }
-
-        /// <summary>
-        /// Gets the message.
-        /// </summary>
-        public string Message { get; private set; }
     }
 }

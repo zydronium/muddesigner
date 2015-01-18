@@ -14,11 +14,18 @@ namespace Tests.Engine.Runtime.Tests.Game
         public void Publish_invokes_callbacks()
         {
             bool callbackCalled = false;
+            string messageContent = "Test";
             var notificationCenter = new NotificationManager();
-            notificationCenter.Subscribe<MessageFixture>((msg, sub) => callbackCalled = true);
+            notificationCenter.Subscribe<ShoutMessage>((msg, sub) =>
+                {
+                    if (msg.Content == messageContent)
+                    {
+                        callbackCalled = true;
+                    }
+                });
 
             // Act
-            notificationCenter.Publish(new MessageFixture("Test"));
+            notificationCenter.Publish(new ShoutMessage(messageContent));
 
             // Assert
             Assert.IsTrue(callbackCalled);
