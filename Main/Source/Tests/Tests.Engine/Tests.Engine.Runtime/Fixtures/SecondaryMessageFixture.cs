@@ -7,9 +7,9 @@ using System.Threading.Tasks;
 
 namespace Tests.Engine.Runtime.Fixtures
 {
-    public class SecondaryNotificationFixture : MessageBase<IGameComponent>
+    public class SecondaryMessageFixture : MessageBase<IGameComponent>
     {
-        public SecondaryNotificationFixture(IGameComponent content)
+        public SecondaryMessageFixture(IGameComponent content)
         {
             this.Content = content;
         }

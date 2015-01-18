@@ -3,6 +3,8 @@
 //     Copyright (c) Johnathon Sullinger. All rights reserved.
 // </copyright>
 //-----------------------------------------------------------------------
+using System;
+
 namespace Mud.Engine.Runtime.Game
 {
     /// <summary>
@@ -13,23 +15,16 @@ namespace Mud.Engine.Runtime.Game
         /// <summary>
         /// Sets up a new handler and returns it for subscription set up.
         /// </summary>
-        /// <typeparam name="T">An IMessage implementation that the given handler will be provided when messages are dispatched</typeparam>
+        /// <typeparam name="TMessageType">An IMessage implementation that the given handler will be provided when messages are dispatched</typeparam>
         /// <param name="handler">The handler used to process incoming messages.</param>
         /// <returns>Returns an ISubscription that can be used to unsubscribe.</returns>
-        ISubscription Subscribe<T>(INotification<T> handler) where T : class, IMessage;
+        ISubscription Subscribe<TMessageType>(Action<TMessageType, ISubscription> callback, Func<TMessageType, bool> condition = null) where TMessageType : class, IMessage;
 
         /// <summary>
         /// Publishes the specified message.
         /// </summary>
-        /// <typeparam name="T"></typeparam>
+        /// <typeparam name="TMessageType"></typeparam>
         /// <param name="message">The message.</param>
-        void Publish<T>(T message) where T : class, IMessage;
-
-        /// <summary>
-        /// Unsubscribes the given subscription.
-        /// </summary>
-        /// <typeparam name="T">The IMessage that was subscribed to</typeparam>
-        /// <param name="subscription">The subscription.</param>
-        void Unsubscribe<T>(ISubscription subscription) where T : class, IMessage;
+        void Publish<TMessageType>(TMessageType message) where TMessageType : class, IMessage;
     }
 }

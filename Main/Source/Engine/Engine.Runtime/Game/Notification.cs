@@ -10,7 +10,7 @@ namespace Mud.Engine.Runtime.Game
     /// <summary>
     /// Handles chat message subscriptions
     /// </summary>
-    public class ChatMessageNotification<TMessage> : INotification<TMessage> where TMessage : ChatMessage
+    internal class Notification<TMessage> : INotification<TMessage> where TMessage : class, IMessage
     {
         /// <summary>
         /// The callbacks invoked when the handler processes the messages.
@@ -23,18 +23,11 @@ namespace Mud.Engine.Runtime.Game
         private Func<TMessage, bool> condition;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="ChatMessageNotification{TMessage}"/> class.
+        /// Occurs when the subscription is being unsubscribed.
         /// </summary>
-        /// <param name="notificationCenter">The notification center.</param>
-        public ChatMessageNotification(INotificationCenter notificationCenter)
-        {
-            this.NotificationManager = notificationCenter;
-        }
+        public event Action<NotificationArgs> Unsubscribing;
 
-        /// <summary>
-        /// Gets the notification manager.
-        /// </summary>
-        public INotificationCenter NotificationManager { get; private set; }
+        public bool IsActive { get; protected set; }
 
         /// <summary>
         /// Registers a callback for when a chat message is published by the MessageCenter
@@ -47,6 +40,7 @@ namespace Mud.Engine.Runtime.Game
         {
             this.callback = processor;
             this.condition = condition;
+            this.IsActive = true;
         }
 
         /// <summary>
@@ -57,8 +51,14 @@ namespace Mud.Engine.Runtime.Game
             this.callback = null;
             this.condition = null;
 
-            // Let the notification manager know we are unsubscribing.
-            this.NotificationManager.Unsubscribe<TMessage>(this);
+            try
+            {
+                this.OnUnsubscribing();
+            }
+            finally
+            {
+                this.IsActive = false;
+            }
         }
 
         /// <summary>
@@ -67,32 +67,29 @@ namespace Mud.Engine.Runtime.Game
         /// <param name="message">The message.</param>
         public void ProcessMessage(TMessage message)
         {
-            if (!CanProcess(message))
+            if (this.condition == null)
+            {
+                this.callback(message, this);
+                return;
+            }
+
+            if (!this.condition(message))
             {
                 return;
             }
 
-            Post(message);
-        }
-
-        /// <summary>
-        /// Determines whether this instance can post notifications with the specified message.
-        /// </summary>
-        /// <param name="message">The message.</param>
-        /// <returns></returns>
-        private bool CanProcess(TMessage message)
-        {
-            // If any of the conditions fail, don't process.
-            return this.condition(message);
-        }
-
-        /// <summary>
-        /// Posts the specified message as a notification to the callback.
-        /// </summary>
-        /// <param name="message">The message.</param>
-        private void Post(TMessage message)
-        {
             this.callback(message, this);
+        }
+
+        protected virtual void OnUnsubscribing()
+        {
+            var handler = this.Unsubscribing;
+            if (handler == null)
+            {
+                return;
+            }
+
+            handler(new NotificationArgs(this, typeof(TMessage)));
         }
     }
 }

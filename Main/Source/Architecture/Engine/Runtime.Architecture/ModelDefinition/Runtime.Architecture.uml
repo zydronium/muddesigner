@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<modelStoreModel xmlns:dm0="http://schemas.microsoft.com/VisualStudio/2008/DslTools/Core" xmlns:dm1="http://schemas.microsoft.com/dsltools/Kernel" xmlns:dm2="http://schemas.microsoft.com/dsltools/Component" xmlns:dm3="http://schemas.microsoft.com/dsltools/Activity" xmlns:dm4="http://schemas.microsoft.com/dsltools/Interaction" xmlns:dm5="http://schemas.microsoft.com/dsltools/UseCase" xmlns:dm6="http://schemas.microsoft.com/dsltools/UmlModelLibrary" xmlns:dm7="http://schemas.microsoft.com/dsltools/UmlDiagrams" xmlns:dm8="http://schemas.microsoft.com/dsltools/LogicalClassDesigner"
+<modelStoreModel xmlns:dm0="http://schemas.microsoft.com/VisualStudio/2008/DslTools/Core" xmlns:dm1="http://schemas.microsoft.com/dsltools/Kernel" xmlns:dm2="http://schemas.microsoft.com/dsltools/Component" xmlns:dm3="http://schemas.microsoft.com/dsltools/Activity" xmlns:dm4="http://schemas.microsoft.com/dsltools/Interaction" xmlns:dm5="http://schemas.microsoft.com/dsltools/UseCase" xmlns:dm6="http://schemas.microsoft.com/dsltools/UmlModelLibrary" xmlns:dm7="http://schemas.microsoft.com/dsltools/UmlDiagrams" xmlns:dm8="http://schemas.microsoft.com/VisualStudio/TeamArchitect/SequenceDesigner" xmlns:dm9="http://schemas.microsoft.com/dsltools/SimpleShapesModel" xmlns:dm10="http://schemas.microsoft.com/VisualStudio/TeamArchitect/ActivityDesigner"
   dslVersion="1.0.0.0"
   Id="e377c4dd-9856-4600-b9d9-4749c3a64c6c"
   name="Runtime.Architecture" xmlns="http://schemas.microsoft.com/dsltools/ModelStore">
@@ -17,28 +17,316 @@
         name="StandardProfileL3" />
     </packageHasProfileInstances>
   </profileInstances>
+  <packagedElements>
+    <packageHasNamedElement>
+      <interaction
+        Id="c044dc3f-30d3-4421-854d-d65d3a71a460"
+        name="NotificationsSequence"
+        collapseFragmentsFlag="false"
+        isActiveClass="false"
+        isAbstract="false"
+        isLeaf="false"
+        isReentrant="false">
+        <fragments>
+          <interactionUse
+            Id="400279c6-51d8-4c75-b487-23f3fdb1ed69"
+            name="Start"
+            referredToFile="Start">
+            <referencesInternal>
+              <reference
+                Id="9acb4e30-0e7f-4d50-958e-937cd99ff23a"
+                handle="backplane://Backplane/Microsoft.VisualStudio.TeamArchitect.SequenceDesigner.ToolAdapter.SequenceServiceManager/8cebdf84-470a-4187-b60a-19be0e7cf15e\Start.sequencediagram"
+                tag="Definition Reference" />
+            </referencesInternal>
+            <coveredLifelines>
+              <lifelineMoniker
+                Id="15a63dc3-b418-4b16-9370-2c843109aa35"
+                LastKnownName="Lifeline1"
+                LastKnownLocation="Runtime.Architecture.uml" />
+            </coveredLifelines>
+            <interactionUseOccurrenceSpecifications>
+              <interactionUseOccurrenceSpecificationMoniker
+                Id="97f2f04f-5d74-43e5-8dd9-f3e1dbb53efc"
+                LastKnownName="InteractionUseOccurrenceSpecification1"
+                LastKnownLocation="Runtime.Architecture.uml" />
+            </interactionUseOccurrenceSpecifications>
+          </interactionUse>
+          <interactionUseOccurrenceSpecification
+            Id="97f2f04f-5d74-43e5-8dd9-f3e1dbb53efc"
+            name="InteractionUseOccurrenceSpecification1">
+            <covered>
+              <lifelineMoniker
+                Id="15a63dc3-b418-4b16-9370-2c843109aa35"
+                LastKnownName="Lifeline1"
+                LastKnownLocation="Runtime.Architecture.uml" />
+            </covered>
+          </interactionUseOccurrenceSpecification>
+        </fragments>
+        <lifelines>
+          <lifeline
+            Id="15a63dc3-b418-4b16-9370-2c843109aa35"
+            name="Lifeline1"
+            isActor="false"
+            lifelineDisplayName="Lifeline1">
+            <represents>
+              <propertyMoniker
+                Id="0b904c1a-8b41-438d-8cfd-7eb10e6b1f2e"
+                LastKnownLocation="Runtime.Architecture.uml" />
+            </represents>
+            <topLevelOccurrences>
+              <interactionUseOccurrenceSpecificationMoniker
+                Id="97f2f04f-5d74-43e5-8dd9-f3e1dbb53efc"
+                LastKnownName="InteractionUseOccurrenceSpecification1"
+                LastKnownLocation="Runtime.Architecture.uml" />
+            </topLevelOccurrences>
+          </lifeline>
+        </lifelines>
+        <ownedAttributesInternal>
+          <property
+            Id="0b904c1a-8b41-438d-8cfd-7eb10e6b1f2e"
+            isLeaf="false"
+            isStatic="false"
+            isReadOnly="false"
+            isDerived="false"
+            isDerivedUnion="false"
+            aggregation="None"
+            isComposite="false">
+            <type_NamedElement>
+              <interfaceMoniker
+                Id="f45524fe-1d23-4524-beca-ae4b2666ead8"
+                LastKnownName="Lifeline1"
+                LastKnownLocation="Runtime.Architecture.uml" />
+            </type_NamedElement>
+          </property>
+        </ownedAttributesInternal>
+      </interaction>
+    </packageHasNamedElement>
+    <packageHasNamedElement>
+      <Interface
+        Id="f45524fe-1d23-4524-beca-ae4b2666ead8"
+        name="Lifeline1"
+        isAbstract="false"
+        isLeaf="false" />
+    </packageHasNamedElement>
+    <packageHasNamedElement>
+      <interaction
+        Id="09c7741a-64eb-4de4-89a4-16aa1e0e37e4"
+        name="Start"
+        collapseFragmentsFlag="false"
+        isActiveClass="false"
+        isAbstract="false"
+        isLeaf="false"
+        isReentrant="false">
+        <lifelines>
+          <lifeline
+            Id="c639db52-ef40-422f-b837-72c38e5ff5b7"
+            name="Lifeline1"
+            isActor="false"
+            lifelineDisplayName="Lifeline1">
+            <represents>
+              <propertyMoniker
+                Id="6456c3fe-06f0-4950-b0bd-b1fb04f6867e"
+                LastKnownLocation="Runtime.Architecture.uml" />
+            </represents>
+          </lifeline>
+        </lifelines>
+        <ownedAttributesInternal>
+          <property
+            Id="6456c3fe-06f0-4950-b0bd-b1fb04f6867e"
+            isLeaf="false"
+            isStatic="false"
+            isReadOnly="false"
+            isDerived="false"
+            isDerivedUnion="false"
+            aggregation="None"
+            isComposite="false">
+            <type_NamedElement>
+              <interfaceMoniker
+                Id="f45524fe-1d23-4524-beca-ae4b2666ead8"
+                LastKnownName="Lifeline1"
+                LastKnownLocation="Runtime.Architecture.uml" />
+            </type_NamedElement>
+          </property>
+        </ownedAttributesInternal>
+      </interaction>
+    </packageHasNamedElement>
+    <packageHasNamedElement>
+      <activity
+        Id="2339a63a-3ac3-42c9-8dcf-7266057158b3"
+        name="Notifications"
+        isAbstract="false"
+        isLeaf="false"
+        isActiveClass="false"
+        isReentrant="false"
+        isReadOnly="false"
+        isSingleExecution="false">
+        <nodes>
+          <initialNode
+            Id="df66cd4b-e85b-442d-b45e-cec6253f23a2"
+            name="Initial1"
+            isLeaf="false">
+            <flowNodeTargets>
+              <controlFlow
+                Id="710f2e56-f9d3-4dd1-995f-9bd1cba356df"
+                isLeaf="false">
+                <opaqueActionMoniker
+                  Id="e4e1018b-1693-47bb-99d7-564a0ee99d8e"
+                  LastKnownName="Create Notification"
+                  LastKnownLocation="Runtime.Architecture.uml" />
+              </controlFlow>
+            </flowNodeTargets>
+          </initialNode>
+          <opaqueAction
+            Id="e4e1018b-1693-47bb-99d7-564a0ee99d8e"
+            name="Create Notification"
+            isLeaf="false">
+            <flowNodeTargets>
+              <controlFlow
+                Id="cb6ac7ab-0d2b-42db-80f1-315c8b376db2"
+                isLeaf="false">
+                <callOperationActionMoniker
+                  Id="90a8c4d0-3018-4968-9822-7686db218fd7"
+                  LastKnownName="Register Notification w/ Message"
+                  LastKnownLocation="Runtime.Architecture.uml" />
+              </controlFlow>
+              <controlFlow
+                Id="420bc28f-1409-474a-9ccf-333848a2ba45"
+                isLeaf="false">
+                <sendSignalActionMoniker
+                  Id="7bc3419d-0d36-47a9-80d3-da94bb418230"
+                  LastKnownName="Subscribe to Publishes"
+                  LastKnownLocation="Runtime.Architecture.uml" />
+              </controlFlow>
+            </flowNodeTargets>
+          </opaqueAction>
+          <activityParameterNode
+            Id="06abe282-8401-496f-9c5f-ebda9e25f8eb"
+            name="Callback"
+            isLeaf="false"
+            ordering="Unordered"
+            isControlType="false">
+            <upperBound>
+              <literalInteger
+                Id="ab0a82ca-9841-493a-a6b2-d4d6f7ce6dd4"
+                name="2147483647"
+                value="2147483647" />
+            </upperBound>
+          </activityParameterNode>
+          <activityParameterNode
+            Id="b2e52d9a-fe56-4240-8afd-12eb2024cf6e"
+            name="Condition"
+            isLeaf="false"
+            ordering="Unordered"
+            isControlType="false">
+            <upperBound>
+              <literalInteger
+                Id="3a24805c-27a7-48af-aa15-daf76cbd5edc"
+                name="2147483647"
+                value="2147483647" />
+            </upperBound>
+          </activityParameterNode>
+          <sendSignalAction
+            Id="7bc3419d-0d36-47a9-80d3-da94bb418230"
+            name="Subscribe to Publishes"
+            isLeaf="false">
+            <flowNodeTargets>
+              <controlFlow
+                Id="73f2517c-faf0-4796-b1e6-0844ee47bb65"
+                isLeaf="false">
+                <activityFinalNodeMoniker
+                  Id="f16e08ac-5d24-49a8-8db4-5ac1dce41614"
+                  LastKnownName="ActivityFinal1"
+                  LastKnownLocation="Runtime.Architecture.uml" />
+              </controlFlow>
+            </flowNodeTargets>
+          </sendSignalAction>
+          <callOperationAction
+            Id="90a8c4d0-3018-4968-9822-7686db218fd7"
+            name="Register Notification w/ Message"
+            isLeaf="false">
+            <objectFlowTargets>
+              <objectFlow
+                Id="c7e42391-ed30-4e9f-97ee-46d5b5086f34"
+                isLeaf="false"
+                isMulticast="false"
+                isMultireceive="false">
+                <activityParameterNodeMoniker
+                  Id="06abe282-8401-496f-9c5f-ebda9e25f8eb"
+                  LastKnownName="Callback"
+                  LastKnownLocation="Runtime.Architecture.uml" />
+              </objectFlow>
+              <objectFlow
+                Id="82bcd772-8c05-4b9b-83a2-8e3b9b320948"
+                isLeaf="false"
+                isMulticast="false"
+                isMultireceive="false">
+                <activityParameterNodeMoniker
+                  Id="b2e52d9a-fe56-4240-8afd-12eb2024cf6e"
+                  LastKnownName="Condition"
+                  LastKnownLocation="Runtime.Architecture.uml" />
+              </objectFlow>
+            </objectFlowTargets>
+          </callOperationAction>
+          <activityFinalNode
+            Id="f16e08ac-5d24-49a8-8db4-5ac1dce41614"
+            name="ActivityFinal1"
+            isLeaf="false" />
+          <initialNode
+            Id="c12e1632-fdfa-4e39-a040-9c6a6a2c03a7"
+            name="Initial11"
+            isLeaf="false">
+            <flowNodeTargets>
+              <controlFlow
+                Id="85184d04-0b92-41ff-8e86-8f07e57d743e"
+                isLeaf="false">
+                <opaqueActionMoniker
+                  Id="f7e47c39-da0a-4edb-8ee4-daffe721bbf2"
+                  LastKnownName="Publish Message"
+                  LastKnownLocation="Runtime.Architecture.uml" />
+              </controlFlow>
+            </flowNodeTargets>
+          </initialNode>
+          <opaqueAction
+            Id="f7e47c39-da0a-4edb-8ee4-daffe721bbf2"
+            name="Publish Message"
+            isLeaf="false">
+            <flowNodeTargets>
+              <controlFlow
+                Id="6cfe6801-5955-481b-911f-fb46f115ccfa"
+                isLeaf="false">
+                <callOperationActionMoniker
+                  Id="2befb324-d2d9-4db6-af53-3213bd1591ab"
+                  LastKnownName="Invoke all Notifications callback"
+                  LastKnownLocation="Runtime.Architecture.uml" />
+              </controlFlow>
+            </flowNodeTargets>
+          </opaqueAction>
+          <callOperationAction
+            Id="2befb324-d2d9-4db6-af53-3213bd1591ab"
+            name="Invoke all Notifications callback"
+            isLeaf="false" />
+        </nodes>
+      </activity>
+    </packageHasNamedElement>
+  </packagedElements>
   <primitiveType
     Id="220a3521-e091-4221-bae9-3ef9018e845c"
     name="Integer"
     isAbstract="false"
-    isTemplate="false"
     isLeaf="false" />
   <primitiveType
     Id="8943dc84-709e-4f62-b15a-a3273aa6f165"
     name="Boolean"
     isAbstract="false"
-    isTemplate="false"
     isLeaf="false" />
   <primitiveType
     Id="59259974-6d55-42c6-b7bd-763d77ac8ef9"
     name="String"
     isAbstract="false"
-    isTemplate="false"
     isLeaf="false" />
   <primitiveType
     Id="3ab42e7d-4969-445a-b209-471f5cb8209c"
     name="UnlimitedNatural"
     isAbstract="false"
-    isTemplate="false"
     isLeaf="false" />
 </modelStoreModel>

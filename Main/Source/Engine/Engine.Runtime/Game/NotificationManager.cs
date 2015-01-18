@@ -7,6 +7,7 @@ namespace Mud.Engine.Runtime.Game
 {
     using System;
     using System.Collections.Concurrent;
+    using System.Collections.Generic;
 
     /// <summary>
     /// The mediator for all messaging
@@ -16,26 +17,38 @@ namespace Mud.Engine.Runtime.Game
         /// <summary>
         /// Collection of subscribed listeners
         /// </summary>
-        private ConcurrentDictionary<Type, ConcurrentBag<ISubscription>> listeners =
-            new ConcurrentDictionary<Type, ConcurrentBag<ISubscription>>();
+        private ConcurrentDictionary<Type, List<ISubscription>> listeners =
+            new ConcurrentDictionary<Type, List<ISubscription>>();
+
+        private object listenerCollectionLock = new object();
 
         /// <summary>
         /// Subscribe publications for the message type specified.
         /// </summary>
-        /// <typeparam name="T"></typeparam>
+        /// <typeparam name="TMessageType"></typeparam>
         /// <returns></returns>
-        public ISubscription Subscribe<T>(INotification<T> handler) where T : class, IMessage
+        public ISubscription Subscribe<TMessageType>(Action<TMessageType, ISubscription> callback, Func<TMessageType, bool> condition = null) where TMessageType : class, IMessage
         {
-            Type messageType = typeof(T);
+            Type messageType = typeof(TMessageType);
 
             // Create our key if it doesn't exist along with an empty collection as the value.
             if (!listeners.ContainsKey(messageType))
             {
-                listeners.TryAdd(messageType, new ConcurrentBag<ISubscription>());
+                listeners.TryAdd(messageType, new List<ISubscription>());
             }
 
-            // Add our handler to our listener collection so we can publish to it later, then return it.
-            listeners[messageType].Add(handler);
+            // Add our notification to our listener collection so we can publish to it later, then return it.
+            // TODO: Move instancing the Notification in to a Factory.
+            var handler = new Notification<TMessageType>();
+            handler.Register(callback, condition);
+            handler.Unsubscribing += this.Unsubscribe;
+
+            List<ISubscription> subscribers = listeners[messageType];
+            lock (listenerCollectionLock)
+            {
+                subscribers.Add(handler);
+            }
+
             return handler;
         }
 
@@ -62,19 +75,23 @@ namespace Mud.Engine.Runtime.Game
         /// </summary>
         /// <typeparam name="T">The message Type you want to unsubscribe from</typeparam>
         /// <param name="subscription">The subscription to unsubscribe.</param>
-        public void Unsubscribe<T>(ISubscription subscription) where T : class, IMessage
+        private void Unsubscribe(NotificationArgs args)
         {
-            Type messageType = typeof(T);
-
             // If the key doesn't exist or has an empty collection we just return.
             // We will leave the key in there for future subscriptions to use.
-            if (!listeners.ContainsKey(messageType) || listeners[messageType].Count == 0)
+            if (!listeners.ContainsKey(args.MessageType) || listeners[args.MessageType].Count == 0)
             {
                 return;
             }
 
             // Remove the subscription from the collection associated with the key.
-            listeners[messageType].TryTake(out subscription);
+            List<ISubscription> subscribers = listeners[args.MessageType];
+            lock (listenerCollectionLock)
+            {
+                subscribers.Remove(args.Subscription);
+            }
+
+            args.Subscription.Unsubscribing -= this.Unsubscribe;
         }
     }
 }

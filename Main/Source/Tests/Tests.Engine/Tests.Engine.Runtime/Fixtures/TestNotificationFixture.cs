@@ -13,12 +13,9 @@ namespace Tests.Engine.Runtime.Fixtures
 
         private Func<TMessageType, bool> condition;
 
-        public TestNotificationFixture(INotificationCenter notificationCenter)
-        {
-            this.NotificationManager = notificationCenter;
-        }
+        public bool IsActive { get; private set; }
 
-        public INotificationCenter NotificationManager { get; private set; }
+        public event Action<NotificationArgs> Unsubscribing;
 
         public void ProcessMessage(TMessageType message)
         {
@@ -32,14 +29,19 @@ namespace Tests.Engine.Runtime.Fixtures
             }
         }
 
-        public void Register(Action<TMessageType, ISubscription> message, Func<TMessageType, bool> condition = null)
+        public void Register(Action<TMessageType, ISubscription> callback, Func<TMessageType, bool> condition = null)
         {
-            this.callback = message;
+            this.callback = callback;
+            this.condition = condition;
         }
 
         public void Unsubscribe()
         {
-            this.NotificationManager.Unsubscribe<TMessageType>(this);
+            var handler = this.Unsubscribing;
+            if (handler != null)
+            {
+                handler(new NotificationArgs(this, typeof(TMessageType)));
+            }
         }
     }
 }

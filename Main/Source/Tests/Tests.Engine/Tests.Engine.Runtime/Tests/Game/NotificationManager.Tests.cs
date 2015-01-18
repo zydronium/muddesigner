@@ -13,12 +13,9 @@ namespace Tests.Engine.Runtime.Tests.Game
         [TestCategory("Runtime.Game - NotificationManager")]
         public void Publish_invokes_callbacks()
         {
-            var notificationCenter = new NotificationManager();
-            var notification = new TestNotificationFixture<MessageFixture>(notificationCenter);
             bool callbackCalled = false;
-
-            notification.Register((message, subscription) => callbackCalled = true);
-            notificationCenter.Subscribe<MessageFixture>(notification);
+            var notificationCenter = new NotificationManager();
+            notificationCenter.Subscribe<MessageFixture>((msg, sub) => callbackCalled = true);
 
             // Act
             notificationCenter.Publish(new MessageFixture("Test"));
@@ -33,18 +30,17 @@ namespace Tests.Engine.Runtime.Tests.Game
         {
             var notificationCenter = new NotificationManager();
             int callCount = 0;
-
+            
             // Build our notification.
-            var notification = new TestNotificationFixture<MessageFixture>(notificationCenter);
-            notification.Register((message, sub) => callCount++);
+            ISubscription subscriber = notificationCenter.Subscribe<MessageFixture>(
+                (message, sub) => callCount++);
 
             // Subscribe our notification and publish a new message
-            notificationCenter.Subscribe(notification);
             notificationCenter.Publish(new MessageFixture("Test"));
 
             // Act
             // Unsubscribe the notification and attempt a new publish
-            notificationCenter.Unsubscribe<MessageFixture>(notification);
+            subscriber.Unsubscribe();
             notificationCenter.Publish(new MessageFixture("Test"));
 
             // Assert
@@ -57,24 +53,16 @@ namespace Tests.Engine.Runtime.Tests.Game
         {
             // Set up the first handler
             var notificationCenter = new NotificationManager();
-            var messageNotification = new TestNotificationFixture<MessageFixture>(notificationCenter);
-            var secondaryNotification
-                = new TestNotificationFixture<SecondaryNotificationFixture>(notificationCenter);
-
-            messageNotification.Register(
+            notificationCenter.Subscribe<MessageFixture>(
                 (message, sub) => 
                     ExceptionFactory.ThrowIf<InvalidOperationException>(message.GetType() != typeof(MessageFixture)));
-            secondaryNotification.Register(
+            notificationCenter.Subscribe<SecondaryMessageFixture>(
                 (message, sub) => 
-                    ExceptionFactory.ThrowIf<InvalidOperationException>(message.GetType() != typeof(SecondaryNotificationFixture)));
-
-            // Subscribe
-            notificationCenter.Subscribe(messageNotification);
-            notificationCenter.Subscribe(secondaryNotification);
+                    ExceptionFactory.ThrowIf<InvalidOperationException>(message.GetType() != typeof(SecondaryMessageFixture)));
 
             // Act
             notificationCenter.Publish(new MessageFixture("Test"));
-            notificationCenter.Publish(new SecondaryNotificationFixture(new GameComponentFixture()));
+            notificationCenter.Publish(new SecondaryMessageFixture(new GameComponentFixture()));
         }
     }
 }

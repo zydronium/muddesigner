@@ -16,10 +16,10 @@ namespace Mud.Engine.Runtime.Game
         /// <summary>
         /// Registers the specified action for callback when a notification is fired for T.
         /// </summary>
-        /// <param name="message">The message being posted along with the subscription registered to receive the post.</param>
+        /// <param name="callback">The message being posted along with the subscription registered to receive the post.</param>
         /// <returns></returns>
         void Register(
-            Action<TMessageType, ISubscription> message,
+            Action<TMessageType, ISubscription> callback,
             Func<TMessageType, bool> condition = null);
 
         /// <summary>

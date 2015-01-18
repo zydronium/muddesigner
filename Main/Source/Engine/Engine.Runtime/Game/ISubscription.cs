@@ -3,6 +3,8 @@
 //     Copyright (c) Johnathon Sullinger. All rights reserved.
 // </copyright>
 //-----------------------------------------------------------------------
+using System;
+
 namespace Mud.Engine.Runtime.Game
 {
     /// <summary>
@@ -12,9 +14,14 @@ namespace Mud.Engine.Runtime.Game
     public interface ISubscription
     {
         /// <summary>
-        /// Gets the notification manager.
+        /// Occurs when the subscription is being unsubscribed.
         /// </summary>
-        INotificationCenter NotificationManager { get; }
+        event Action<NotificationArgs> Unsubscribing;
+
+        /// <summary>
+        /// Gets or sets a value indicating whether this <see cref="ISubscription"/> is active.
+        /// </summary>
+        bool IsActive { get; }
 
         /// <summary>
         /// Unsubscribes the registerd callbacks from receiving notifications.
