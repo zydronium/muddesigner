@@ -25,7 +25,7 @@ namespace Tests.Engine.Runtime.Tests.Game
         {
             // Arrange
             bool loading = false;
-            componentFixture.Loading += async (component) => await TaskFromAction.Create(() => loading = true);
+            componentFixture.Loading += async (component) => await TaskFromAction.Invoke(() => loading = true);
             componentFixture.LoadDelegate = () => Task.FromResult(true);
 
             // Arrange
@@ -45,7 +45,7 @@ namespace Tests.Engine.Runtime.Tests.Game
         {
             // Arrange
             bool loading = false;
-            componentFixture.LoadDelegate = () => TaskFromAction.Create(() => loading = true);
+            componentFixture.LoadDelegate = () => TaskFromAction.Invoke(() => loading = true);
 
             // Arrange
             await this.componentFixture.Initialize();
@@ -89,11 +89,11 @@ namespace Tests.Engine.Runtime.Tests.Game
             var operationResults = new List<Tuple<string, bool>>();
 
             componentFixture.Loading += 
-                async (component) => await TaskFromAction.Create(
+                async (component) => await TaskFromAction.Invoke(
                     () => operationResults.Add(new Tuple<string, bool>(loadingOperation, true))); 
             componentFixture.Loaded += 
                 (component, args) => operationResults.Add(new Tuple<string, bool>(loadedOPeration, true));
-            componentFixture.LoadDelegate = () => TaskFromAction.Create(
+            componentFixture.LoadDelegate = () => TaskFromAction.Invoke(
                 () => operationResults.Add(new Tuple<string, bool>(loadOperation, true)));
 
             // Arrange
@@ -115,7 +115,7 @@ namespace Tests.Engine.Runtime.Tests.Game
         {
             // Arrange
             bool deleting = false;
-            componentFixture.Deleting += async (component) => await TaskFromAction.Create(() => deleting = true);
+            componentFixture.Deleting += async (component) => await TaskFromAction.Invoke(() => deleting = true);
             componentFixture.UnloadDelegate = () => Task.FromResult(true);
 
             // Arrange
@@ -135,7 +135,7 @@ namespace Tests.Engine.Runtime.Tests.Game
         {
             // Arrange
             bool deleting = false;
-            componentFixture.UnloadDelegate = () => TaskFromAction.Create(() => deleting = true);
+            componentFixture.UnloadDelegate = () => TaskFromAction.Invoke(() => deleting = true);
 
             // Arrange
             await this.componentFixture.Delete();
@@ -179,11 +179,11 @@ namespace Tests.Engine.Runtime.Tests.Game
             var operationResults = new List<Tuple<string, bool>>();
 
             componentFixture.Deleting +=
-                async (component) => await TaskFromAction.Create(
+                async (component) => await TaskFromAction.Invoke(
                     () => operationResults.Add(new Tuple<string, bool>(deletingOperation, true)));
             componentFixture.Deleted +=
                 (component, args) => operationResults.Add(new Tuple<string, bool>(deletedOperation, true));
-            componentFixture.UnloadDelegate = () => TaskFromAction.Create(
+            componentFixture.UnloadDelegate = () => TaskFromAction.Invoke(
                 () => operationResults.Add(new Tuple<string, bool>(unloadOperation, true)));
 
             // Arrange

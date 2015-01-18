@@ -18,8 +18,12 @@ namespace Mud.Engine.Runtime
         /// </summary>
         /// <param name="actionToReturnTask">The action to return task.</param>
         /// <returns></returns>
-        public static Task Create(Action actionToReturnTask)
+        public static Task Invoke(Action actionToReturnTask)
         {
+            ExceptionFactory.ThrowIf(
+                actionToReturnTask == null,
+                () => new ArgumentNullException(nameof(actionToReturnTask), "Action must not be null."));
+
             actionToReturnTask();
             return Task.FromResult(true);
         }

@@ -4,9 +4,16 @@ using Mud.Engine.Runtime;
 
 namespace Tests.Engine.Runtime
 {
+    /// <summary>
+    /// Test that the ExceptionFactoryResult class works as expected.
+    /// </summary>
     [TestClass]
     public class ExceptionFactoryResultTests
     {
+        /// <summary>
+        /// Tests that an ArgumentNullException is thrown if an expression is not
+        /// provided when ElseDo is invoked.
+        /// </summary>
         [TestMethod]
         [TestCategory("Runtime - ExceptionFactoryResult")]
         [ExpectedException(typeof(ArgumentNullException))]
@@ -17,8 +24,14 @@ namespace Tests.Engine.Runtime
 
             // Act
             result.ElseDo(null);
+
+            // Assert
+            Assert.Fail();
         }
 
+        /// <summary>
+        /// Tests that the ElseDo method invokes the callback provided to it.
+        /// </summary>
         [TestMethod]
         [TestCategory("Runtime - ExceptionFactoryResult")]
         public void ElseDo_callback_is_invoked()
@@ -35,6 +48,10 @@ namespace Tests.Engine.Runtime
             Assert.IsTrue(callbackInvoked);
         }
 
+        /// <summary>
+        /// Tests that the specified exception is thrown if the Or invocation 
+        /// evaluates to true.
+        /// </summary>
         [TestMethod]
         [TestCategory("Runtime - ExceptionFactory")]
         [ExpectedException(typeof(ArgumentNullException))]
@@ -45,8 +62,15 @@ namespace Tests.Engine.Runtime
 
             // Act
             new ExceptionFactoryResult<ArgumentNullException>(null).Or(() => obj == null);
+
+            // Assert
+            Assert.Fail();
         }
 
+        /// <summary>
+        /// Tests that the specified exception is not thrown if the Or invocation
+        /// evaluates to false.
+        /// </summary>
         [TestMethod]
         [TestCategory("Runtime - ExceptionFactory")]
         public void Or_predicate_is_false_with_default_factory()
@@ -61,6 +85,10 @@ namespace Tests.Engine.Runtime
             Assert.IsTrue(true);
         }
 
+        /// <summary>
+        /// Tests that the exception specified in the lambda factory is used instead of
+        /// the exception supplied as the ExceptionFactoryResult generic.
+        /// </summary>
         [TestMethod]
         [TestCategory("Runtime - ExceptionFactory")]
         [ExpectedException(typeof(InvalidOperationException))]
@@ -73,8 +101,15 @@ namespace Tests.Engine.Runtime
             new ExceptionFactoryResult<ArgumentNullException>(null).Or(
                 () => obj == null,
                 () => new InvalidOperationException());
+
+            // Assert
+            Assert.Fail();
         }
 
+        /// <summary>
+        /// Tests that the exception specified by the exception factory lambda is
+        /// not thrown when .Or evaluates to false.
+        /// </summary>
         [TestMethod]
         [TestCategory("Runtime - ExceptionFactory")]
         public void Or_predicate_is_false_with_custom_factory()
@@ -91,6 +126,9 @@ namespace Tests.Engine.Runtime
             Assert.IsTrue(true);
         }
 
+        /// <summary>
+        /// Tests that Or throws an exception when the expression evaluates to true.
+        /// </summary>
         [TestMethod]
         [TestCategory("Runtime - ExceptionFactory")]
         [ExpectedException(typeof(ArgumentNullException))]
@@ -98,8 +136,14 @@ namespace Tests.Engine.Runtime
         {
             // Act
             new ExceptionFactoryResult<ArgumentNullException>(null).Or(true);
+
+            // Assert
+            Assert.Fail();
         }
 
+        /// <summary>
+        /// Tests that Or does not thrown an exception when the expression evaluates to false.
+        /// </summary>
         [TestMethod]
         [TestCategory("Runtime - ExceptionFactory")]
         public void Or_condition_is_false_with_default_factory()

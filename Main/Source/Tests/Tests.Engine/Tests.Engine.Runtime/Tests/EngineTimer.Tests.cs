@@ -14,9 +14,8 @@ namespace Tests.Engine.Runtime
     {
         /// <summary>
         /// Ensures that the timer fires at the correct interval.
-        /// 
         /// Since there is some time lost due to having to invoke the callback
-        /// and actually get to the Stop() method, we Assert if we are within a 
+        /// and actually get to the Stop() method, we Assert if we are within a
         /// set range of milliseconds. We will never hit the target time exactly.
         /// </summary>
         [TestMethod]

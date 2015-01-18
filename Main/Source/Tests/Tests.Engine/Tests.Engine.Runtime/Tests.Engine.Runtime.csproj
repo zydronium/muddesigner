@@ -73,6 +73,7 @@
     <Compile Include="Tests\ExceptionFactoryResult.Tests.cs" />
     <Compile Include="Tests\Game\GameComponent.Tests.cs" />
     <Compile Include="Tests\Game\NotificationManager.Tests.cs" />
+    <Compile Include="Tests\TaskFromAction.Tests.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Tests\Game\Character\" />

@@ -143,6 +143,12 @@ namespace Mud.Apps.Windows.Desktop.Server.App
             // Flat File data store types
             builder.RegisterType<WorldRepository>().As<IWorldRepository>();
             builder.RegisterType<TimeOfDayStateRepository>().As<ITimeOfDayStateRepository>();
+
+            // Notifications
+            builder.RegisterType<NotificationManager>().As<INotificationCenter>().SingleInstance();
+
+            builder.RegisterType<ServiceLocator>().As<IServiceLocator>()
+                .OnActivating(handler => handler.Instance.SetLocatorFactory(type => container.Resolve(type)));
             container = builder.Build();
 
             CharacterFactory.Initialize<DefaultPlayer>();

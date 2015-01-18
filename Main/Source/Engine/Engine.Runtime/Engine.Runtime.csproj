@@ -38,7 +38,7 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="ActionFromTask.cs" />
+    <Compile Include="TaskFromAction.cs" />
     <Compile Include="Game\Character\CharacterFactory.cs" />
     <Compile Include="Game\ShoutMessage.cs" />
     <Compile Include="Game\Notification.cs" />
@@ -91,6 +91,8 @@
     <Compile Include="Game\Environment\OccupancyChangedEventArgs.cs" />
     <Compile Include="InputArgs.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Services\IService.cs" />
+    <Compile Include="Services\IServiceLocator.cs" />
     <Compile Include="Services\IWorldService.cs" />
     <Compile Include="Game\WhisperMessage.cs" />
   </ItemGroup>

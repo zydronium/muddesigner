@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 
 namespace Mud.Engine.Runtime.Services
 {
-    public interface IWorldService
+    public interface IWorldService : IService
     {
         Task<IEnumerable<DefaultWorld>> GetAllWorlds();
 

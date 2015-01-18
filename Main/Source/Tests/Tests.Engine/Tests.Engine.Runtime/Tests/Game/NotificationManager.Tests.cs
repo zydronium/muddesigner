@@ -3,12 +3,28 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Mud.Engine.Runtime.Game;
 using Tests.Engine.Runtime.Fixtures;
 using Mud.Engine.Runtime;
+using Mud.Engine.Runtime.Game.Character;
 
 namespace Tests.Engine.Runtime.Tests.Game
 {
     [TestClass]
     public class NotificationManagerTests
     {
+        [TestMethod]
+        [TestCategory("Runtime.Game - NotificationManager")]
+        [ExpectedException(typeof(ArgumentNullException))]
+        public void Subscribe_with_null_calback_throws_exception()
+        {
+            // Arrange
+            var notificationCenter = new NotificationManager();
+
+            // Act
+            notificationCenter.Subscribe<ShoutMessage>(null);
+
+            // Assert
+            Assert.Fail();
+        }
+
         [TestMethod]
         [TestCategory("Runtime.Game - NotificationManager")]
         public void Publish_invokes_callbacks()
@@ -29,6 +45,21 @@ namespace Tests.Engine.Runtime.Tests.Game
 
             // Assert
             Assert.IsTrue(callbackCalled);
+        }
+
+        [TestMethod]
+        [TestCategory("Runtime.Game - NotificationManager")]
+        [ExpectedException(typeof(ArgumentNullException))]
+        public void Publish_with_null_message_throws_exception()
+        {
+            var notificationCenter = new NotificationManager();
+            notificationCenter.Subscribe<ShoutMessage>((msg, sub) => { });
+
+            // Act
+            notificationCenter.Publish<ShoutMessage>(null);
+
+            // Assert
+            Assert.Fail();
         }
 
         [TestMethod]
@@ -58,18 +89,21 @@ namespace Tests.Engine.Runtime.Tests.Game
         [TestCategory("Runtime.Game - NotificationManager")]
         public void Handler_receives_only_its_message()
         {
+            // Arrange
             // Set up the first handler
             var notificationCenter = new NotificationManager();
+
             notificationCenter.Subscribe<MessageFixture>(
-                (message, sub) => 
-                    ExceptionFactory.ThrowIf<InvalidOperationException>(message.GetType() != typeof(MessageFixture)));
+                (message, sub) => ExceptionFactory
+                    .ThrowIf<InvalidOperationException>(message.GetType() != typeof(MessageFixture)));
+
             notificationCenter.Subscribe<SecondaryMessageFixture>(
-                (message, sub) => 
-                    ExceptionFactory.ThrowIf<InvalidOperationException>(message.GetType() != typeof(SecondaryMessageFixture)));
+                (message, sub) => ExceptionFactory
+                        .ThrowIf<InvalidOperationException>(message.Content.GetType() != typeof(DefaultPlayer)));
 
             // Act
             notificationCenter.Publish(new MessageFixture("Test"));
-            notificationCenter.Publish(new SecondaryMessageFixture(new GameComponentFixture()));
+            notificationCenter.Publish(new SecondaryMessageFixture(new DefaultPlayer(null)));
         }
     }
 }

@@ -1,6 +1,6 @@
 ﻿namespace Mud.Engine.Runtime.Services
 {
-    public interface ILoggingService
+    public interface ILoggingService : IService
     {
     }
 }

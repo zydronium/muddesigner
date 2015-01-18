@@ -10,18 +10,25 @@ namespace Tests.Engine.Runtime
     [TestClass]
     public class ExceptionFactoryTests
     {
+        /// <summary>
+        /// Tests that an ArgumentNullException is thrown when no condition is provided.
+        /// </summary>
         [TestMethod]
         [TestCategory("Runtime - ExceptionFactory")]
         [ExpectedException(typeof(ArgumentNullException))]
         public void Null_predicate_throws_exception()
         {
-            // Arrange
-            object obj = null;
-
             // Act
             ExceptionFactory.ThrowIf<NullReferenceException>(null);
+
+            // Assert
+            Assert.Fail();
         }
 
+        /// <summary>
+        /// Tests that a InvalidOperationException is thrown when a null exception
+        /// is returned from the exception factory lambda
+        /// </summary>
         [TestMethod]
         [TestCategory("Runtime - ExceptionFactory")]
         [ExpectedException(typeof(InvalidOperationException))]
@@ -32,8 +39,15 @@ namespace Tests.Engine.Runtime
 
             // Act
             ExceptionFactory.ThrowIf<NullReferenceException>(obj == null, () => null);
+
+            // Assert
+            Assert.Fail();
         }
 
+        /// <summary>
+        /// Tests that a NullReferenceException is thrown if the condition
+        /// provided evaluates to true.
+        /// </summary>
         [TestMethod]
         [TestCategory("Runtime - ExceptionFactory")]
         [ExpectedException(typeof(NullReferenceException))]
@@ -44,8 +58,15 @@ namespace Tests.Engine.Runtime
 
             // Act
             ExceptionFactory.ThrowIf<NullReferenceException>(() => obj == null);
+
+            // Assert
+            Assert.Fail();
         }
 
+        /// <summary>
+        /// Tests that the specified exception is not thrown if the condition
+        /// does not evaluate to true.
+        /// </summary>
         [TestMethod]
         [TestCategory("Runtime - ExceptionFactory")]
         public void Predicate_is_false_with_default_factory()
@@ -60,6 +81,10 @@ namespace Tests.Engine.Runtime
             Assert.IsTrue(true);
         }
 
+        /// <summary>
+        /// Tests that the exception specified in the exception factory lambda
+        /// is thrown if the condition evaluates to true.
+        /// </summary>
         [TestMethod]
         [TestCategory("Runtime - ExceptionFactory")]
         [ExpectedException(typeof(NullReferenceException))]
@@ -72,8 +97,15 @@ namespace Tests.Engine.Runtime
             ExceptionFactory.ThrowIf(
                 () => obj == null,
                 () => new NullReferenceException());
+
+            // Assert
+            Assert.Fail();
         }
 
+        /// <summary>
+        /// Tests that the exception specified in the exception factory lambda
+        /// is not thrown if the condition evaluates to false.
+        /// </summary>
         [TestMethod]
         [TestCategory("Runtime - ExceptionFactory")]
         public void Predicate_is_false_with_custom_exception_factory()
@@ -90,6 +122,9 @@ namespace Tests.Engine.Runtime
             Assert.IsTrue(true);
         }
 
+        /// <summary>
+        /// Tests that the specified exception is thrown if the condition evaluates to true.
+        /// </summary>
         [TestMethod]
         [TestCategory("Runtime - ExceptionFactory")]
         [ExpectedException(typeof(NullReferenceException))]
@@ -97,8 +132,14 @@ namespace Tests.Engine.Runtime
         {
             // Act
             ExceptionFactory.ThrowIf<NullReferenceException>(true);
+
+            // Assert
+            Assert.Fail();
         }
 
+        /// <summary>
+        /// Tests that the specified exception is not thrown if the condition evaluates to false.
+        /// </summary>
         [TestMethod]
         [TestCategory("Runtime - ExceptionFactory")]
         public void Condition_is_false_with_default_exception_factory()
@@ -110,6 +151,10 @@ namespace Tests.Engine.Runtime
             Assert.IsTrue(true);
         }
 
+        /// <summary>
+        /// Tests that the exception specified in the exception factory lambda is thrown
+        /// if the condition eveluates to true.
+        /// </summary>
         [TestMethod]
         [TestCategory("Runtime - ExceptionFactory")]
         [ExpectedException(typeof(NullReferenceException))]
@@ -118,8 +163,15 @@ namespace Tests.Engine.Runtime
             ExceptionFactory.ThrowIf(
                 true,
                 () => new NullReferenceException());
+
+            // Assert
+            Assert.Fail();
         }
 
+        /// <summary>
+        /// Tests that the exception specified in the exception factory lambda is not thrown
+        /// if the condition eveluates to false.
+        /// </summary>
         [TestMethod]
         [TestCategory("Runtime - ExceptionFactory")]
         public void Condition_is_false_with_custom_exception_factory()
@@ -133,9 +185,13 @@ namespace Tests.Engine.Runtime
             Assert.IsTrue(true);
         }
 
+        /// <summary>
+        /// Tests that a given IComponent has its identifying information added
+        /// to the exception data.
+        /// </summary>
         [TestMethod]
         [TestCategory("Runtime - ExceptionFactory")]
-        public void Character_name_added_to_exception_data()
+        public void Component_information_added_to_exception_data()
         {
             // Arrange
             NullReferenceException exception = null;
@@ -164,6 +220,10 @@ namespace Tests.Engine.Runtime
             Assert.AreEqual(id.ToString(), exception.Data["ComponentId"]);
         }
 
+        /// <summary>
+        /// Tests that any custom data provided to the factory as included
+        /// when the exception is thrown.
+        /// </summary>
         [TestMethod]
         [TestCategory("Runtime - ExceptionFactory")]
         public void Custom_data_name_added_to_exception_data()
@@ -191,6 +251,9 @@ namespace Tests.Engine.Runtime
             Assert.AreEqual(data.Value, exception.Data[data.Key]);
         }
 
+        /// <summary>
+        /// Tests that the ExceptionFactory time-stamps the exception when thrown.
+        /// </summary>
         [TestMethod]
         [TestCategory("Runtime - ExceptionFactory")]
         public void Timestamp_added_to_exception_data()
@@ -215,6 +278,9 @@ namespace Tests.Engine.Runtime
             Assert.IsInstanceOfType(Convert.ToDateTime(exception.Data["Date"]), typeof(DateTime));
         }
 
+        /// <summary>
+        /// Tests that an exception can be thrown with a custom message.
+        /// </summary>
         [TestMethod]
         [TestCategory("Runtime - ExceptionFactory")]
         public void Exception_thrown_with_custom_message()
@@ -236,6 +302,9 @@ namespace Tests.Engine.Runtime
             Assert.IsTrue(exception.Message.Contains("Custom Message"));
         }
 
+        /// <summary>
+        /// Tests that the exception factory can add data to an existing exception
+        /// </summary>
         [TestMethod]
         [TestCategory("Runtime - ExceptionFactory")]
         public void Data_added_to_existing_exception()

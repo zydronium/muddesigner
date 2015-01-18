@@ -4,7 +4,6 @@ using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Autofac;
 using Moq;
-using Moq.Protected;
 using Mud.Engine.Runtime.Game;
 using Mud.Engine.Runtime.Game.Environment;
 using Mud.Engine.Runtime.Services;
@@ -49,6 +48,9 @@ namespace Tests.Engine.Runtime.Game
         {
             // Arrange
             var game = new DefaultGame(container.Resolve<ILoggingService>(), null);
+
+            // Assert
+            Assert.Fail();
         }
 
         [TestMethod]
@@ -58,6 +60,9 @@ namespace Tests.Engine.Runtime.Game
         {
             // Arrange
             var game = new DefaultGame(null, container.Resolve<IWorldService>());
+
+            // Assert
+            Assert.Fail();
         }
 
         [TestMethod]

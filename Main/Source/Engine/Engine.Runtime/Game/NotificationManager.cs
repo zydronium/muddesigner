@@ -29,6 +29,10 @@ namespace Mud.Engine.Runtime.Game
         /// <returns></returns>
         public ISubscription Subscribe<TMessageType>(Action<TMessageType, ISubscription> callback, Func<TMessageType, bool> condition = null) where TMessageType : class, IMessage
         {
+            ExceptionFactory.ThrowIf(
+                callback == null,
+                () => new ArgumentNullException(nameof(callback), "Callback must not be null when subscribing"));
+
             Type messageType = typeof(TMessageType);
 
             // Create our key if it doesn't exist along with an empty collection as the value.
@@ -59,6 +63,10 @@ namespace Mud.Engine.Runtime.Game
         /// <param name="message">The message.</param>
         public void Publish<T>(T message) where T : class, IMessage
         {
+            ExceptionFactory.ThrowIf(
+                message == null,
+                () => new ArgumentNullException(nameof(message), "You can not publish a null message."));
+
             if (!listeners.ContainsKey(typeof(T)))
             {
                 return;
