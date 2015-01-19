@@ -15,7 +15,7 @@ namespace Mud.Engine.Runtime.Game
     /// <summary>
     /// The Default engine implementation of the IGame interface. This implementation provides validation support via ValidationBase.
     /// </summary>
-    public class DefaultGame : GameComponent
+    public class DefaultGame : GameComponent, IGame
     {
         private ILoggingService loggingService;
 
@@ -62,7 +62,7 @@ namespace Mud.Engine.Runtime.Game
         /// <summary>
         /// Gets or sets the last saved.
         /// </summary>
-        public DateTime LastSaved { get; set; }
+        public DateTime LastSaved { get; }
 
         /// <summary>
         /// Gets or sets the current World for the game. Contains all of the Realms, Zones and Rooms.
@@ -72,7 +72,7 @@ namespace Mud.Engine.Runtime.Game
         /// <summary>
         /// The initialize method is responsible for restoring the world and state.
         /// </summary>
-        /// <returns>Returns the Task associated with the await call.</returns>
+        /// <returns>Returns an awaitable Task</returns>
         protected async override Task Load()
         {
             this.Worlds = new List<DefaultWorld>(await this.worldService.GetAllWorlds());
@@ -97,7 +97,7 @@ namespace Mud.Engine.Runtime.Game
         /// Called when the game is deleted.
         /// Handles clean up of the autosave timer, saving the game state and cleaning up objects.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>Returns an awaitable Task</returns>
         protected override async Task Unload()
         {
             await this.Autosave.Delete();
@@ -117,7 +117,7 @@ namespace Mud.Engine.Runtime.Game
         /// Occurs when a world is loaded, prior to initialization of the world.
         /// </summary>
         /// <param name="world">The world.</param>
-        /// <returns></returns>
+        /// <returns>Returns an awaitable Task</returns>
         protected virtual async Task OnWorldLoaded(DefaultWorld world)
         {
             var handler = this.WorldLoaded;
@@ -129,6 +129,10 @@ namespace Mud.Engine.Runtime.Game
             await handler(this, new WorldLoadedArgs(world));
         }
 
+        /// <summary>
+        /// Saves each World within the worlds collecton.
+        /// </summary>
+        /// <returns>Returns an awaitable Task</returns>
         private async Task SaveWorlds()
         {
             foreach (DefaultWorld world in this.Worlds)

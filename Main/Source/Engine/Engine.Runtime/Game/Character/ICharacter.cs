@@ -36,7 +36,7 @@ namespace Mud.Engine.Runtime.Game.Character
         /// <summary>
         /// Gets the game.
         /// </summary>
-        DefaultGame Game { get; set; }
+        IGame Game { get; set; }
 
         /// <summary>
         /// Gets or sets the current room that this character occupies.

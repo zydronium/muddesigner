@@ -48,7 +48,7 @@ namespace Mud.Engine.Runtime.Game
             handler.Unsubscribing += this.Unsubscribe;
 
             List<ISubscription> subscribers = listeners[messageType];
-            lock (listenerCollectionLock)
+            lock (subscribers)
             {
                 subscribers.Add(handler);
             }

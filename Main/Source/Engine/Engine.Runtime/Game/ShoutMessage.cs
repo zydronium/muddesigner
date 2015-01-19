@@ -3,20 +3,17 @@
 //     Copyright (c) Johnathon Sullinger. All rights reserved.
 // </copyright>
 //-----------------------------------------------------------------------
+using Mud.Engine.Runtime.Game.Character;
+
 namespace Mud.Engine.Runtime.Game
 {
     /// <summary>
     /// A chat message.
     /// </summary>
-    public class ShoutMessage : MessageBase<string>
+    public class ShoutMessage : ChatMessageBase
     {
-        /// <summary>
-        /// Initializes a new instance of the <see cref="ShoutMessage"/> class.
-        /// </summary>
-        /// <param name="message">The message.</param>
-        public ShoutMessage(string message)
+        public ShoutMessage(string message, DefaultPlayer sender) : base(message, sender)
         {
-            this.Content = message;
         }
     }
 }

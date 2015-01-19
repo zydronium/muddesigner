@@ -27,11 +27,5 @@ namespace Mud.Engine.Runtime.Game
         /// Gets the content of the message.
         /// </summary>
         TContent Content { get; }
-
-        /// <summary>
-        /// Gets the content of the message.
-        /// </summary>
-        /// <returns>Returns the message content</returns>
-        new TContent GetContent();
     }
 }

@@ -20,12 +20,16 @@ namespace Mud.Engine.Runtime.Game.Character
         /// </summary>
         private DefaultRoom currentRoom;
 
+        private INotificationCenter chatCenter;
+
         /// <summary>
         /// Initializes a new instance of the <see cref="DefaultPlayer"/> class.
         /// </summary>
-        public DefaultPlayer(DefaultGame game)
+        public DefaultPlayer(IGame game, INotificationCenter chatCenter)
         {
             this.Game = game;
+            this.chatCenter = chatCenter;
+
             this.Id = 0;
         }
 
@@ -67,7 +71,7 @@ namespace Mud.Engine.Runtime.Game.Character
         /// <summary>
         /// Gets the game.
         /// </summary>
-        public DefaultGame Game { get; set; }
+        public IGame Game { get; set; }
 
         /// <summary>
         /// Gets or sets the current room that this character occupies.

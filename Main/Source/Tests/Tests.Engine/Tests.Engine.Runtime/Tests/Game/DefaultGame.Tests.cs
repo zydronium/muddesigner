@@ -10,6 +10,9 @@ using Mud.Engine.Runtime.Services;
 
 namespace Tests.Engine.Runtime.Game
 {
+    /// <summary>
+    /// Unit tests for the Default IGame implementation for the runtime.
+    /// </summary>
     [TestClass]
     public class DefaultGameTests
     {

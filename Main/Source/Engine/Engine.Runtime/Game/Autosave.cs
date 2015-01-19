@@ -65,11 +65,11 @@ namespace Mud.Engine.Runtime.Game
         /// <summary>
         /// Initializes this instance.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>Returns an awaitable Task</returns>
         public Task Initialize()
         {
             // Set up our auto-save if the frequency is set for it.
-            if (this.AutoSaveFrequency <= 0)
+            if (this.AutoSaveFrequency < 1)
             {
                 return Task.FromResult(false);
             }
@@ -86,6 +86,11 @@ namespace Mud.Engine.Runtime.Game
             return Task.FromResult(true);
         }
 
+        /// <summary>
+        /// Lets this instance know that it is about to go out of scope and disposed.
+        /// The instance will perform clean-up of its resources in preperation for deletion.
+        /// </summary>
+        /// <returns>Returns an awaitable Task</returns>
         public Task Delete()
         {
             this.autosaveTimer.Stop();

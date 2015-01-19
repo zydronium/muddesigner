@@ -67,14 +67,9 @@ namespace Mud.Engine.Runtime.Game
         /// <param name="message">The message.</param>
         public void ProcessMessage(TMessage message)
         {
-            if (this.condition == null)
+            if (this.condition != null && !this.condition(message))
             {
                 this.callback(message, this);
-                return;
-            }
-
-            if (!this.condition(message))
-            {
                 return;
             }
 
