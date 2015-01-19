@@ -17,7 +17,7 @@ namespace Mud.Engine.Runtime.Networking
         /// Initializes a new instance of the <see cref="ServerConnectionEventArgs"/> class.
         /// </summary>
         /// <param name="player">The player.</param>
-        public ServerConnectionEventArgs(DefaultPlayer player)
+        public ServerConnectionEventArgs(IPlayer player)
         {
             this.Player = player;
         }
@@ -28,6 +28,6 @@ namespace Mud.Engine.Runtime.Networking
         /// <value>
         /// The player.
         /// </value>
-        public DefaultPlayer Player { get; private set; }
+        public IPlayer Player { get; private set; }
     }
 }

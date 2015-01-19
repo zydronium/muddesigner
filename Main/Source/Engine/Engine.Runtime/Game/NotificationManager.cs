@@ -20,12 +20,10 @@ namespace Mud.Engine.Runtime.Game
         private ConcurrentDictionary<Type, List<ISubscription>> listeners =
             new ConcurrentDictionary<Type, List<ISubscription>>();
 
-        private object listenerCollectionLock = new object();
-
         /// <summary>
         /// Subscribe publications for the message type specified.
         /// </summary>
-        /// <typeparam name="TMessageType"></typeparam>
+        /// <typeparam name="TMessageType">A concrete implementation of IMessage</typeparam>
         /// <returns></returns>
         public ISubscription Subscribe<TMessageType>(Action<TMessageType, ISubscription> callback, Func<TMessageType, bool> condition = null) where TMessageType : class, IMessage
         {
@@ -94,7 +92,7 @@ namespace Mud.Engine.Runtime.Game
 
             // Remove the subscription from the collection associated with the key.
             List<ISubscription> subscribers = listeners[args.MessageType];
-            lock (listenerCollectionLock)
+            lock (subscribers)
             {
                 subscribers.Remove(args.Subscription);
             }

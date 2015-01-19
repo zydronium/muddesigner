@@ -35,19 +35,19 @@ namespace Mud.Engine.Components.WindowsServer
         /// <summary>
         /// The player connections
         /// </summary>
-        private Dictionary<DefaultPlayer, Socket> playerConnections;
+        private Dictionary<IPlayer, Socket> playerConnections;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="DefaultServer"/> class.
         /// </summary>
         public DefaultServer()
         {
-            this.ConnectedPlayers = new List<DefaultPlayer>();
+            this.ConnectedPlayers = new List<IPlayer>();
             this.MessageOfTheDay = new List<string>();
             this.Status = new ServerStatus();
 
             // TODO: 11/3/14 - Change the Type to ConcurrentDictionary for thread-safety.
-            this.playerConnections = new Dictionary<DefaultPlayer, Socket>();
+            this.playerConnections = new Dictionary<IPlayer, Socket>();
         }
 
         /// <summary>
@@ -68,7 +68,7 @@ namespace Mud.Engine.Components.WindowsServer
         /// <summary>
         /// Gets a collection of users currently connected.
         /// </summary>
-        public ICollection<DefaultPlayer> ConnectedPlayers { get; private set; }
+        public ICollection<IPlayer> ConnectedPlayers { get; private set; }
 
         /// <summary>
         /// Gets or sets the port that the server is running on.
@@ -118,19 +118,16 @@ namespace Mud.Engine.Components.WindowsServer
         /// <summary>
         /// Starts the server for the specified game.
         /// </summary>
-        /// <typeparam name="TPlayer">The type of the player to instance when a new user connects.</typeparam>
         /// <param name="game">The game.</param>
         /// <exception cref="System.NullReferenceException">Server can not start with a null Game.</exception>
-        /// <exception cref="System.ArgumentOutOfRangeException">
-        /// Invalid Port number used. Recommended number is 23 or 4000
+        /// <exception cref="System.ArgumentOutOfRangeException">Invalid Port number used. Recommended number is 23 or 4000
         /// or
-        /// Invalid MaxConnections number used. Must be greater than 1.
-        /// </exception>
+        /// Invalid MaxConnections number used. Must be greater than 1.</exception>
         public void Start(DefaultGame game)
         {
             // Ensure we have a valid game.
             ExceptionFactory
-                .ThrowIf<ArgumentNullException>(game == null, () => new ArgumentNullException("game", "Game must not be null!"))
+                .ThrowIf(game == null, () => new ArgumentNullException("game", "Game must not be null!"))
                 .ElseDo(() => this.Game = game);
 
             this.Status = ServerStatus.Starting;
@@ -196,7 +193,7 @@ namespace Mud.Engine.Components.WindowsServer
         /// Disconnects the specified IServerPlayer object.
         /// </summary>
         /// <param name="player">The Player to disconnect.</param>
-        public void Disconnect(DefaultPlayer player)
+        public void Disconnect(IPlayer player)
         {
             Socket connection = this.playerConnections.FirstOrDefault(c => c.Key == player).Value;
             if (connection != null && connection.Connected)
@@ -215,15 +212,15 @@ namespace Mud.Engine.Components.WindowsServer
         public void DisconnectAll()
         {
             // Loop through each connection in parallel and disconnect them.
-            foreach (KeyValuePair<DefaultPlayer, Socket> playerConnection in this.playerConnections.AsParallel())
+            foreach (KeyValuePair<IPlayer, Socket> playerConnection in this.playerConnections.AsParallel())
             {
                 // Hold a locally scoped reference to avoid parallel issues.
                 Socket connection = playerConnection.Value;
-                DefaultPlayer player = playerConnection.Key;
+                IPlayer player = playerConnection.Key;
 
                 if (connection != null && connection.Connected)
                 {
-                    connection.Shutdown(System.Net.Sockets.SocketShutdown.Both);
+                    connection.Shutdown(SocketShutdown.Both);
                     this.OnPlayerDisconnected(player);
                 }
             }
@@ -236,7 +233,7 @@ namespace Mud.Engine.Components.WindowsServer
         /// Called when a player connects.
         /// </summary>
         /// <param name="newPlayer">The new player.</param>
-        protected virtual void OnPlayerConnected(DefaultPlayer newPlayer)
+        protected virtual void OnPlayerConnected(IPlayer newPlayer)
         {
             EventHandler<ServerConnectionEventArgs> handler = this.PlayerConnected;
             if (handler == null)
@@ -251,7 +248,7 @@ namespace Mud.Engine.Components.WindowsServer
         /// Called when a player disconnects.
         /// </summary>
         /// <param name="player">The player.</param>
-        protected virtual void OnPlayerDisconnected(DefaultPlayer player)
+        protected virtual void OnPlayerDisconnected(IPlayer player)
         {
             EventHandler<ServerConnectionEventArgs> handler = this.PlayerDisconnected;
             if (handler == null)
@@ -273,7 +270,7 @@ namespace Mud.Engine.Components.WindowsServer
             this.serverSocket.BeginAccept(new AsyncCallback(this.ConnectClient), this.serverSocket);
 
             // Cast the invoker to IPlayer. If the Invoker is not an IPlayer, we want to throw an exception.
-            DefaultPlayer player = CharacterFactory.CreatePlayer(this.Game);
+            IPlayer player = CharacterFactory.CreatePlayer(this.Game);
 
             // Initialize the player.
             Task task = player.Initialize();
@@ -285,7 +282,7 @@ namespace Mud.Engine.Components.WindowsServer
             lock (this.ConnectedPlayers)
             {
                 this.ConnectedPlayers.Add(player);
-                player.Name = string.Format("Player {0}", this.ConnectedPlayers.Count);
+                player.Information.Name = string.Format("Player {0}", this.ConnectedPlayers.Count);
             }
 
             // Connect and register for network related events.
@@ -310,7 +307,7 @@ namespace Mud.Engine.Components.WindowsServer
             string input = string.Empty;
             var buffer = new List<byte>();
 
-            DefaultPlayer player = result.AsyncState as DefaultPlayer;
+            var player = result.AsyncState as IPlayer;
             Socket connection = this.playerConnections.FirstOrDefault(c => c.Key == player).Value;
 
             // This loop will forever run until we have received \n from the player

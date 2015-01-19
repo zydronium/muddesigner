@@ -29,11 +29,6 @@ namespace Mud.Engine.Runtime.Game.Character
         event EventHandler<OccupancyChangedEventArgs> RoomChanged;
 
         /// <summary>
-        /// Gets or sets the name.
-        /// </summary>
-        string Name { get; set; }
-
-        /// <summary>
         /// Gets the game.
         /// </summary>
         IGame Game { get; set; }
@@ -41,7 +36,12 @@ namespace Mud.Engine.Runtime.Game.Character
         /// <summary>
         /// Gets or sets the current room that this character occupies.
         /// </summary>
-        DefaultRoom CurrentRoom {get;set;}
+        DefaultRoom CurrentRoom {get;set; }
+
+        /// <summary>
+        /// Gets or sets information that defines what the character is.
+        /// </summary>
+        ICharacterInformation Information { get; set; }
 
         /// <summary>
         /// Moves this character to the given room going in the specified direction.

@@ -23,10 +23,10 @@ namespace Mud.Engine.Runtime.Game.Character
         /// <summary>
         /// Initializes the factory to return the specified Character Type.
         /// </summary>
-        /// <typeparam name="T"></typeparam>
-        public static void Initialize<T>() where T : DefaultPlayer
+        /// <typeparam name="TPlayer"></typeparam>
+        public static void Initialize<TPlayer>() where TPlayer : IPlayer
         {
-            playerType = typeof(T);
+            playerType = typeof(TPlayer);
         }
 
         /// <summary>
@@ -34,10 +34,10 @@ namespace Mud.Engine.Runtime.Game.Character
         /// </summary>
         /// <param name="game">The game.</param>
         /// <returns></returns>
-        public static DefaultPlayer CreatePlayer(DefaultGame game)
+        public static IPlayer CreatePlayer(DefaultGame game)
         {
             // TODO: Build out a better factory not so tightly coupled to DefaultPlayer.
-            return Activator.CreateInstance(playerType, new object[] { game }) as DefaultPlayer;
+            return Activator.CreateInstance(playerType, new object[] { game }) as IPlayer;
         }
     }
 }

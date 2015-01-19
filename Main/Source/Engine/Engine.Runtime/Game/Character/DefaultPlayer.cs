@@ -13,35 +13,20 @@ namespace Mud.Engine.Runtime.Game.Character
     /// <summary>
     /// The Default Engine implementation of IPlayer.
     /// </summary>
-    public class DefaultPlayer : GameComponent, ICharacter
+    public class DefaultPlayer : GameComponent, ICharacter, IPlayer
     { 
-        /// <summary>
-        /// The CurrentRoom property backing field.
-        /// </summary>
-        private DefaultRoom currentRoom;
-
-        private INotificationCenter chatCenter;
+        private INotificationCenter notificationManager;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="DefaultPlayer"/> class.
         /// </summary>
-        public DefaultPlayer(IGame game, INotificationCenter chatCenter)
+        public DefaultPlayer(IGame game, INotificationCenter notificationManager)
         {
             this.Game = game;
-            this.chatCenter = chatCenter;
+            this.notificationManager = notificationManager;
 
             this.Id = 0;
         }
-
-        /// <summary>
-        /// Occurs when the object is loaded.
-        /// </summary>
-        public event EventHandler Loaded;
-
-        /// <summary>
-        /// Occurs when being unloaded.
-        /// </summary>
-        public event EventHandler Unloaded;
 
         /// <summary>
         /// Occurs when the instance receives an IMessage.
@@ -59,16 +44,6 @@ namespace Mud.Engine.Runtime.Game.Character
         public event EventHandler<OccupancyChangedEventArgs> RoomChanged;
 
         /// <summary>
-        /// Gets or sets the unique identifier.
-        /// </summary>
-        public int Id { get; set; }
-
-        /// <summary>
-        /// Gets or sets the name.
-        /// </summary>
-        public string Name { get; set; }
-
-        /// <summary>
         /// Gets the game.
         /// </summary>
         public IGame Game { get; set; }
@@ -77,6 +52,11 @@ namespace Mud.Engine.Runtime.Game.Character
         /// Gets or sets the current room that this character occupies.
         /// </summary>
         public DefaultRoom CurrentRoom { get; set; }
+
+        /// <summary>
+        /// Gets or sets information that defines what the character is.
+        /// </summary>
+        public ICharacterInformation Information { get; set; }
 
         /// <summary>
         /// Moves this character to the given room going in the specified direction.
@@ -92,7 +72,7 @@ namespace Mud.Engine.Runtime.Game.Character
         /// Loads the component and any resources or dependencies it might have.
         /// Called during initialization of the component
         /// </summary>
-        /// <returns></returns>
+        /// <returns>Returns an awaitable Task</returns>
         protected override Task Load()
         {
             return Task.FromResult(true);
@@ -102,7 +82,7 @@ namespace Mud.Engine.Runtime.Game.Character
         /// Unloads this instance and any resources or dependencies it might be using.
         /// Called during deletion of the component.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>Returns an awaitable Task</returns>
         protected override Task Unload()
         {
             return Task.FromResult(true);

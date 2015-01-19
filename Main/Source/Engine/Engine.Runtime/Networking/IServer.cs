@@ -36,7 +36,7 @@ namespace Mud.Engine.Runtime.Networking
         /// <summary>
         /// Gets a collection of current user connections.
         /// </summary>
-        ICollection<DefaultPlayer> ConnectedPlayers { get; }
+        ICollection<IPlayer> ConnectedPlayers { get; }
 
         /// <summary>
         /// Gets or sets the port that the server is running on.
@@ -99,7 +99,7 @@ namespace Mud.Engine.Runtime.Networking
         /// Disconnects the specified IServerPlayer object.
         /// </summary>
         /// <param name="player">The player.</param>
-        void Disconnect(DefaultPlayer player);
+        void Disconnect(IPlayer player);
 
         /// <summary>
         /// Disconnects everyone from the server..
