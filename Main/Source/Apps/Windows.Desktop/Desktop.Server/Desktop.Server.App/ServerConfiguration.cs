@@ -37,12 +37,12 @@ namespace Mud.Apps.Windows.Desktop.Server.App
             zone.Name = "Country Side";
             zone.WeatherStates = weatherStates;
             zone.WeatherUpdateFrequency = 6;
-            zone.WeatherChanged += (sender, weatherArgs) => Console.WriteLine(string.Format("{0} zone weather has changed to {1}", zone.Name, weatherArgs.CurrentState.Name));
+            zone.WeatherChanged += (sender, weatherArgs) => Console.WriteLine("\{zone.Name} zone weather has changed to \{weatherArgs.CurrentState.Name}");
             DefaultZone zone2 = new DefaultZone();
             zone2.Name = "Castle Rock";
             zone2.WeatherStates = weatherStates;
             zone2.WeatherUpdateFrequency = 2;
-            zone2.WeatherChanged += (sender, weatherArgs) => Console.WriteLine(string.Format("{0} zone weather has changed to {1}", zone2.Name, weatherArgs.CurrentState.Name));
+            zone2.WeatherChanged += (sender, weatherArgs) => Console.WriteLine("\{zone2.Name} zone weather has changed to \{weatherArgs.CurrentState.Name}");
 
             // Set up the World.
             DefaultWorld world = new DefaultWorld();
@@ -96,49 +96,20 @@ namespace Mud.Apps.Windows.Desktop.Server.App
         /// <param name="e">The current time of day.</param>
         private void CurrentTimeOfDay_TimeUpdated(object sender, TimeOfDay e)
         {
-            if (!(sender is TimeOfDayState))
-            {
-                return;
-            }
+            ExceptionFactory.ThrowIf<InvalidCastException>
+                (!(sender is TimeOfDayState),
+                "The sender provided on TimeOfDay Changed event was not a TimeOfDayState object.");
+            var timeOfDayState = (TimeOfDayState)sender;
 
             // Indicates a new hour has passed.
-            string hour = string.Empty;
-            string minute = string.Empty;
+            string hour = e.Hour < 10 ? "0\{e.Hour}" : e.Hour.ToString();
+            string minute = e.Minute < 10 ? "0\{e.Minute}" : e.Minute.ToString();
+            string timeOfDay = e.Hour < 12 ? "AM" : "PM";
 
-            if (e.Hour < 10)
-            {
-                hour = string.Format("0{0}", e.Hour);
-            }
-            else
-            {
-                hour = e.Hour.ToString();
-            }
-
-            if (e.Minute < 10)
-            {
-                minute = string.Format("0{0}", e.Minute);
-            }
-            else
-            {
-                minute = e.Minute.ToString();
-            }
-
-            string timeOfDay = string.Empty;
-            if (e.Hour < 12)
-            {
-                timeOfDay = "AM";
-            }
-            else
-            {
-                timeOfDay = "PM";
-            }
-
-            TimeOfDayState timeOfDayState = (TimeOfDayState)sender;
-
-            Console.WriteLine(string.Format("World time is {0}:{1} {2} in the {3}", hour, minute, timeOfDay, timeOfDayState.Name));
+            Console.WriteLine("World time is \{hour}:\{minute} \{timeOfDay} in the \{timeOfDayState.Name}");
             foreach (DefaultRealm realm in this.game.Worlds.FirstOrDefault().Realms)
             {
-                Console.WriteLine(string.Format("{0} world time is {1} in the {2}", realm.Name, realm.CurrentTimeOfDay.ToString(), realm.GetCurrentTimeOfDayState().Name));
+                Console.WriteLine("\{realm.Name} world time is \{realm.CurrentTimeOfDay.ToString()} in the \{realm.GetCurrentTimeOfDayState().Name}");
             }
 
             Console.WriteLine(Environment.NewLine);
