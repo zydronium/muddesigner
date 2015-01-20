@@ -46,7 +46,7 @@
     <Compile Include="Game\IChatMessage.cs" />
     <Compile Include="Game\IGame.cs" />
     <Compile Include="Networking\IServerConfiguration.cs" />
-    <Compile Include="Services\ServiceLocator.cs" />
+    <Compile Include="Services\ServiceLocatorFactory.cs" />
     <Compile Include="TaskFromAction.cs" />
     <Compile Include="Game\Character\CharacterFactory.cs" />
     <Compile Include="Game\ShoutMessage.cs" />

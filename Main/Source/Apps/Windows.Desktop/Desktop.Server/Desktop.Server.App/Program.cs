@@ -80,7 +80,12 @@ namespace Mud.Apps.Windows.Desktop.Server.App
 
             builder.RegisterType<ServiceLocator>().As<IServiceLocator>()
                 .OnActivating(handler => handler.Instance.SetLocatorFactory(type => container.Resolve(type)));
+
+            // Build our IoC container and use it for the Runtime's ServiceLocator
             container = builder.Build();
+            var locator = new ServiceLocator();
+            locator.SetLocatorFactory(type => container.Resolve(type));
+            ServiceLocatorFactory.Initialize(locator);
 
             CharacterFactory.Initialize<DefaultPlayer>();
         }

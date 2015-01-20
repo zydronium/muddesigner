@@ -34,7 +34,7 @@ namespace Mud.Engine.Runtime.Game.Character
         /// </summary>
         /// <param name="game">The game.</param>
         /// <returns></returns>
-        public static IPlayer CreatePlayer(DefaultGame game)
+        public static IPlayer CreatePlayer(IGame game)
         {
             // TODO: Build out a better factory not so tightly coupled to DefaultPlayer.
             return Activator.CreateInstance(playerType, new object[] { game }) as IPlayer;

@@ -28,11 +28,13 @@ namespace Mud.Engine.Runtime.Game
         /// <param name="worldService">The world service.</param>
         public DefaultGame()
         {
+            IServiceLocator locator = ServiceLocatorFactory.CreateServiceLocator();
+            this.loggingService = locator.Resolve<ILoggingService>();
+            this.worldService = locator.Resolve<IWorldService>();
+
             ExceptionFactory.
                 ThrowIf<ArgumentNullException>(loggingService == null, "Logging service can not be null.", this)
                 .Or(worldService == null, "World service can not be null.");
-
-            this.worldService = ServiceLocator.CreateLocator().Resolve<IWorldService>();
 
             this.Information = new GameInformation();
             this.Autosave = new Autosave<DefaultGame>(this, this.SaveWorlds) { AutoSaveFrequency = 1 };

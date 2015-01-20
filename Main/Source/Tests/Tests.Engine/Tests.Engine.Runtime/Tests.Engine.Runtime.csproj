@@ -64,6 +64,7 @@
   <ItemGroup>
     <Compile Include="Fixtures\SecondaryMessageFixture.cs" />
     <Compile Include="Fixtures\MessageFixture.cs" />
+    <Compile Include="Fixtures\ServiceLocatorFixture.cs" />
     <Compile Include="Fixtures\TestNotificationFixture.cs" />
     <Compile Include="Tests\Game\DefaultGame.Tests.cs" />
     <Compile Include="Tests\EngineTimer.Tests.cs" />
@@ -77,6 +78,7 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Tests\Game\Character\" />
+    <Folder Include="Tests\Services\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />

@@ -10,12 +10,27 @@ using Mud.Engine.Runtime;
 
 namespace Mud.Apps.Windows.Desktop.Server.App
 {
+    /// <summary>
+    /// Sets up an IGame instance for the server to use.
+    /// </summary>
     public class ServerConfiguration : IServerConfiguration
     {
+        /// <summary>
+        /// The server
+        /// </summary>
         private IServer server;
 
+        /// <summary>
+        /// The game running on the server
+        /// </summary>
         private IGame game;
 
+        /// <summary>
+        /// Configures the specified game for running on the server.
+        /// </summary>
+        /// <typeparam name="TGame">The type of the game.</typeparam>
+        /// <param name="game">The game.</param>
+        /// <param name="server">The server.</param>
         public void Configure<TGame>(TGame game, IServer<TGame> server) where TGame : IGame, new()
         {
             server.Port = 23;
@@ -29,6 +44,11 @@ namespace Mud.Apps.Windows.Desktop.Server.App
             this.game = game;
         }
 
+        /// <summary>
+        /// Constructs the world.
+        /// </summary>
+        /// <typeparam name="TGame">The type of the game.</typeparam>
+        /// <param name="game">The game.</param>
         private void ConstructWorld<TGame>(TGame game) where TGame : IGame, new()
         {
             // Set up the Zone            
