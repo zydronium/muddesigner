@@ -27,6 +27,9 @@ namespace Mud.Engine.Runtime.Game
         /// </summary>
         public event Action<NotificationArgs> Unsubscribing;
 
+        /// <summary>
+        /// Gets or sets a value indicating whether this <see cref="ISubscription" /> is active.
+        /// </summary>
         public bool IsActive { get; protected set; }
 
         /// <summary>
@@ -76,6 +79,9 @@ namespace Mud.Engine.Runtime.Game
             this.callback(message, this);
         }
 
+        /// <summary>
+        /// Called when the notification is being unsubscribed from.
+        /// </summary>
         protected virtual void OnUnsubscribing()
         {
             var handler = this.Unsubscribing;

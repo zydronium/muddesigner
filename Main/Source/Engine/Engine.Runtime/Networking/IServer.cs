@@ -9,10 +9,26 @@ namespace Mud.Engine.Runtime.Networking
     using Mud.Engine.Runtime.Game.Character;
     using System;
     using System.Collections.Generic;
+    using System.Threading.Tasks;
 
     /// <summary>
     /// Provides a contract for objects wanting to implement a server.
     /// </summary>
+    public interface IServer<TGame> : IServer where TGame : IGame, new()
+    {
+        /// <summary>
+        /// Gets the game.
+        /// </summary>
+        TGame Game { get; }
+
+        /// <summary>
+        /// Starts the server using the specified game.
+        /// </summary>
+        /// <typeparam name="TConfiguration">The type of the server configuration.</typeparam>
+        /// <returns>Returns an awaitable Task</returns>
+        Task Start<TConfiguration>() where TConfiguration : IServerConfiguration, new();
+    }
+
     public interface IServer
     {
         /// <summary>
@@ -24,14 +40,6 @@ namespace Mud.Engine.Runtime.Networking
         /// Occurs when a player disconnects from the server.
         /// </summary>
         event EventHandler<ServerConnectionEventArgs> PlayerDisconnected;
-
-        /// <summary>
-        /// Gets the game.
-        /// </summary>
-        /// <value>
-        /// The game.
-        /// </value>
-        DefaultGame Game { get; }
 
         /// <summary>
         /// Gets a collection of current user connections.
@@ -86,9 +94,18 @@ namespace Mud.Engine.Runtime.Networking
         /// <summary>
         /// Starts the server using the specified game.
         /// </summary>
-        /// <typeparam name="TPlayer">The type of the player.</typeparam>
-        /// <param name="game">The game.</param>
-        void Start(DefaultGame game);
+        /// <param name="game">The game instance.</param>
+        /// <param name="configuration">The configuration instance.</param>
+        /// <returns>
+        /// Returns an awaitable Task
+        /// </returns>
+        Task Start(IGame game, IServerConfiguration configuration);
+
+        /// <summary>
+        /// Gets the current game.
+        /// </summary>
+        /// <returns>Returns the currently running game on the server.</returns>
+        IGame GetCurrentGame();
 
         /// <summary>
         /// Stops the server.
