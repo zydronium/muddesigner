@@ -120,7 +120,7 @@ namespace Mud.Engine.Components.WindowsServer
             // Set up our game instance
             ExceptionFactory.ThrowIf<InvalidCastException>(
                 !(game is TGame),
-                "Unable to cast \{game.GetType().Name} to \{typeof(TGame).Name}");
+                $"Unable to cast {game.GetType().Name} to {typeof(TGame).Name}");
 
             this.Game = (TGame)game;
             await this.Game.Initialize();
@@ -155,8 +155,8 @@ namespace Mud.Engine.Components.WindowsServer
         /// Starts the server for the specified game.
         /// </summary>
         /// <typeparam name="TConfiguration">The type of the server configuration.</typeparam>
-        public async Task Start<TConfiguration>() where TConfiguration : IServerConfiguration, new()
-            => await this.Start(new TGame(), new TConfiguration());
+        public Task Start<TConfiguration>() where TConfiguration : IServerConfiguration, new()
+            => this.Start(new TGame(), new TConfiguration());
 
         /// <summary>
         /// Gets the current game.
@@ -168,7 +168,7 @@ namespace Mud.Engine.Components.WindowsServer
         /// Returns a <see cref="System.String" /> that represents this instance.
         /// </summary>
         /// <returns>A <see cref="System.String" /> that represents this instance.</returns>
-        public override string ToString() => "\{this.Game.Information.Name} - \{this.Game.Information.Version}";
+        public override string ToString() => $"{this.Game.Information.Name} - {this.Game.Information.Version}";
 
         /// <summary>
         /// Stops the server.
@@ -303,7 +303,7 @@ namespace Mud.Engine.Components.WindowsServer
             }
 
             // Connect and register for network related events.
-            Socket connection = null; // this.serverSocket.EndAccept(result);
+            Socket connection = this.serverSocket.EndAccept(result);
 
             lock (this.playerConnections)
             {

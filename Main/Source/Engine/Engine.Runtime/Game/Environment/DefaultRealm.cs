@@ -41,11 +41,6 @@ namespace Mud.Engine.Runtime.Game.Environment
         }
 
         /// <summary>
-        /// Gets or sets the unique identifier.
-        /// </summary>
-        public int Id { get; set; }
-
-        /// <summary>
         /// Gets or sets the offset from the World's current time for the Realm.
         /// </summary>
         public TimeOfDay TimeZoneOffset { get; set; }

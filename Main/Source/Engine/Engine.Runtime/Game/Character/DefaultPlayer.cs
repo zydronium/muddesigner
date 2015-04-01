@@ -103,5 +103,27 @@ namespace Mud.Engine.Runtime.Game.Character
 
             handler(this, new OccupancyChangedEventArgs(this, direction, departingRoom, arrivalRoom));
         }
+
+        protected virtual void OnMessageReceived(InputArgs inputArgs)
+        {
+            var handler = this.MessageReceived;
+            if (handler == null)
+            {
+                return;
+            }
+
+            handler(this, inputArgs);
+        }
+
+        protected virtual void OnMessageSent(InputArgs inputArgs)
+        {
+            var handler = this.MessageSent;
+            if (handler == null)
+            {
+                return;
+            }
+
+            handler(this, inputArgs);
+        }
     }
 }

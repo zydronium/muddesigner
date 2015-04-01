@@ -42,6 +42,9 @@ namespace Mud.Apps.Windows.Desktop.Server.App
 
             this.server = server;
             this.game = game;
+
+            Task worldTask = this.ConstructWorld(game);
+            worldTask.Wait(); // Need to rethink doing this.
         }
 
         /// <summary>
@@ -49,7 +52,7 @@ namespace Mud.Apps.Windows.Desktop.Server.App
         /// </summary>
         /// <typeparam name="TGame">The type of the game.</typeparam>
         /// <param name="game">The game.</param>
-        private void ConstructWorld<TGame>(TGame game) where TGame : IGame, new()
+        private async Task ConstructWorld<TGame>(TGame game) where TGame : IGame, new()
         {
             // Set up the Zone            
             var weatherStates = new List<IWeatherState> { new ClearWeather(), new RainyWeather(), new ThunderstormWeather() };
@@ -57,12 +60,12 @@ namespace Mud.Apps.Windows.Desktop.Server.App
             zone.Name = "Country Side";
             zone.WeatherStates = weatherStates;
             zone.WeatherUpdateFrequency = 6;
-            zone.WeatherChanged += (sender, weatherArgs) => Console.WriteLine("\{zone.Name} zone weather has changed to \{weatherArgs.CurrentState.Name}");
+            zone.WeatherChanged += (sender, weatherArgs) => Console.WriteLine($"{zone.Name} zone weather has changed to {weatherArgs.CurrentState.Name}");
             DefaultZone zone2 = new DefaultZone();
             zone2.Name = "Castle Rock";
             zone2.WeatherStates = weatherStates;
             zone2.WeatherUpdateFrequency = 2;
-            zone2.WeatherChanged += (sender, weatherArgs) => Console.WriteLine("\{zone2.Name} zone weather has changed to \{weatherArgs.CurrentState.Name}");
+            zone2.WeatherChanged += (sender, weatherArgs) => Console.WriteLine($"{zone2.Name} zone weather has changed to {weatherArgs.CurrentState.Name}");
 
             // Set up the World.
             DefaultWorld world = new DefaultWorld();
@@ -86,7 +89,7 @@ namespace Mud.Apps.Windows.Desktop.Server.App
             Task task = world.Initialize();
             task.Wait();
 
-            world.AddRealmToWorld(realm);
+            await world.AddRealmToWorld(realm);
             realm.AddZoneToRealm(zone);
             realm.AddZoneToRealm(zone2);
             game.Worlds.Add(world);
@@ -122,14 +125,14 @@ namespace Mud.Apps.Windows.Desktop.Server.App
             var timeOfDayState = (TimeOfDayState)sender;
 
             // Indicates a new hour has passed.
-            string hour = e.Hour < 10 ? "0\{e.Hour}" : e.Hour.ToString();
-            string minute = e.Minute < 10 ? "0\{e.Minute}" : e.Minute.ToString();
+            string hour = e.Hour < 10 ? $"0{e.Hour}" : e.Hour.ToString();
+            string minute = e.Minute < 10 ? $"0{e.Minute}" : e.Minute.ToString();
             string timeOfDay = e.Hour < 12 ? "AM" : "PM";
 
-            Console.WriteLine("World time is \{hour}:\{minute} \{timeOfDay} in the \{timeOfDayState.Name}");
+            Console.WriteLine($"World time is {hour}:{minute} {timeOfDay} in the {timeOfDayState.Name}");
             foreach (DefaultRealm realm in this.game.Worlds.FirstOrDefault().Realms)
             {
-                Console.WriteLine("\{realm.Name} world time is \{realm.CurrentTimeOfDay.ToString()} in the \{realm.GetCurrentTimeOfDayState().Name}");
+                Console.WriteLine($"{realm.Name} world time is {realm.CurrentTimeOfDay.ToString()} in the {realm.GetCurrentTimeOfDayState().Name}");
             }
 
             Console.WriteLine(Environment.NewLine);

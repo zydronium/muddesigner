@@ -56,11 +56,6 @@ namespace Mud.Engine.Runtime.Game.Environment
         public event EventHandler<TimeOfDayChangedEventArgs> TimeOfDayChanged;
 
         /// <summary>
-        /// Gets or sets the identifier.
-        /// </summary>
-        public int Id { get; set; }
-
-        /// <summary>
         /// Gets or sets the name.
         /// </summary>
         public string Name { get; set; }
@@ -175,7 +170,7 @@ namespace Mud.Engine.Runtime.Game.Environment
         /// <exception cref="System.NullReferenceException">Attempted to add a null Realm to the world.
         /// or
         /// Adding a Realm to a World with a null Zones collection is not allowed.</exception>
-        public void AddRealmToWorld(DefaultRealm realm)
+        public Task AddRealmToWorld(DefaultRealm realm)
         {
             if (realm == null)
             {
@@ -190,29 +185,23 @@ namespace Mud.Engine.Runtime.Game.Environment
             // We don't attempt to add duplicates.
             if (this.Realms.Contains(realm))
             {
-                return;
-            }
-
-            try
-            {
-                // We are ok with execution continuing before Initialize() is completed, as we do not rely on it being fully set up.
-                realm.Initialize();
-            }
-            catch (NullReferenceException)
-            {
-                throw;
+                return Task.FromResult(0);
             }
 
             this.realms.Add(realm);
+            return realm.Initialize();
         }
 
         /// <summary>
         /// Adds a collection of realms to world.
         /// </summary>
         /// <param name="realm">The realm.</param>
-        public void AddRealmsToWorld(IEnumerable<DefaultRealm> realm)
+        public async Task AddRealmsToWorld(IEnumerable<DefaultRealm> realms)
         {
-            realm.AsParallel().ForAll(r => this.AddRealmToWorld(r));
+            foreach(DefaultRealm realm in realms.AsParallel())
+            {
+                await this.AddRealmToWorld(realm);
+            }
         }
 
         /// <summary>

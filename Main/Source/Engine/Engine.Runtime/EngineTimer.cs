@@ -151,7 +151,7 @@ namespace Mud.Engine.Runtime
 
         private async Task PerformTimerCancellationCheck(double interval, int numberOfFires)
         {
-            Debug.WriteLine("Fire count: \{this.fireCount}");
+            Debug.WriteLine($"Fire count: {this.fireCount}");
 
             // If we have reached our fire count, stop. If set to 0 then we fire until manually stopped.
             if (numberOfFires > 0 && this.fireCount >= numberOfFires)
