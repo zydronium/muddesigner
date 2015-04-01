@@ -310,7 +310,7 @@ namespace Mud.Engine.Runtime.Game.Environment
             }
 
             // Invoke the handler
-            handler(this, new TimeOfDayChangedEventArgs(oldTimeOfDay, newTimeOfDay));
+            handler(this.CurrentTimeOfDay, new TimeOfDayChangedEventArgs(oldTimeOfDay, newTimeOfDay));
         }
 
         /// <summary>

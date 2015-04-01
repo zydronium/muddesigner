@@ -130,9 +130,12 @@ namespace Mud.Apps.Windows.Desktop.Server.App
             string timeOfDay = e.Hour < 12 ? "AM" : "PM";
 
             Console.WriteLine($"World time is {hour}:{minute} {timeOfDay} in the {timeOfDayState.Name}");
-            foreach (DefaultRealm realm in this.game.Worlds.FirstOrDefault().Realms)
+            if (this.game.Worlds.Any())
             {
-                Console.WriteLine($"{realm.Name} world time is {realm.CurrentTimeOfDay.ToString()} in the {realm.GetCurrentTimeOfDayState().Name}");
+                foreach (DefaultRealm realm in this.game.Worlds.FirstOrDefault().Realms)
+                {
+                    Console.WriteLine($"{realm.Name} world time is {realm.CurrentTimeOfDay.ToString()} in the {realm.GetCurrentTimeOfDayState().Name}");
+                }
             }
 
             Console.WriteLine(Environment.NewLine);
