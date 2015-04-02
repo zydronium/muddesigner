@@ -41,9 +41,9 @@ namespace Tests.Engine.Runtime.Tests.Game
                 });
 
             // Act
-            notificationCenter.Publish(new ShoutMessage(
-                messageContent,
-                new DefaultPlayer(null, notificationCenter)));  
+            //notificationCenter.Publish(new ShoutMessage(
+            //    messageContent,
+            //    new DefaultPlayer(null, notificationCenter)));  
 
             // Assert
             Assert.IsTrue(callbackCalled);
@@ -105,7 +105,7 @@ namespace Tests.Engine.Runtime.Tests.Game
 
             // Act
             notificationCenter.Publish(new MessageFixture("Test"));
-            notificationCenter.Publish(new SecondaryMessageFixture(new DefaultPlayer(null, notificationCenter)));
+            //notificationCenter.Publish(new SecondaryMessageFixture(new DefaultPlayer(null, notificationCenter)));
         }
     }
 }

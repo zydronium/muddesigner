@@ -15,6 +15,10 @@ namespace Mud.Engine.Components.WindowsServer
     using System.Net;
     using System.Net.Sockets;
     using System.Threading.Tasks;
+    using System.Text;
+    using System.Diagnostics;
+
+
 
 
     /// <summary>
@@ -283,6 +287,9 @@ namespace Mud.Engine.Components.WindowsServer
         /// <param name="result">The async result.</param>
         private void ConnectClient(IAsyncResult result)
         {
+            // Connect and register for network related events.
+            Socket connection = this.serverSocket.EndAccept(result);
+
             // Fetch the next incoming connection.
             this.serverSocket.BeginAccept(new AsyncCallback(this.ConnectClient), this.serverSocket);
 
@@ -302,9 +309,6 @@ namespace Mud.Engine.Components.WindowsServer
                 player.Information.Name = string.Format("Player {0}", this.ConnectedPlayers.Count);
             }
 
-            // Connect and register for network related events.
-            Socket connection = this.serverSocket.EndAccept(result);
-
             lock (this.playerConnections)
             {
                 this.playerConnections.Add(player, connection);
@@ -322,66 +326,93 @@ namespace Mud.Engine.Components.WindowsServer
         {
             // The input s tring
             string input = string.Empty;
-            var buffer = new List<byte>();
+            var bufferr = new List<byte>();
 
             var player = result.AsyncState as IPlayer;
-            Socket connection = this.playerConnections.FirstOrDefault(c => c.Key == player).Value;
-
-            // This loop will forever run until we have received \n from the player
-            while (true && connection != null && connection.Connected)
+            if (!this.playerConnections.ContainsKey(player))
             {
-                try
-                {
-                    byte[] buf = new byte[1];
-
-                    // Make sure we are still connected
-                    if (!connection.Connected)
-                    {
-                        this.OnPlayerDisconnected(player);
-                    }
-
-                    // Receive input from the socket connection
-                    int recved = connection.Receive(buf);
-
-                    // If we have received data, prep it for use
-                    if (recved > 0)
-                    {
-                        if (buf[0] == '\n' && buffer.Count > 0)
-                        {
-                            if (buffer[buffer.Count - 1] == '\r')
-                            {
-                                buffer.RemoveAt(buffer.Count - 1);
-                            }
-
-                            // Format the input
-                            System.Text.UTF8Encoding enc = new System.Text.UTF8Encoding();
-
-                            // Convert the bytes into a s tring
-                            input = enc.GetString(buffer.ToArray());
-
-                            // Clear out our buffer
-                            buffer.Clear();
-
-                            // Return a trimmed string.
-                            //player.SendMessage(new SystemMessage(input));
-                        }
-                        else
-                        {
-                            // otherwise keep adding the input to our bufer
-                            buffer.Add(buf[0]);
-                        }
-                    }
-                    else if (recved == 0)
-                    {
-                        // Disconnected
-                        this.Disconnect(player);
-                    }
-                }
-                catch (Exception)
-                {
-                    this.Disconnect(player);
-                }
+                throw new InvalidOperationException("Attempted to receive data from a disconnected player.");
             }
+
+            Socket connection = this.playerConnections[player];
+            int bytesRead = connection.EndReceive(result);
+
+            if (connection == null || !connection.Connected)
+            {
+                connection?.Dispose();
+                return;
+            }
+
+            const int bufferSize = 512;
+            var buffer = new byte[bufferSize];
+            if (bytesRead == 0)
+            {
+                connection.BeginReceive((buffer = new byte[bufferSize]), 0, bufferSize, 0, new AsyncCallback(this.ReceiveData), result);
+                return;
+            }
+
+            string data = Encoding.UTF8.GetString(buffer, 0, bytesRead);
+            foreach (string line in data.Split('\n', '\r'))
+            {
+                Debug.WriteLine($"Message recieved: {line}");
+            }
+
+            connection.BeginReceive((buffer = new byte[bufferSize]), 0, bufferSize, 0, new AsyncCallback(this.ReceiveData), result);
+
+            //while (true && connection != null && connection.Connected)
+            //{
+            //    try
+            //    {
+            //        byte[] buf = new byte[1];
+
+            //        // Make sure we are still connected
+            //        if (!connection.Connected)
+            //        {
+            //            this.OnPlayerDisconnected(player);
+            //        }
+
+            //        // Receive input from the socket connection
+            //        int recved = connection.Receive(buf);
+
+            //        // If we have received data, prep it for use
+            //        if (recved > 0)
+            //        {
+            //            if (buf[0] == '\n' && bufferr.Count > 0)
+            //            {
+            //                if (bufferr[bufferr.Count - 1] == '\r')
+            //                {
+            //                    bufferr.RemoveAt(bufferr.Count - 1);
+            //                }
+
+            //                // Format the input
+            //                System.Text.UTF8Encoding enc = new System.Text.UTF8Encoding();
+
+            //                // Convert the bytes into a s tring
+            //                input = enc.GetString(bufferr.ToArray());
+
+            //                // Clear out our buffer
+            //                bufferr.Clear();
+
+            //                // Return a trimmed string.
+            //                //player.SendMessage(new SystemMessage(input));
+            //            }
+            //            else
+            //            {
+            //                // otherwise keep adding the input to our bufer
+            //                bufferr.Add(buf[0]);
+            //            }
+            //        }
+            //        else if (recved == 0)
+            //        {
+            //            // Disconnected
+            //            this.Disconnect(player);
+            //        }
+            //    }
+            //    catch (Exception)
+            //    {
+            //        this.Disconnect(player);
+            //    }
+            //}
         }
     }
 }

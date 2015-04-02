@@ -37,7 +37,7 @@ namespace Mud.Engine.Runtime.Game.Character
         public static IPlayer CreatePlayer(IGame game)
         {
             // TODO: Build out a better factory not so tightly coupled to DefaultPlayer.
-            return Activator.CreateInstance(playerType, new object[] { game }) as IPlayer;
+            return Activator.CreateInstance(playerType, game) as IPlayer;
         }
     }
 }

@@ -36,6 +36,7 @@ namespace Mud.Apps.Windows.Desktop.Server.App
             RegisterContainerTypes();
 
             // Instance our Default Server. This server is for Windows Desktop only.
+            CharacterFactory.Initialize<DefaultPlayer>();
             var newServer = new DefaultServer<DefaultGame>();
             newServer.Port = 5000;
             newServer.MaxConnections = 100;

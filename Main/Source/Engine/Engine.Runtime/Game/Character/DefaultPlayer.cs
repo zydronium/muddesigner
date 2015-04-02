@@ -20,10 +20,9 @@ namespace Mud.Engine.Runtime.Game.Character
         /// <summary>
         /// Initializes a new instance of the <see cref="DefaultPlayer"/> class.
         /// </summary>
-        public DefaultPlayer(IGame game, INotificationCenter notificationManager)
+        public DefaultPlayer(IGame game)
         {
             this.Game = game;
-            this.notificationManager = notificationManager;
 
             this.Id = 0;
         }

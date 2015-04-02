@@ -22,7 +22,8 @@ namespace Mud.Data.Shared
 
         public Task SaveWorld(DefaultWorld world)
         {
-            throw new NotImplementedException();
+            return Task.FromResult(0);
+            //throw new NotImplementedException();
         }
     }
 }
