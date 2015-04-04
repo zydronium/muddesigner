@@ -7,6 +7,7 @@ namespace Mud.Engine.Components.WindowsServer
 {
     using System;
     using System.Collections.Generic;
+    using System.Collections.ObjectModel;
     using System.Diagnostics;
     using System.Linq;
     using System.Net.Sockets;
@@ -95,7 +96,7 @@ namespace Mud.Engine.Components.WindowsServer
                 this.CurrentSocket?.Dispose();
                 return;
             }
-            
+
             int bytesRead = this.CurrentSocket.EndReceive(result);
             if (bytesRead == 0 || !this.Buffer.Any())
             {
@@ -103,6 +104,16 @@ namespace Mud.Engine.Components.WindowsServer
                 return;
             }
 
+            ProcessReceivedData(bytesRead);
+            this.StartListeningForData();
+        }
+
+        /// <summary>
+        /// Process the data we received from the client.
+        /// </summary>
+        /// <param name="bytesRead"></param>
+        private void ProcessReceivedData(int bytesRead)
+        {
             // Encode our input string sent from the client
             this.lastChunk = Encoding.ASCII.GetString(this.Buffer, 0, bytesRead);
 
@@ -110,7 +121,6 @@ namespace Mud.Engine.Components.WindowsServer
             // This needs to be abstracted out in to a negotation class that will parse, send and receive negotiation requests.
             if (this.Buffer.First() == 255)
             {
-                this.StartListeningForData();
                 return;
             }
 
@@ -120,17 +130,30 @@ namespace Mud.Engine.Components.WindowsServer
             {
                 // Add this to our incomplete data stash and read again.
                 this.currentData.Add(lastChunk);
-                this.StartListeningForData();
                 return;
             }
-            
+
             // This message contained at least 1 new line, so we split it and process per line.
-            List<string> lines = lastChunk.Split(new char[] { '\n' }, StringSplitOptions.RemoveEmptyEntries).ToList();
-            
-            // Append the first line to the incomplete line given to us during the last pass if one exists.
-            if (this.currentData.Any() && lines.Any())
+            List<string> messages = lastChunk.Split(new char[] { '\n' }, StringSplitOptions.RemoveEmptyEntries).ToList();
+
+            foreach (string line in this.PruneReceivedMessages(messages))
             {
-                lines[0] = string.Format("{0} {1}", string.Join(" ", this.currentData), lines[0]);
+                // TODO: Hande off the line to a command manager or some type.
+                Debug.Write($"Message received: {line}\n");
+            }
+        }
+
+        /// <summary>
+        /// Runs through the messages collection and prepends data from a previous, incomplete, message
+        /// and updates the internal message tracking state.
+        /// </summary>
+        /// <param name="messages"></param>
+        private List<string> PruneReceivedMessages(List<string> messages)
+        {            
+            // Append the first line to the incomplete line given to us during the last pass if one exists.
+            if (this.currentData.Any() && messages.Any())
+            {
+                messages[0] = string.Format("{0} {1}", string.Join(" ", this.currentData), messages[0]);
                 this.currentData.Clear();
             }
 
@@ -138,26 +161,14 @@ namespace Mud.Engine.Components.WindowsServer
             // then we add it to our current data so it may be completed during the next pass. 
             // We then remove it from the lines collection because it can be infered that the remainder will have
             // a new line due to being split on \n.
-            if (lines.Count > 1 && !lines.Last().EndsWith("\r\n"))
+            if (messages.Count > 1 && !messages.Last().EndsWith("\r\n"))
             {
                 // Stash our incomplete line so we can append to it the next time around.
-                this.currentData.Add(lines.Last());
-                lines.Remove(lines.Last());
+                this.currentData.Add(messages.Last());
+                messages.Remove(messages.Last());
             }
 
-            if (lines.Count == 0)
-            {
-                this.StartListeningForData();
-                return;
-            }
-
-            foreach(string line in lines)
-            {
-                // TODO: Hande off the line to a command manager or some type.
-                Debug.Write($"Message received: {line}\n");
-            }
-
-            this.StartListeningForData();
+            return messages;
         }
     }
 }
