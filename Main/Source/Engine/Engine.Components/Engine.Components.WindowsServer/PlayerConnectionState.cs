@@ -69,13 +69,22 @@ namespace Mud.Engine.Components.WindowsServer
             // The input string
             int bytesRead = this.CurrentSocket.EndReceive(result);
 
-            if (bytesRead == 0)
+            if (bytesRead == 0 || !this.Buffer.Any())
             {
                 this.StartListeningForData();
                 return;
             }
 
-            string data = Encoding.UTF8.GetString(this.Buffer, 0, bytesRead);
+            string data = Encoding.ASCII.GetString(this.Buffer, 0, bytesRead);
+
+            // Temporary to avoid handling the telnet negotiations for now. 
+            // This needs to be abstracted out in to a negotation class that will parse, send and receive negotiation requests.
+            if (this.Buffer.First() == 255)
+            {
+                this.StartListeningForData();
+                return;
+            }
+
             if (!data.Contains("\r\n"))
             {
                 // Add this to our incomplete data stash and read again.
@@ -83,16 +92,17 @@ namespace Mud.Engine.Components.WindowsServer
                 this.StartListeningForData();
                 return;
             }
+            
+            List<string> lines = data.Split(new char[] { '\n' }, StringSplitOptions.RemoveEmptyEntries).ToList();
 
-            // We have completed at least one line, so parse the data.
-            List<string> lines = data.Split(new char[] { '\n' }, StringSplitOptions.RemoveEmptyEntries).ToList(); 
+            // Append the first line to the incomplete line given to us during the last pass.
             if (this.currentData.Any() && lines.Any())
             {
-                lines[0] = string.Join(" ", this.currentData);
+                lines[0] = string.Format("{0} {1}", string.Join(" ", this.currentData), lines[0]);
                 this.currentData.Clear();
             }
 
-            if (!lines.Last().EndsWith("\r\n"))
+            if (lines.Count > 1 && !lines.Last().EndsWith("\r\n"))
             {
                 // Stash our incomplete line so we can append to it the next time around.
                 this.currentData.Add(lines.Last());
@@ -107,7 +117,7 @@ namespace Mud.Engine.Components.WindowsServer
 
             foreach(string line in lines)
             {
-                Debug.WriteLine($"Message received: {line}\n");
+                Debug.Write($"Message received: {line}\n");
             }
 
             this.StartListeningForData();
