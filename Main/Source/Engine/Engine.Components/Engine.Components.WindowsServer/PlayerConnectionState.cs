@@ -1,22 +1,44 @@
-﻿using Mud.Engine.Runtime.Game.Character;
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Net.Sockets;
-using System.Text;
-using System.Threading.Tasks;
-
+﻿//-----------------------------------------------------------------------
+// <copyright file="PlayerConnectionState.cs" company="Sully">
+//     Copyright (c) Johnathon Sullinger. All rights reserved.
+// </copyright>
+//-----------------------------------------------------------------------
 namespace Mud.Engine.Components.WindowsServer
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Diagnostics;
+    using System.Linq;
+    using System.Net.Sockets;
+    using System.Text;
+    using Mud.Engine.Runtime.Game.Character;
+
+    /// <summary>
+    /// Handles the players networking state.
+    /// </summary>
     public class PlayerConnectionState
     {
+        /// <summary>
+        /// The size of the buffer that will hold data sent from the client
+        /// </summary>
         private readonly int bufferSize;
 
+        /// <summary>
+        /// A temporary collection of incomplete messages sent from the client. These must be put together and processed.
+        /// </summary>
         private readonly List<string> currentData = new List<string>();
 
+        /// <summary>
+        /// What the last chunk of data sent from the client contained.
+        /// </summary>
         private string lastChunk = string.Empty;
 
+        /// <summary>
+        /// Instances a new PlayerConnectionState.
+        /// </summary>
+        /// <param name="player">An instance of a Player type that will be performing network communication</param>
+        /// <param name="currentSocket">The Socket used to communicate with the client.</param>
+        /// <param name="bufferSize">The storage size of the data buffer</param>
         public PlayerConnectionState(IPlayer player, Socket currentSocket, int bufferSize)
         {
             this.Player = player;
@@ -26,12 +48,24 @@ namespace Mud.Engine.Components.WindowsServer
             this.Buffer = new byte[bufferSize];
         }
 
+        /// <summary>
+        /// Gets the Player instance associated with this state.
+        /// </summary>
         public IPlayer Player { get; private set; }
 
+        /// <summary>
+        /// Gets the Socket for the player associated with this state.
+        /// </summary>
         public Socket CurrentSocket { get; private set; }
 
+        /// <summary>
+        /// Gets the data currently in the network buffer
+        /// </summary>
         public byte[] Buffer { get; private set; }
 
+        /// <summary>
+        /// Gets if the current network connection is in a valid state.
+        /// </summary>
         public bool IsConnectionValid
         {
             get
@@ -40,14 +74,9 @@ namespace Mud.Engine.Components.WindowsServer
             }
         }
 
-        public bool IsAllDataDelivered
-        {
-            get
-            {
-                return this.currentData.Any() && this.currentData.Last().EndsWith("\r\n");
-            }
-        }
-
+        /// <summary>
+        /// Starts listening for network communication sent from the client to the server
+        /// </summary>
         public void StartListeningForData()
         {
             this.Buffer = new byte[bufferSize];
@@ -60,22 +89,22 @@ namespace Mud.Engine.Components.WindowsServer
         /// <param name="result">The result.</param>
         private void ReceiveData(IAsyncResult result)
         {
+            // If we are no longer in a valid state, dispose of the connection.
             if (!this.IsConnectionValid)
             {
                 this.CurrentSocket?.Dispose();
                 return;
             }
-
-            // The input string
+            
             int bytesRead = this.CurrentSocket.EndReceive(result);
-
             if (bytesRead == 0 || !this.Buffer.Any())
             {
                 this.StartListeningForData();
                 return;
             }
 
-            string data = Encoding.ASCII.GetString(this.Buffer, 0, bytesRead);
+            // Encode our input string sent from the client
+            this.lastChunk = Encoding.ASCII.GetString(this.Buffer, 0, bytesRead);
 
             // Temporary to avoid handling the telnet negotiations for now. 
             // This needs to be abstracted out in to a negotation class that will parse, send and receive negotiation requests.
@@ -85,23 +114,30 @@ namespace Mud.Engine.Components.WindowsServer
                 return;
             }
 
-            if (!data.Contains("\r\n"))
+            // If the previous chunk did not have a new line feed, then we add this message to the collection of currentData.
+            // This lets us build a full message before processing it.
+            if (!lastChunk.Contains("\r\n"))
             {
                 // Add this to our incomplete data stash and read again.
-                this.currentData.Add(data);
+                this.currentData.Add(lastChunk);
                 this.StartListeningForData();
                 return;
             }
             
-            List<string> lines = data.Split(new char[] { '\n' }, StringSplitOptions.RemoveEmptyEntries).ToList();
-
-            // Append the first line to the incomplete line given to us during the last pass.
+            // This message contained at least 1 new line, so we split it and process per line.
+            List<string> lines = lastChunk.Split(new char[] { '\n' }, StringSplitOptions.RemoveEmptyEntries).ToList();
+            
+            // Append the first line to the incomplete line given to us during the last pass if one exists.
             if (this.currentData.Any() && lines.Any())
             {
                 lines[0] = string.Format("{0} {1}", string.Join(" ", this.currentData), lines[0]);
                 this.currentData.Clear();
             }
 
+            // If we have more than 1 line and the last line in the collection does not end with a line feed
+            // then we add it to our current data so it may be completed during the next pass. 
+            // We then remove it from the lines collection because it can be infered that the remainder will have
+            // a new line due to being split on \n.
             if (lines.Count > 1 && !lines.Last().EndsWith("\r\n"))
             {
                 // Stash our incomplete line so we can append to it the next time around.
@@ -117,6 +153,7 @@ namespace Mud.Engine.Components.WindowsServer
 
             foreach(string line in lines)
             {
+                // TODO: Hande off the line to a command manager or some type.
                 Debug.Write($"Message received: {line}\n");
             }
 

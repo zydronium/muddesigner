@@ -5,21 +5,16 @@
 //-----------------------------------------------------------------------
 namespace Mud.Engine.Components.WindowsServer
 {
-    using Mud.Engine.Runtime;
-    using Mud.Engine.Runtime.Game;
-    using Mud.Engine.Runtime.Game.Character;
-    using Mud.Engine.Runtime.Networking;
     using System;
     using System.Collections.Generic;
     using System.Linq;
     using System.Net;
     using System.Net.Sockets;
     using System.Threading.Tasks;
-    using System.Text;
-    using System.Diagnostics;
-
-
-
+    using Mud.Engine.Runtime;
+    using Mud.Engine.Runtime.Game;
+    using Mud.Engine.Runtime.Game.Character;
+    using Mud.Engine.Runtime.Networking;
 
     /// <summary>
     /// The Default Desktop game Server
@@ -309,12 +304,14 @@ namespace Mud.Engine.Components.WindowsServer
                 player.Information.Name = string.Format("Player {0}", this.ConnectedPlayers.Count);
             }
 
+            // Create a new connection state.
             var connectionState = new PlayerConnectionState(player, connection, UserConnectionBufferSize);
             lock (this.playerConnections)
             {
                 this.playerConnections.Add(player, connectionState);
             }
 
+            // Start receiving data from the client.
             connectionState.StartListeningForData();
             this.OnPlayerConnected(player);
         }
