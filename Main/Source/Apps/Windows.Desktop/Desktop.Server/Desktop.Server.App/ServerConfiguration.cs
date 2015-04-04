@@ -34,13 +34,12 @@ namespace Mud.Apps.Windows.Desktop.Server.App
         {
             server.Port = 23;
             server.MaxConnections = 100;
-
-            // Register to be notified when a player connects and disconnects.
-            server.PlayerConnected += Server_PlayerConnected;
-            server.PlayerDisconnected += Server_PlayerDisconnected;
+            server.MessageOfTheDay = new List<string> { "Welcome to the Mud Designer Test Server!" };
+            server.Owner = "Johnathon Sullinger";
 
             this.server = server;
             this.game = game;
+            this.game.Information.Name = "Sample Mud Designer Game";
 
             Task worldTask = this.ConstructWorld(game);
             worldTask.Wait(); // Need to rethink doing this.
@@ -137,36 +136,6 @@ namespace Mud.Apps.Windows.Desktop.Server.App
             }
 
             Console.WriteLine(Environment.NewLine);
-        }
-
-        /// <summary>
-        /// Handles the PlayerDisconnected event of the server control.
-        /// </summary>
-        /// <param name="sender">The source of the event.</param>
-        /// <param name="e">The <see cref="ServerConnectionEventArgs"/> instance containing the event data.</param>
-        private static void Server_PlayerDisconnected(object sender, ServerConnectionEventArgs e)
-        {
-            e.Player.MessageSent -= Player_MessageSent;
-        }
-
-        /// <summary>
-        /// Handles the PlayerConnected event of the server control.
-        /// </summary>
-        /// <param name="sender">The source of the event.</param>
-        /// <param name="e">The <see cref="ServerConnectionEventArgs"/> instance containing the event data.</param>
-        private static void Server_PlayerConnected(object sender, ServerConnectionEventArgs e)
-        {
-            e.Player.MessageSent += Player_MessageSent;
-        }
-
-        /// <summary>
-        /// Player_s the message sent.
-        /// </summary>
-        /// <param name="sender">The sender.</param>
-        /// <param name="e">The e.</param>
-        private static void Player_MessageSent(object sender, InputArgs e)
-        {
-            Console.WriteLine(e.Message);
         }
     }
 }

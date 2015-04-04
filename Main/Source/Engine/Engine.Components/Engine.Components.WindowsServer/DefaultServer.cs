@@ -10,6 +10,7 @@ namespace Mud.Engine.Components.WindowsServer
     using System.Linq;
     using System.Net;
     using System.Net.Sockets;
+    using System.Text;
     using System.Threading.Tasks;
     using Mud.Engine.Runtime;
     using Mud.Engine.Runtime.Game;
@@ -278,6 +279,10 @@ namespace Mud.Engine.Components.WindowsServer
             // Connect and register for network related events.
             Socket connection = this.serverSocket.EndAccept(result);
 
+            // Send our greeting
+            byte[] buffer = Encoding.ASCII.GetBytes(this.CreateWelcomeMessage());
+            connection.BeginSend(buffer, 0, buffer.Length, 0, new AsyncCallback(asyncResult => connection.EndReceive(asyncResult)), null);
+
             // Fetch the next incoming connection.
             this.serverSocket.BeginAccept(new AsyncCallback(this.ConnectClient), this.serverSocket);
 
@@ -307,6 +312,29 @@ namespace Mud.Engine.Components.WindowsServer
             // Start receiving data from the client.
             connectionState.StartListeningForData();
             this.OnPlayerConnected(player);
+        }
+
+        private string CreateWelcomeMessage()
+        {
+            var welcomeMessage = new StringBuilder();
+            if (!string.IsNullOrWhiteSpace(this.game.Information.Name))
+            {
+                welcomeMessage.AppendLine(this.game.Information.Name);
+            }
+
+            if (!string.IsNullOrWhiteSpace(this.Owner))
+            {
+                welcomeMessage.AppendLine($"Owner: {this.Owner}");
+            }
+
+            if (this.MessageOfTheDay.Any())
+            {
+                welcomeMessage.Append(string.Join("\n", this.MessageOfTheDay));
+            }
+
+            welcomeMessage.AppendLine("");
+
+            return welcomeMessage.ToString();
         }
     }
 }

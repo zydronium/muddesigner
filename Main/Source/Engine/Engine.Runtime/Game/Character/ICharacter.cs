@@ -14,16 +14,6 @@ namespace Mud.Engine.Runtime.Game.Character
     public interface ICharacter : IGameComponent
     {
         /// <summary>
-        /// Occurs when the instance receives an IMessage.
-        /// </summary>
-        event EventHandler<InputArgs> MessageReceived;
-
-        /// <summary>
-        /// Occurs when the instance sends an IMessage.
-        /// </summary>
-        event EventHandler<InputArgs> MessageSent;
-
-        /// <summary>
         /// Occurs when the character changes rooms.
         /// </summary>
         event EventHandler<OccupancyChangedEventArgs> RoomChanged;
