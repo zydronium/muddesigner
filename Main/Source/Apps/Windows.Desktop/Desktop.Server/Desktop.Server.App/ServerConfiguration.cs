@@ -28,10 +28,9 @@ namespace Mud.Apps.Windows.Desktop.Server.App
         /// <summary>
         /// Configures the specified game for running on the server.
         /// </summary>
-        /// <typeparam name="TGame">The type of the game.</typeparam>
         /// <param name="game">The game.</param>
         /// <param name="server">The server.</param>
-        public void Configure<TGame>(TGame game, IServer<TGame> server) where TGame : IGame, new()
+        public void Configure(IGame game, IServer server)
         {
             server.Port = 23;
             server.MaxConnections = 100;
@@ -50,9 +49,8 @@ namespace Mud.Apps.Windows.Desktop.Server.App
         /// <summary>
         /// Constructs the world.
         /// </summary>
-        /// <typeparam name="TGame">The type of the game.</typeparam>
         /// <param name="game">The game.</param>
-        private async Task ConstructWorld<TGame>(TGame game) where TGame : IGame, new()
+        private async Task ConstructWorld(IGame game)
         {
             // Set up the Zone            
             var weatherStates = new List<IWeatherState> { new ClearWeather(), new RainyWeather(), new ThunderstormWeather() };

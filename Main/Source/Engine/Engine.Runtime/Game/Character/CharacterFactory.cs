@@ -12,22 +12,10 @@ namespace Mud.Engine.Runtime.Game.Character
     /// </summary>
     public static class CharacterFactory
     {
-        // TODO: This factory needs to be a generic factory, used to fetch instances
-        // based on T. ICharacter, IPlayer, INPC, IMonster etc.
-
         /// <summary>
         /// The player type to instance
         /// </summary>
-        private static Type playerType;
-
-        /// <summary>
-        /// Initializes the factory to return the specified Character Type.
-        /// </summary>
-        /// <typeparam name="TPlayer"></typeparam>
-        public static void Initialize<TPlayer>() where TPlayer : IPlayer
-        {
-            playerType = typeof(TPlayer);
-        }
+        private static Func<IGame, IPlayer> playerFactory;
 
         /// <summary>
         /// Creates a new player instance.
@@ -36,8 +24,21 @@ namespace Mud.Engine.Runtime.Game.Character
         /// <returns></returns>
         public static IPlayer CreatePlayer(IGame game)
         {
-            // TODO: Build out a better factory not so tightly coupled to DefaultPlayer.
-            return Activator.CreateInstance(playerType, game) as IPlayer;
+            if (playerFactory == null)
+            {
+                return new DefaultPlayer(game);
+            }
+
+            return playerFactory(game);
+        }
+
+        /// <summary>
+        /// Sets the factory method used to create a new player.
+        /// </summary>
+        /// <param name="factoryCallback"></param>
+        public static void SetFactory(Func<IGame, IPlayer> factoryCallback)
+        {
+            playerFactory = factoryCallback;
         }
     }
 }

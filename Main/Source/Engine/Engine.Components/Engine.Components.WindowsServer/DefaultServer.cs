@@ -19,7 +19,7 @@ namespace Mud.Engine.Components.WindowsServer
     /// <summary>
     /// The Default Desktop game Server
     /// </summary>
-    public class DefaultServer<TGame> : IServer<TGame> where TGame : IGame, new()
+    public class DefaultServer: IServer
     {
         /// <summary>
         /// The user connection buffer size
@@ -35,6 +35,11 @@ namespace Mud.Engine.Components.WindowsServer
         /// The player connections
         /// </summary>
         private Dictionary<IPlayer, PlayerConnectionState> playerConnections;
+
+        /// <summary>
+        /// The game reference
+        /// </summary>
+        private IGame game;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="DefaultServer"/> class.
@@ -58,11 +63,6 @@ namespace Mud.Engine.Components.WindowsServer
         /// Occurs when a player is disconnected from the server.
         /// </summary>
         public event EventHandler<ServerConnectionEventArgs> PlayerDisconnected;
-
-        /// <summary>
-        /// Gets the game.
-        /// </summary>
-        public TGame Game { get; private set; }
 
         /// <summary>
         /// Gets a collection of users currently connected.
@@ -118,11 +118,11 @@ namespace Mud.Engine.Components.WindowsServer
         {
             // Set up our game instance
             ExceptionFactory.ThrowIf<InvalidCastException>(
-                !(game is TGame),
-                $"Unable to cast {game.GetType().Name} to {typeof(TGame).Name}");
+                (game == null),
+                $"You can not star the server with a null game.");
 
-            this.Game = (TGame)game;
-            await this.Game.Initialize();
+            this.game = game;
+            await this.game.Initialize();
 
             this.Status = ServerStatus.Starting;
             //// this.Logger("Starting network server.");
@@ -137,7 +137,7 @@ namespace Mud.Engine.Components.WindowsServer
             var serverEndPoint = new IPEndPoint(IPAddress.Any, this.Port);
 
             var config = configuration;
-            config.Configure(this.Game, this);
+            config.Configure(this.game, this);
 
             // Instance the server socket, bind it to a port.
             this.serverSocket = new Socket(serverEndPoint.Address.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
@@ -151,23 +151,16 @@ namespace Mud.Engine.Components.WindowsServer
         }
 
         /// <summary>
-        /// Starts the server for the specified game.
-        /// </summary>
-        /// <typeparam name="TConfiguration">The type of the server configuration.</typeparam>
-        public Task Start<TConfiguration>() where TConfiguration : IServerConfiguration, new()
-            => this.Start(new TGame(), new TConfiguration());
-
-        /// <summary>
         /// Gets the current game.
         /// </summary>
         /// <returns>Returns the current IGame instance running.</returns>
-        public IGame GetCurrentGame() => this.Game;
+        public IGame GetCurrentGame() => this.game;
 
         /// <summary>
         /// Returns a <see cref="System.String" /> that represents this instance.
         /// </summary>
         /// <returns>A <see cref="System.String" /> that represents this instance.</returns>
-        public override string ToString() => $"{this.Game.Information.Name} - {this.Game.Information.Version}";
+        public override string ToString() => $"{this.game.Information.Name} - {this.game.Information.Version}";
 
         /// <summary>
         /// Stops the server.
@@ -289,7 +282,7 @@ namespace Mud.Engine.Components.WindowsServer
             this.serverSocket.BeginAccept(new AsyncCallback(this.ConnectClient), this.serverSocket);
 
             // Cast the invoker to IPlayer. If the Invoker is not an IPlayer, we want to throw an exception.
-            IPlayer player = CharacterFactory.CreatePlayer(this.Game);
+            IPlayer player = CharacterFactory.CreatePlayer(this.game);
 
             // Initialize the player.
             Task task = player.Initialize();

@@ -80,6 +80,7 @@ namespace Mud.Engine.Runtime.Game
 
             if (this.Worlds.Count == 0)
             {
+                // Handle
             }
             else
             {
@@ -119,15 +120,15 @@ namespace Mud.Engine.Runtime.Game
         /// </summary>
         /// <param name="world">The world.</param>
         /// <returns>Returns an awaitable Task</returns>
-        protected virtual async Task OnWorldLoaded(DefaultWorld world)
+        protected virtual Task OnWorldLoaded(DefaultWorld world)
         {
             var handler = this.WorldLoaded;
             if (handler == null)
             {
-                return;
+                return Task.FromResult(0);
             }
 
-            await handler(this, new WorldLoadedArgs(world));
+            return handler(this, new WorldLoadedArgs(world));
         }
 
         /// <summary>
@@ -136,10 +137,13 @@ namespace Mud.Engine.Runtime.Game
         /// <returns>Returns an awaitable Task</returns>
         private async Task SaveWorlds()
         {
+            List<Task> runningTasks = new List<Task>();
             foreach (DefaultWorld world in this.Worlds)
             {
-                await this.worldService.SaveWorld(world);
+                runningTasks.Add(this.worldService.SaveWorld(world));
             }
+
+            await Task.WhenAll(runningTasks);
         }
     }
 }

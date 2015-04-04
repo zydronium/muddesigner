@@ -12,6 +12,6 @@
         /// </summary>
         /// <param name="game">The game.</param>
         /// <param name="server">The server.</param>
-        void Configure<TGame>(TGame game, IServer<TGame> server) where TGame : IGame, new();
+        void Configure(IGame game, IServer server);
     }
 }

@@ -27,6 +27,8 @@ namespace Mud.Apps.Windows.Desktop.Server.App
         /// </summary>
         private static IContainer container;
 
+        private static IGame game;
+
         /// <summary>
         /// Mains the specified arguments.
         /// </summary>
@@ -35,13 +37,14 @@ namespace Mud.Apps.Windows.Desktop.Server.App
         {
             RegisterContainerTypes();
 
-            // Instance our Default Server. This server is for Windows Desktop only.
-            CharacterFactory.Initialize<DefaultPlayer>();
-            var newServer = new DefaultServer<DefaultGame>();
+            // Set up the server
+            var newServer = container.Resolve<IServer>();
             newServer.Port = 5000;
             newServer.MaxConnections = 100;
-            Task startupTask = newServer.Start<ServerConfiguration>();
+
+            Task startupTask = newServer.Start(container.Resolve<IGame>(), container.Resolve<IServerConfiguration>());
             startupTask.Wait();
+            game = newServer.GetCurrentGame();
 
             // Our game loop.
             while (newServer.Status == ServerStatus.Running)
@@ -56,7 +59,7 @@ namespace Mud.Apps.Windows.Desktop.Server.App
                 newServer.Stop();
 
                 // Delete the game.
-                Task requestResult = newServer.Game.Delete();
+                Task requestResult = game.Delete();
                 requestResult.Wait();
             }
         }
@@ -71,8 +74,12 @@ namespace Mud.Apps.Windows.Desktop.Server.App
             builder.RegisterType<FileStorageService>().As<IFileStorageService>();
 
             // Engine runtime types
-            builder.RegisterType<DefaultGame>().As<DefaultGame>();
+            builder.RegisterType<DefaultPlayer>().As<IPlayer>();
+            builder.RegisterType<DefaultGame>().As<IGame>().SingleInstance();
             builder.RegisterType<WorldService>().As<IWorldService>();
+
+            builder.RegisterType<DefaultServer>().As<IServer>();
+            builder.RegisterType<ServerConfiguration>().As<IServerConfiguration>();
 
             // Flat File data store types
             builder.RegisterType<WorldRepository>().As<IWorldRepository>();
@@ -87,10 +94,10 @@ namespace Mud.Apps.Windows.Desktop.Server.App
             // Build our IoC container and use it for the Runtime's ServiceLocator
             container = builder.Build();
             var locator = new ServiceLocator();
-            locator.SetLocatorFactory(type => container.Resolve(type));
             ServiceLocatorFactory.Initialize(locator);
+            locator.SetLocatorFactory(type => container.Resolve(type));
 
-            CharacterFactory.Initialize<DefaultPlayer>();
+            CharacterFactory.SetFactory(game => container.Resolve<IPlayer>());
         }
     }
 }
