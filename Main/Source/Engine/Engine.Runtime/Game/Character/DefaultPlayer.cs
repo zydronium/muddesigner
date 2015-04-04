@@ -23,7 +23,7 @@ namespace Mud.Engine.Runtime.Game.Character
         public DefaultPlayer(IGame game)
         {
             this.Game = game;
-
+            this.Information = new CharacterInformation();
             this.Id = 0;
         }
 
