@@ -21,6 +21,8 @@ namespace Mud.Engine.Runtime.Game
 
         private IWorldService worldService;
 
+        private List<IWorld> worlds = new List<IWorld>();
+
         /// <summary>
         /// Initializes a new instance of the <see cref="DefaultGame" /> class.
         /// </summary>
@@ -66,9 +68,15 @@ namespace Mud.Engine.Runtime.Game
         public DateTime LastSaved { get; }
 
         /// <summary>
-        /// Gets or sets the current World for the game. Contains all of the Realms, Zones and Rooms.
+        /// Gets the current World for the game. Contains all of the Realms, Zones and Rooms.
         /// </summary>
-        public ICollection<DefaultWorld> Worlds { get; set; } = new List<DefaultWorld>();
+        public IWorld[] Worlds
+        {
+            get
+            {
+                return this.worlds.ToArray();
+            }
+        }
 
         /// <summary>
         /// The initialize method is responsible for restoring the world and state.
@@ -76,23 +84,28 @@ namespace Mud.Engine.Runtime.Game
         /// <returns>Returns an awaitable Task</returns>
         protected async override Task Load()
         {
-            this.Worlds = new List<DefaultWorld>(await this.worldService.GetAllWorlds());
+            this.worlds = new List<IWorld>(await this.worldService.GetAllWorlds());
 
-            if (this.Worlds.Count == 0)
+            if (!this.Worlds.Any())
             {
                 // Handle
             }
             else
             {
-                foreach (DefaultWorld world in this.Worlds)
+                List<Task> worldTasks = new List<Task>();
+                foreach (IWorld world in this.Worlds)
                 {
-                    await this.OnWorldLoaded(world);
-                    await world.Initialize();
+                    Task worldTask = this.OnWorldLoaded(world).ContinueWith(task => world.Initialize());
+                    worldTasks.Add(worldTask);
                 }
-            }
 
-            await this.Autosave.Initialize();
-            this.IsRunning = true;
+                await Task.WhenAll(worldTasks)
+                    .ContinueWith(task =>
+                    {
+                        this.IsRunning = true;
+                        this.Autosave.Initialize();
+                    });
+            }
         }
 
         /// <summary>
@@ -111,7 +124,7 @@ namespace Mud.Engine.Runtime.Game
             {
                 // Let the world perform clean up and notify it's subscribers it is going away.
                 // world.Delete();
-                this.Worlds.Remove(world);
+                this.worlds.Remove(world);
             }
         }
 
@@ -120,7 +133,7 @@ namespace Mud.Engine.Runtime.Game
         /// </summary>
         /// <param name="world">The world.</param>
         /// <returns>Returns an awaitable Task</returns>
-        protected virtual Task OnWorldLoaded(DefaultWorld world)
+        protected virtual Task OnWorldLoaded(IWorld world)
         {
             var handler = this.WorldLoaded;
             if (handler == null)
@@ -138,12 +151,23 @@ namespace Mud.Engine.Runtime.Game
         private async Task SaveWorlds()
         {
             List<Task> runningTasks = new List<Task>();
-            foreach (DefaultWorld world in this.Worlds)
+            foreach (IWorld world in this.Worlds)
             {
                 runningTasks.Add(this.worldService.SaveWorld(world));
             }
 
             await Task.WhenAll(runningTasks);
+        }
+
+        public Task AddWorld(IWorld world)
+        {
+            if (this.worlds.Contains(world))
+            {
+                return Task.FromResult(0);
+            }
+
+            this.worlds.Add(world);
+            return world.Initialize();
         }
     }
 }

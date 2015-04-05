@@ -6,8 +6,8 @@ namespace Mud.Engine.Runtime.Services
 {
     public interface IWorldService : IService
     {
-        Task<IEnumerable<DefaultWorld>> GetAllWorlds();
+        Task<IEnumerable<IWorld>> GetAllWorlds();
 
-        Task SaveWorld(DefaultWorld world);
+        Task SaveWorld(IWorld world);
     }
 }

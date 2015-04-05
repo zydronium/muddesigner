@@ -65,7 +65,7 @@ namespace Mud.Apps.Windows.Desktop.Server.App
             zone2.WeatherChanged += (sender, weatherArgs) => Console.WriteLine($"{zone2.Name} zone weather has changed to {weatherArgs.CurrentState.Name}");
 
             // Set up the World.
-            DefaultWorld world = new DefaultWorld();
+            IWorld world = new DefaultWorld();
             world.GameDayToRealHourRatio = 0.2;
             world.HoursPerDay = 10;
             world.Name = "Sample World";
@@ -74,7 +74,9 @@ namespace Mud.Apps.Windows.Desktop.Server.App
             var afternoonState = new TimeOfDayState { Name = "Afternoon", StateStartTime = new TimeOfDay { Hour = 5 } };
             var nightState = new TimeOfDayState { Name = "Night", StateStartTime = new TimeOfDay { Hour = 8 } };
 
-            world.TimeOfDayStates = new List<TimeOfDayState> { morningState, afternoonState, nightState };
+            world.AddTimeOfDayState(morningState);
+            world.AddTimeOfDayState(afternoonState);
+            world.AddTimeOfDayState(nightState);
             world.TimeOfDayChanged += World_TimeOfDayChanged;
 
             // Set up the Realm.
@@ -89,7 +91,7 @@ namespace Mud.Apps.Windows.Desktop.Server.App
             await world.AddRealmToWorld(realm);
             realm.AddZoneToRealm(zone);
             realm.AddZoneToRealm(zone2);
-            game.Worlds.Add(world);
+            await game.AddWorld(world);
         }
 
         /// <summary>

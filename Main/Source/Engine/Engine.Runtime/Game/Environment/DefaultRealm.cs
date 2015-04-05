@@ -27,7 +27,7 @@ namespace Mud.Engine.Runtime.Game.Environment
         /// <summary>
         /// Initializes a new instance of the <see cref="DefaultRealm"/> class.
         /// </summary>
-        public DefaultRealm(DefaultWorld world, TimeOfDay worldTimeOfDay)
+        public DefaultRealm(IWorld world, TimeOfDay worldTimeOfDay)
         {
             ExceptionFactory
                 .ThrowIf<ArgumentNullException>(world == null, "A valid world instance must be supplied.")
@@ -86,7 +86,7 @@ namespace Mud.Engine.Runtime.Game.Environment
         /// <summary>
         /// Gets or sets the World that owns this realm..
         /// </summary>
-        public DefaultWorld World { get; protected set; }
+        public IWorld World { get; protected set; }
 
         /// <summary>
         /// Gets or sets the name.

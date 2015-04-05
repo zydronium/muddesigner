@@ -7,6 +7,6 @@ namespace Mud.Data.Shared
 
     public interface IWorldRepository
     {
-        Task<IEnumerable<DefaultWorld>> GetWorlds();
+        Task<IEnumerable<IWorld>> GetWorlds();
     }
 }

@@ -33,8 +33,10 @@ namespace Mud.Engine.Runtime.Game
         DateTime LastSaved { get; }
 
         /// <summary>
-        /// Gets or sets the current World for the game. Contains all of the Realms, Zones and Rooms.
+        /// Gets the current World for the game. Contains all of the Realms, Zones and Rooms.
         /// </summary>
-        ICollection<DefaultWorld> Worlds { get; set; }
+        IWorld[] Worlds { get; }
+
+        Task AddWorld(IWorld world);
     }
 }

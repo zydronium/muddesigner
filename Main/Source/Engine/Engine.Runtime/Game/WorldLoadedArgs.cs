@@ -17,7 +17,7 @@ namespace Mud.Engine.Runtime.Game
         /// Initializes a new instance of the <see cref="WorldLoadedArgs"/> class.
         /// </summary>
         /// <param name="world">The world.</param>
-        public WorldLoadedArgs(DefaultWorld world)
+        public WorldLoadedArgs(IWorld world)
         {
             this.World = world;
         }
@@ -25,6 +25,6 @@ namespace Mud.Engine.Runtime.Game
         /// <summary>
         /// Gets the world that was just loaded.
         /// </summary>
-        public DefaultWorld World { get; private set; }
+        public IWorld World { get; private set; }
     }
 }

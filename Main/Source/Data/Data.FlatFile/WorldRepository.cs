@@ -16,7 +16,7 @@ namespace Mud.Data.FlatFile
 
         private ITimeOfDayStateRepository timeOfDayStateRepository;
 
-        private static ConcurrentBag<DefaultWorld> worldCache = new ConcurrentBag<DefaultWorld>();
+        private static ConcurrentBag<IWorld> worldCache = new ConcurrentBag<IWorld>();
 
         public WorldRepository(IFileStorageService storageService, ITimeOfDayStateRepository timeOfDayRepository)
         {
@@ -24,20 +24,20 @@ namespace Mud.Data.FlatFile
             this.timeOfDayStateRepository = timeOfDayRepository;
         }
 
-        public async Task<IEnumerable<DefaultWorld>> GetWorlds()
+        public async Task<IEnumerable<IWorld>> GetWorlds()
         {
             // Return our previously cached worlds.
             if (WorldRepository.worldCache.Count > 0)
             {
-                return new List<DefaultWorld>(WorldRepository.worldCache);
+                return new List<IWorld>(WorldRepository.worldCache);
             }
 
             IEnumerable<string> worldFiles = await this.storageService.GetAllFilesByExtension(".world", "Worlds");
-            var worlds = new List<DefaultWorld>();
+            var worlds = new List<IWorld>();
 
             foreach (string file in worldFiles)
             {
-                var world = new DefaultWorld();
+                IWorld world = new DefaultWorld();
                 world.CreationDate = Convert.ToDateTime(await this.storageService.LoadValueFromKeyAsync(
                     file, 
                     world.GetPropertyName(p => p.CreationDate)));
@@ -47,8 +47,11 @@ namespace Mud.Data.FlatFile
                 IEnumerable<string> worldStates = await this.storageService.LoadMultipleValuesFromKeyAsync(
                     file, 
                     world.GetPropertyName(p => p.TimeOfDayStates));
-                world.TimeOfDayStates = availableStates.Where(state => worldStates.Any(worldState => worldState == state.Name)).ToList();
-
+                foreach(TimeOfDayState state in availableStates.Where(s => worldStates.Any(worldState => worldState == s.Name)))
+                {
+                    world.AddTimeOfDayState(state);
+                }
+                
                 // Restore the previous time of day state of the world
                 // TODO: Some time look at preserving not just the state, but the state.CurrentTime as well.
                 string currentTimeOfDayState = await this.storageService.LoadValueFromKeyAsync(
@@ -81,13 +84,13 @@ namespace Mud.Data.FlatFile
                     world.GetPropertyName(p => p.Name));
             }
 
-            WorldRepository.worldCache = new ConcurrentBag<DefaultWorld>(worlds);
+            // WorldRepository.worldCache = new ConcurrentBag<DefaultWorld>(worlds);
             return worlds;
         }
 
         public void FlushCash()
         {
-            WorldRepository.worldCache = new ConcurrentBag<DefaultWorld>();
+            WorldRepository.worldCache = new ConcurrentBag<IWorld>();
         }
     }
 }

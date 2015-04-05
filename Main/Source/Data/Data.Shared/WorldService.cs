@@ -15,12 +15,12 @@ namespace Mud.Data.Shared
             this.worldRepository = worldRepository;
         }
 
-        public async Task<IEnumerable<DefaultWorld>> GetAllWorlds()
+        public async Task<IEnumerable<IWorld>> GetAllWorlds()
         {
             return await this.worldRepository.GetWorlds();
         }
 
-        public Task SaveWorld(DefaultWorld world)
+        public Task SaveWorld(IWorld world)
         {
             return Task.FromResult(0);
             //throw new NotImplementedException();

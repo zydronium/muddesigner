@@ -32,12 +32,13 @@ namespace Tests.Engine.Runtime.Game
             var worldServiceMock = new Mock<IWorldService>();
             worldServiceMock
                 .Setup(service => service.GetAllWorlds())
-                .ReturnsAsync(new List<DefaultWorld>()
+                .Returns(() =>
                 {
-                    new DefaultWorld
-                    {
-                        TimeOfDayStates = new List<TimeOfDayState> { new TimeOfDayState() }
-                    }
+                    var world = new DefaultWorld();
+                    world.AddTimeOfDayState(new TimeOfDayState());
+                    var completionSource = new TaskCompletionSource<IEnumerable<IWorld>>(new List<IWorld> { world });
+
+                    return completionSource.Task;
                 });
             builder.RegisterInstance(worldServiceMock.Object).As<IWorldService>();
 
@@ -94,7 +95,7 @@ namespace Tests.Engine.Runtime.Game
 
             // Assert
             Assert.IsNotNull(game.Worlds);
-            Assert.IsTrue(game.Worlds.Count == 1);
+            Assert.IsTrue(game.Worlds.Length == 1);
         }
 
         [TestMethod]
@@ -105,7 +106,7 @@ namespace Tests.Engine.Runtime.Game
             var world = new DefaultWorld();
             bool worldLoaded = false;
             world.Loaded += (sender, args) => worldLoaded = true;
-            world.TimeOfDayStates = new List<TimeOfDayState> { new TimeOfDayState() };
+            world.AddTimeOfDayState(new TimeOfDayState());
 
             // Set up the world service to return our mocked World.
             var worldServiceMock = new Mock<IWorldService>();
@@ -187,7 +188,7 @@ namespace Tests.Engine.Runtime.Game
             // Get our mocked instance and set up the time of day states needed
             // by the Initialize method call.
             var world = worldMock.Object;
-            world.TimeOfDayStates = new List<TimeOfDayState> { new TimeOfDayState() };
+            world.AddTimeOfDayState(new TimeOfDayState());
 
             // Set up the world service to return our mocked World
             // and allow us to verify that save was called.
@@ -210,7 +211,7 @@ namespace Tests.Engine.Runtime.Game
             await game.Delete();
 
             // Assert
-            Assert.AreEqual(0, game.Worlds.Count, "Worlds not cleared.");
+            Assert.AreEqual(0, game.Worlds.Length, "Worlds not cleared.");
             worldServiceMock.Verify(service => service.SaveWorld(It.IsAny<DefaultWorld>()));
 
             // TODO: Verify DefaultWorld.Delete is called.

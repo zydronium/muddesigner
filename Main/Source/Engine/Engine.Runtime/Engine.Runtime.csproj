@@ -44,6 +44,7 @@
     <Compile Include="Game\ChatFactory.cs" />
     <Compile Include="Game\ChatMessageBase.cs" />
     <Compile Include="Game\CommandManager.cs" />
+    <Compile Include="Game\Environment\IWorld.cs" />
     <Compile Include="Game\IChatMessage.cs" />
     <Compile Include="Game\ICommandManager.cs" />
     <Compile Include="Game\IGame.cs" />

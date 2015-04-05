@@ -13,12 +13,12 @@ namespace Mud.Engine.Runtime.Game.Environment
     /// <summary>
     /// The Default World class used by the engine.
     /// </summary>
-    public class DefaultWorld : GameComponent
+    public class DefaultWorld : GameComponent, IWorld
     {
         /// <summary>
         /// The time of day states
         /// </summary>
-        private List<TimeOfDayState> timeOfDayStates;
+        private List<TimeOfDayState> timeOfDayStates = new List<TimeOfDayState>();
 
         /// <summary>
         /// The realms
@@ -54,6 +54,11 @@ namespace Mud.Engine.Runtime.Game.Environment
         /// Occurs when [time of day changed].
         /// </summary>
         public event EventHandler<TimeOfDayChangedEventArgs> TimeOfDayChanged;
+        public event Func<IGameComponent, Task> Loading;
+        public event EventHandler<EventArgs> Loaded;
+        public event Func<IGameComponent, Task> Deleting;
+        public event EventHandler<EventArgs> Deleted;
+
 
         /// <summary>
         /// Gets or sets the name.
@@ -89,24 +94,11 @@ namespace Mud.Engine.Runtime.Game.Environment
         /// <summary>
         /// Gets or sets a collection of states that can be used for the time of day.
         /// </summary>
-        public ICollection<TimeOfDayState> TimeOfDayStates
+        public TimeOfDayState[] TimeOfDayStates
         {
             get
             {
-                return this.timeOfDayStates;
-            }
-
-            set
-            {
-                this.timeOfDayStates.Clear();
-
-                if (value != null)
-                {
-                    this.timeOfDayStates.AddRange(value);
-
-                    // Reset the state manager with the new collection.
-                    this.timeOfDayStateManager = new TimeOfDayStateManager(value);
-                }
+                return this.timeOfDayStates.ToArray();
             }
         }
 
@@ -134,21 +126,14 @@ namespace Mud.Engine.Runtime.Game.Environment
         /// <summary>
         /// Gets or sets the realms in this world.
         /// </summary>
-        public IEnumerable<DefaultRealm> Realms
+        public DefaultRealm[] Realms
         {
             get
             {
-                return this.realms;
-            }
-
-            set
-            {
-                this.realms.Clear();
-
-                if (value != null)
-                {
-                    this.realms.AddRange(value);
-                }
+                // Do not return a reference to our private list.
+                // Instead, create a new List and return that. In the event someone
+                // casts the IReadOnlyCollection to List<T>, that don't modify our private collection.
+                return this.realms.ToArray();
             }
         }
 
@@ -162,6 +147,20 @@ namespace Mud.Engine.Runtime.Game.Environment
                 return this.realms.Count;
             }
         }
+
+        public int Id
+        {
+            get
+            {
+                throw new NotImplementedException();
+            }
+
+            set
+            {
+                throw new NotImplementedException();
+            }
+        }
+
 
         /// <summary>
         /// Adds the given realm to world and initializes it.
@@ -194,14 +193,18 @@ namespace Mud.Engine.Runtime.Game.Environment
 
         /// <summary>
         /// Adds a collection of realms to world.
+        /// Each Realm is initialized upon being added to the World.
         /// </summary>
-        /// <param name="realm">The realm.</param>
-        public async Task AddRealmsToWorld(IEnumerable<DefaultRealm> realms)
+        /// <param name="realm">The realms collection.</param>
+        public Task AddRealmsToWorld(IEnumerable<DefaultRealm> realms)
         {
+            List<Task> realmTasks = new List<Task>();
             foreach(DefaultRealm realm in realms.AsParallel())
             {
-                await this.AddRealmToWorld(realm);
+                realmTasks.Add(this.AddRealmToWorld(realm));
             }
+
+            return Task.WhenAll(realmTasks);
         }
 
         /// <summary>
@@ -212,6 +215,7 @@ namespace Mud.Engine.Runtime.Game.Environment
         {
             if (!this.Realms.Contains(realm))
             {
+                return;
             }
 
             this.realms.Remove(realm);
