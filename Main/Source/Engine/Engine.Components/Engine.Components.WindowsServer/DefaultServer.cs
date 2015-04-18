@@ -146,7 +146,7 @@ namespace Mud.Engine.Components.WindowsServer
             this.serverSocket.Listen(this.MaxQueuedConnections);
 
             // Begin listening for connections.
-            IAsyncResult result = this.serverSocket.BeginAccept(new AsyncCallback(this.ConnectClient), this.serverSocket);
+            this.serverSocket.BeginAccept(new AsyncCallback(this.ConnectClient), this.serverSocket);
 
             this.Status = ServerStatus.Running;
         }
@@ -170,9 +170,7 @@ namespace Mud.Engine.Components.WindowsServer
         {
             // this.LogMessage("Stopping the network server.");
             this.DisconnectAll();
-
-            // If the server socket is still connected, we shut it down.
-
+            
             // We test to ensure the server socket is still connected and active.
             this.serverSocket.Blocking = false;
             try
@@ -286,10 +284,8 @@ namespace Mud.Engine.Components.WindowsServer
             // Fetch the next incoming connection.
             this.serverSocket.BeginAccept(new AsyncCallback(this.ConnectClient), this.serverSocket);
 
-            // Cast the invoker to IPlayer. If the Invoker is not an IPlayer, we want to throw an exception.
-            IPlayer player = CharacterFactory.CreatePlayer(this.game);
-
             // Initialize the player.
+            IPlayer player = CharacterFactory.CreatePlayer(this.game);
             Task task = player.Initialize();
 
             // Since we are running on a background thread to begin with, we will just wait for the 

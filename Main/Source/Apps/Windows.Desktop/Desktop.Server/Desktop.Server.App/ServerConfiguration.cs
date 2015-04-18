@@ -41,8 +41,11 @@ namespace Mud.Apps.Windows.Desktop.Server.App
             this.game = game;
             this.game.Information.Name = "Sample Mud Designer Game";
 
+            // This is temporary. When the Data Access Layer is finished, we can persist 
+            // game data, creating it with an editor. Since this is temporary, waiting
+            // for the Task to finish isn't the end of the world. Even less so during server startup
             Task worldTask = this.ConstructWorld(game);
-            worldTask.Wait(); // Need to rethink doing this.
+            worldTask.Wait();
         }
 
         /// <summary>
