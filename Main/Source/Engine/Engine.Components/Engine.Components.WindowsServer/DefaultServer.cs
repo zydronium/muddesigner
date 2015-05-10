@@ -117,16 +117,22 @@ namespace Mud.Engine.Components.WindowsServer
 
         public async Task Start(IGame game, IServerConfiguration configuration)
         {
+            ExceptionFactory.ThrowIf<InvalidOperationException>(
+                this.Status != ServerStatus.Stopped,
+                "You can not start a server that has not been stopped.");
+
             // Set up our game instance
             ExceptionFactory.ThrowIf<InvalidCastException>(
                 (game == null),
-                $"You can not star the server with a null game.");
+                "You can not star the server with a null game.");
 
             this.game = game;
-            await this.game.Initialize();
 
             this.Status = ServerStatus.Starting;
             //// this.Logger("Starting network server.");
+
+            var config = configuration;
+            await config.Configure(this.game, this);
 
             // Validate our settings.
             ExceptionFactory
@@ -136,9 +142,6 @@ namespace Mud.Engine.Components.WindowsServer
             // Get our server address information
             IPHostEntry serverHost = Dns.GetHostEntry(Dns.GetHostName());
             var serverEndPoint = new IPEndPoint(IPAddress.Any, this.Port);
-
-            var config = configuration;
-            config.Configure(this.game, this);
 
             // Instance the server socket, bind it to a port.
             this.serverSocket = new Socket(serverEndPoint.Address.AddressFamily, SocketType.Stream, ProtocolType.Tcp);

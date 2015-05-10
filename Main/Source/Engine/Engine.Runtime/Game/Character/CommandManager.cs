@@ -5,19 +5,23 @@ using System.Text;
 using System.Threading.Tasks;
 using Mud.Engine.Runtime.Game.Character;
 
-namespace Mud.Engine.Runtime.Game
+namespace Mud.Engine.Runtime.Game.Character
 {
     public class CommandManager : ICommandManager
     {
-        private static IEnumerable<IInputCommand> commandCache
-            = new List<IInputCommand>();
-        
-        private static Dictionary<ICharacter, IEnumerable<IInputCommand>> commandCollection
-            = new Dictionary<ICharacter, IEnumerable<IInputCommand>>();
+        private IEnumerable<IInputCommand> commandCollection;
+
+        private IEnumerable<ISecurityRole> serverRoles;
+
+        public CommandManager(IEnumerable<ISecurityRole> availableRoles)
+        {
+            this.serverRoles = availableRoles ?? Enumerable.Empty<ISecurityRole>();
+            this.commandCollection = Enumerable.Empty<IInputCommand>();
+        }
 
         public Task Delete()
         {
-            commandCollection.Clear();
+            this.commandCollection = Enumerable.Empty<IInputCommand>();
             return Task.FromResult(0);
         }
 
@@ -29,17 +33,6 @@ namespace Mud.Engine.Runtime.Game
 
         public Task ProcessCommandForCharacter(ICharacter character, string command)
         {
-            // If the character does not have any commands assigned to it, then we build out
-            // a collection of commands that are permissions independent.
-            IEnumerable<IInputCommand> commandsForCharacter = null;
-            if (!commandCollection.TryGetValue(character, out commandsForCharacter))
-            {
-                commandsForCharacter = this.SetInitialCharacterCommands(character);
-
-                // Execute the "InitialCommand" then return.
-                return Task.FromResult(0);
-            }
-
             // Look up a matching command, execute and return.
             return Task.FromResult(0);
         }

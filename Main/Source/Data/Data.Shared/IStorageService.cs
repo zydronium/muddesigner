@@ -80,6 +80,6 @@ namespace Mud.Data.Shared
         /// <returns></returns>
         Task DeleteKeyAsync(string filename, string key);
 
-        Task<IEnumerable<string>> GetAllFilesByExtension(string extension, string path = "");
+        IEnumerable<string> GetAllFilesByExtension(string extension, string path = "");
     }
 }

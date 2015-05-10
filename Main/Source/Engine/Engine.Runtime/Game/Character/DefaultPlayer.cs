@@ -6,6 +6,7 @@
 namespace Mud.Engine.Runtime.Game.Character
 {
     using System;
+    using System.Collections.Generic;
     using System.Threading.Tasks;
     using Mud.Engine.Runtime;
     using Mud.Engine.Runtime.Game.Environment;
@@ -14,15 +15,17 @@ namespace Mud.Engine.Runtime.Game.Character
     /// The Default Engine implementation of IPlayer.
     /// </summary>
     public class DefaultPlayer : GameComponent, ICharacter, IPlayer
-    { 
+    {
         /// <summary>
         /// Initializes a new instance of the <see cref="DefaultPlayer"/> class.
         /// </summary>
-        public DefaultPlayer(IGame game)
+        public DefaultPlayer(IGame game, ICommandManager commandManager)
         {
             this.Game = game;
             this.Information = new CharacterInformation();
             this.Id = 0;
+
+            this.CommandManager = commandManager;
         }
 
         /// <summary>
@@ -40,29 +43,33 @@ namespace Mud.Engine.Runtime.Game.Character
         /// </summary>
         public event EventHandler<OccupancyChangedEventArgs> RoomChanged;
 
+        public ICommandManager CommandManager { get; private set; }
+
         /// <summary>
         /// Gets the game.
         /// </summary>
-        public IGame Game { get; set; }
+        public IGame Game { get; private set; }
 
         /// <summary>
         /// Gets or sets the current room that this character occupies.
         /// </summary>
-        public DefaultRoom CurrentRoom { get; set; }
+        public DefaultRoom CurrentRoom { get; protected set; }
 
         /// <summary>
         /// Gets or sets information that defines what the character is.
         /// </summary>
-        public ICharacterInformation Information { get; set; }
+        public ICharacterInformation Information { get; protected set; }
+
+        public IEnumerable<ISecurityRole> Roles { get; private set; }
 
         /// <summary>
         /// Moves this character to the given room going in the specified direction.
         /// </summary>
-        /// <param name="direction">The direction.</param>
+        /// <param name="directionEnteringFrom">The direction.</param>
         /// <param name="newRoom">The new room.</param>
-        public void Move(ITravelDirection direction, DefaultRoom newRoom)
+        public void Move(ITravelDirection directionEnteringFrom, DefaultRoom newRoom)
         {
-            this.OnRoomChanged(direction, this.CurrentRoom, newRoom);
+            this.OnRoomChanged(directionEnteringFrom, this.CurrentRoom, newRoom);
         }
 
         /// <summary>

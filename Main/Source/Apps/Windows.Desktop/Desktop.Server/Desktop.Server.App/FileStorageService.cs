@@ -28,8 +28,7 @@ namespace Mud.Apps.Desktop.Windows.ServerApp
         /// </returns>
         public async Task SaveToFileAsync(string filename, IEnumerable<string> content)
         {
-            string currentDirectory = $"{Environment.CurrentDirectory}\\{filename}";
-            using (var streamWriter = new StreamWriter(currentDirectory, false))
+            using (var streamWriter = new StreamWriter(filename, false))
             {
                 foreach (string line in content)
                 {
@@ -49,8 +48,7 @@ namespace Mud.Apps.Desktop.Windows.ServerApp
         /// </returns>
         public async Task AppendToFileAsync(string filename, IEnumerable<string> content)
         {
-            string currentDirectory = $"{Environment.CurrentDirectory}\\{filename}";
-            using (var streamWriter = new StreamWriter(currentDirectory, true))
+            using (var streamWriter = new StreamWriter(filename, true))
             {
                 foreach (string line in content)
                 {
@@ -69,8 +67,7 @@ namespace Mud.Apps.Desktop.Windows.ServerApp
         /// </returns>
         public async Task SaveValueByKeyAsync(string filename, string key, string value)
         {
-            string currentDirectory = $"{Environment.CurrentDirectory}\\{filename}";
-            if (File.Exists(currentDirectory))
+            if (File.Exists(filename))
             {
                 // Delete the key if it already exists, then replace.
                 IEnumerable<string> content = await this.LoadFileContentsAsync(filename);
@@ -79,7 +76,8 @@ namespace Mud.Apps.Desktop.Windows.ServerApp
                     await this.DeleteKeyAsync(filename, key);
                 }
             }
-            using (var streamWriter = new StreamWriter(currentDirectory, true))
+
+            using (var streamWriter = new StreamWriter(filename, true))
             {
                 await streamWriter.WriteLineAsync($"{key}={value}");
             }
@@ -87,8 +85,7 @@ namespace Mud.Apps.Desktop.Windows.ServerApp
 
         public async Task SaveMultipleValuesByKeyAsync(string filename, string key, string[] values)
         {
-            string currentDirectory = $"{Environment.CurrentDirectory}\\{filename}";
-            using (var streamWriter = new StreamWriter(currentDirectory, true))
+            using (var streamWriter = new StreamWriter(filename, true))
             {
                 foreach (string value in values)
                 {
@@ -107,8 +104,7 @@ namespace Mud.Apps.Desktop.Windows.ServerApp
         /// </returns>
         public async Task<string> LoadValueFromKeyAsync(string filename, string key)
         {
-            string currentDirectory = $"{Environment.CurrentDirectory}\\{filename}";
-            if (File.Exists(currentDirectory))
+            if (File.Exists(filename))
             {
                 // Delete the key if it already exists, then replace.
                 IEnumerable<string> content = await this.LoadFileContentsAsync(filename);
@@ -123,8 +119,7 @@ namespace Mud.Apps.Desktop.Windows.ServerApp
 
         public async Task<IEnumerable<string>> LoadMultipleValuesFromKeyAsync(string filename, string key)
         {
-            string currentDirectory = $"{Environment.CurrentDirectory}\\{filename}";
-            if (File.Exists(currentDirectory))
+            if (File.Exists(filename))
             {
                 // Delete the key if it already exists, then replace.
                 IEnumerable<string> content = await this.LoadFileContentsAsync(filename);
@@ -146,11 +141,10 @@ namespace Mud.Apps.Desktop.Windows.ServerApp
         /// <returns></returns>
         public async Task DeleteFileAsync(string filename)
         {
-            string currentDirectory = $"{Environment.CurrentDirectory}\\{filename}";
-            if (File.Exists(currentDirectory))
+            if (File.Exists(filename))
             {
                 // We run in a wrapped async operation in the event the file exists on a network share.
-                await Task.Run(() => File.Delete(currentDirectory));
+                await Task.Run(() => File.Delete(filename));
             }
         }
 
@@ -162,7 +156,6 @@ namespace Mud.Apps.Desktop.Windows.ServerApp
         /// <returns></returns>
         public async Task DeleteKeyAsync(string filename, string key)
         {
-            string currentDirectory = $"{Environment.CurrentDirectory}\\{filename}";
             key = key.ToLower();
 
             List<string> content = new List<string>(await this.LoadFileContentsAsync(filename));
@@ -179,11 +172,10 @@ namespace Mud.Apps.Desktop.Windows.ServerApp
         /// <returns></returns>
         private async Task<IEnumerable<string>> LoadFileContentsAsync(string filename)
         {
-            string currentDirectory = $"{Environment.CurrentDirectory}\\{filename}";
             var contents = new List<string>();
             string currentLine = string.Empty;
 
-            using (var streamReader = new StreamReader(currentDirectory))
+            using (var streamReader = new StreamReader(filename))
             {
 
                 do
@@ -200,18 +192,32 @@ namespace Mud.Apps.Desktop.Windows.ServerApp
             return contents;
         }
 
-        public async Task<IEnumerable<string>> GetAllFilesByExtension(string extension, string path = "")
+        public IEnumerable<string> GetAllFilesByExtension(string extension, string relativePath = "")
         {
-            string currentDirectory = string.IsNullOrEmpty(path) ?
+            string currentDirectory = string.IsNullOrEmpty(relativePath) ?
                 $"{Environment.CurrentDirectory}" :
-                $"{Environment.CurrentDirectory}\\{path}";
+                $"{Environment.CurrentDirectory}\\{relativePath}";
 
             if (!Directory.Exists(currentDirectory))
             {
                 Directory.CreateDirectory(currentDirectory);
             }
 
-            return await Task.Run(() => Directory.GetFiles(currentDirectory, extension, SearchOption.AllDirectories));
+            string searchPattern = string.Empty;
+            if (extension.StartsWith("."))
+            {
+                searchPattern = $"*{extension}";
+            }
+            else if (extension.StartsWith("*."))
+            {
+                searchPattern = extension;
+            }
+            else
+            {
+                searchPattern = $"*.{extension}";
+            }
+
+            return Directory.GetFiles(currentDirectory, searchPattern, SearchOption.AllDirectories);
         }
     }
 }

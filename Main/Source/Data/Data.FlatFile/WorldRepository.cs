@@ -32,7 +32,7 @@ namespace Mud.Data.FlatFile
                 return new List<IWorld>(WorldRepository.worldCache);
             }
 
-            IEnumerable<string> worldFiles = await this.storageService.GetAllFilesByExtension(".world", "Worlds");
+            IEnumerable<string> worldFiles = this.storageService.GetAllFilesByExtension(".world", "Worlds");
             var worlds = new List<IWorld>();
 
             foreach (string file in worldFiles)

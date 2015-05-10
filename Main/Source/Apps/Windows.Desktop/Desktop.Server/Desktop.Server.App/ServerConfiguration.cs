@@ -7,6 +7,12 @@ using System.Threading.Tasks;
 using Mud.Engine.Runtime.Game;
 using Mud.Engine.Runtime.Game.Environment;
 using Mud.Engine.Runtime;
+using System.Reflection;
+using Autofac;
+using Mud.Engine.Runtime.Game.Character;
+using Mud.Engine.Components.WindowsServer;
+using Mud.Engine.Runtime.Services;
+using Mud.Data.Shared;
 
 namespace Mud.Apps.Windows.Desktop.Server.App
 {
@@ -15,37 +21,38 @@ namespace Mud.Apps.Windows.Desktop.Server.App
     /// </summary>
     public class ServerConfiguration : IServerConfiguration
     {
-        /// <summary>
-        /// The server
-        /// </summary>
-        private IServer server;
+        private List<string> assemblies = new List<string>();
 
-        /// <summary>
-        /// The game running on the server
-        /// </summary>
         private IGame game;
+
+        private ISecurityRoleRepository securityRoleRepository;
+
+        public ServerConfiguration(ISecurityRoleRepository roleRepository)
+        {
+            this.securityRoleRepository = roleRepository;
+        }
 
         /// <summary>
         /// Configures the specified game for running on the server.
         /// </summary>
         /// <param name="game">The game.</param>
         /// <param name="server">The server.</param>
-        public void Configure(IGame game, IServer server)
+        public Task Configure(IGame game, IServer server)
         {
-            server.Port = 23;
+            server.Port = 5000;
             server.MaxConnections = 100;
             server.MessageOfTheDay = new List<string> { "Welcome to the Mud Designer Test Server!" };
             server.Owner = "Johnathon Sullinger";
 
-            this.server = server;
             this.game = game;
-            this.game.Information.Name = "Sample Mud Designer Game";
+            game.Information.Name = "Sample Mud Designer Game";
 
-            // This is temporary. When the Data Access Layer is finished, we can persist 
-            // game data, creating it with an editor. Since this is temporary, waiting
-            // for the Task to finish isn't the end of the world. Even less so during server startup
-            Task worldTask = this.ConstructWorld(game);
-            worldTask.Wait();
+            return this.ConstructWorld(game);
+        }
+
+        public Task<IEnumerable<ISecurityRole>> InitializeSecurityRoles()
+        {
+            return this.securityRoleRepository.GetSecurityRoles();
         }
 
         /// <summary>

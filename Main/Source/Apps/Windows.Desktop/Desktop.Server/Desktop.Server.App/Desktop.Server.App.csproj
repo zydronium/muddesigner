@@ -51,6 +51,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="DefaultServerBootstrap.cs" />
     <Compile Include="FileStorageService.cs" />
     <Compile Include="LoggingService.cs" />
     <Compile Include="Program.cs" />

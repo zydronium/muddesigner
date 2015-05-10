@@ -42,6 +42,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ICacheable.cs" />
+    <Compile Include="IRepository.cs" />
+    <Compile Include="ISecurityRoleRepository.cs" />
     <Compile Include="IStorageService.cs" />
     <Compile Include="ITimeOfDayStateRepository.cs" />
     <Compile Include="IWorldRepository.cs" />

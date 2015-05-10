@@ -138,8 +138,7 @@ namespace Mud.Engine.Components.WindowsServer
 
             foreach (string line in this.PruneReceivedMessages(messages))
             {
-                // TODO: Hande off the line to a command manager or some type.
-                Debug.Write($"Message received: {line}\n");
+                this.Player.CommandManager.ProcessCommandForCharacter(this.Player, line);
             }
         }
 
@@ -163,7 +162,6 @@ namespace Mud.Engine.Components.WindowsServer
             // a new line due to being split on \n.
             if (messages.Count > 1 && !messages.Last().EndsWith("\r\n"))
             {
-                // Stash our incomplete line so we can append to it the next time around.
                 this.currentData.Add(messages.Last());
                 messages.Remove(messages.Last());
             }

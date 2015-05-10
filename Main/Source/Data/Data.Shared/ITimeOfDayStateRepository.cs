@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 
 namespace Mud.Data.Shared
 {
-    public interface ITimeOfDayStateRepository
+    public interface ITimeOfDayStateRepository : IRepository
     {
         Task<IEnumerable<TimeOfDayState>> GetTimeOfDayStates();
     }

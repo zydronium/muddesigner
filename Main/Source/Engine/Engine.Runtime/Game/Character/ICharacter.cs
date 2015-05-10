@@ -21,23 +21,25 @@ namespace Mud.Engine.Runtime.Game.Character
         /// <summary>
         /// Gets the game.
         /// </summary>
-        IGame Game { get; set; }
+        IGame Game { get; }
 
         /// <summary>
         /// Gets or sets the current room that this character occupies.
         /// </summary>
-        DefaultRoom CurrentRoom {get;set; }
+        DefaultRoom CurrentRoom {get; }
 
         /// <summary>
         /// Gets or sets information that defines what the character is.
         /// </summary>
-        ICharacterInformation Information { get; set; }
+        ICharacterInformation Information { get; }
+
+        ICommandManager CommandManager { get; }
 
         /// <summary>
         /// Moves this character to the given room going in the specified direction.
         /// </summary>
-        /// <param name="direction">The direction.</param>
+        /// <param name="directionEnteringFrom">The direction.</param>
         /// <param name="newRoom">The new room.</param>
-        void Move(ITravelDirection direction, DefaultRoom newRoom);
+        void Move(ITravelDirection directionEnteringFrom, DefaultRoom newRoom);
     }
 }

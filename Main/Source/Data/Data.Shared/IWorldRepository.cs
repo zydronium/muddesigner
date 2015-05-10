@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 namespace Mud.Data.Shared
 {
 
-    public interface IWorldRepository
+    public interface IWorldRepository : IRepository
     {
         Task<IEnumerable<IWorld>> GetWorlds();
     }

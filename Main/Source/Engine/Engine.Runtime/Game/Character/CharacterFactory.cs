@@ -15,7 +15,7 @@ namespace Mud.Engine.Runtime.Game.Character
         /// <summary>
         /// The player type to instance
         /// </summary>
-        private static Func<IGame, IPlayer> playerFactory;
+        private static Func<IGame, IPlayer> factoryDelegate;
 
         /// <summary>
         /// Creates a new player instance.
@@ -24,21 +24,22 @@ namespace Mud.Engine.Runtime.Game.Character
         /// <returns></returns>
         public static IPlayer CreatePlayer(IGame game)
         {
-            if (playerFactory == null)
+            if (factoryDelegate == null)
             {
-                return new DefaultPlayer(game);
+                ICommandManager commandManager = CommandManagerFactory.CreateManager();
+                return new DefaultPlayer(game, commandManager);
             }
 
-            return playerFactory(game);
+            return factoryDelegate(game);
         }
 
         /// <summary>
         /// Sets the factory method used to create a new player.
         /// </summary>
-        /// <param name="factoryCallback"></param>
-        public static void SetFactory(Func<IGame, IPlayer> factoryCallback)
+        /// <param name="factory"></param>
+        public static void SetFactory(Func<IGame, IPlayer> factory)
         {
-            playerFactory = factoryCallback;
+            factoryDelegate = factory;
         }
     }
 }

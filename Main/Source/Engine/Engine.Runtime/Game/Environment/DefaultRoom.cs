@@ -120,7 +120,7 @@ namespace Mud.Engine.Runtime.Game.Environment
 
             // Notify our event handles that the character has entered the room.
             this.OnEnteringRoom(character, enteredDirection, departingRoom);
-            character.CurrentRoom = this;
+            character.Move(enteredDirection, this);
         }
 
         /// <summary>

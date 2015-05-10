@@ -21,7 +21,7 @@ namespace Mud.Data.FlatFile
 
         public async Task<IEnumerable<TimeOfDayState>> GetTimeOfDayStates()
         {
-            IEnumerable<string> stateFiles = await this.storageService.GetAllFilesByExtension(".tods", "TimeOfDayStates");
+            IEnumerable<string> stateFiles = this.storageService.GetAllFilesByExtension(".tods", "TimeOfDayStates");
             var states = new List<TimeOfDayState>();
 
             foreach(string file in stateFiles)
