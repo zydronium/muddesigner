@@ -50,7 +50,6 @@
     <Compile Include="Game\IGame.cs" />
     <Compile Include="Game\IInputCommand.cs" />
     <Compile Include="Networking\IServerConfiguration.cs" />
-    <Compile Include="Services\ServiceLocatorFactory.cs" />
     <Compile Include="TaskFromAction.cs" />
     <Compile Include="Game\Character\CharacterFactory.cs" />
     <Compile Include="Game\ShoutMessage.cs" />
@@ -105,7 +104,6 @@
     <Compile Include="InputArgs.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Services\IService.cs" />
-    <Compile Include="Services\IServiceLocator.cs" />
     <Compile Include="Services\IWorldService.cs" />
     <Compile Include="Game\WhisperMessage.cs" />
   </ItemGroup>

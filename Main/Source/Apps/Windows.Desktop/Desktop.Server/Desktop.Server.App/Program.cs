@@ -88,14 +88,8 @@ namespace Mud.Apps.Windows.Desktop.Server.App
             // Notifications
             builder.RegisterType<NotificationManager>().As<INotificationCenter>().SingleInstance();
 
-            builder.RegisterType<ServiceLocator>().As<IServiceLocator>()
-                .OnActivating(handler => handler.Instance.SetLocatorFactory(type => container.Resolve(type)));
-
             // Build our IoC container and use it for the Runtime's ServiceLocator
             container = builder.Build();
-            var locator = new ServiceLocator();
-            ServiceLocatorFactory.Initialize(locator);
-            locator.SetLocatorFactory(type => container.Resolve(type));
 
             CharacterFactory.SetFactory(game => container.Resolve<IPlayer>());
         }

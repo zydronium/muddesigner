@@ -15,8 +15,6 @@ namespace Mud.Engine.Runtime.Game.Character
     /// </summary>
     public class DefaultPlayer : GameComponent, ICharacter, IPlayer
     { 
-        private INotificationCenter notificationManager;
-
         /// <summary>
         /// Initializes a new instance of the <see cref="DefaultPlayer"/> class.
         /// </summary>

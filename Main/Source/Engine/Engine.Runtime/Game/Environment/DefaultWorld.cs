@@ -54,11 +54,6 @@ namespace Mud.Engine.Runtime.Game.Environment
         /// Occurs when [time of day changed].
         /// </summary>
         public event EventHandler<TimeOfDayChangedEventArgs> TimeOfDayChanged;
-        public event Func<IGameComponent, Task> Loading;
-        public event EventHandler<EventArgs> Loaded;
-        public event Func<IGameComponent, Task> Deleting;
-        public event EventHandler<EventArgs> Deleted;
-
 
         /// <summary>
         /// Gets or sets the name.
@@ -145,19 +140,6 @@ namespace Mud.Engine.Runtime.Game.Environment
             get
             {
                 return this.realms.Count;
-            }
-        }
-
-        public int Id
-        {
-            get
-            {
-                throw new NotImplementedException();
-            }
-
-            set
-            {
-                throw new NotImplementedException();
             }
         }
 
