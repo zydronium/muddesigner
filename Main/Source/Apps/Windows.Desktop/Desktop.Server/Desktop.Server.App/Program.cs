@@ -5,6 +5,7 @@
 //-----------------------------------------------------------------------
 namespace Mud.Apps.Windows.Desktop.Server.App
 {
+    using System.Linq;
     using System.Threading;
     using Autofac;
     using Mud.Engine.Runtime.Networking;
@@ -16,6 +17,12 @@ namespace Mud.Apps.Windows.Desktop.Server.App
     using Mud.Apps.Desktop.Windows.ServerApp;
     using Mud.Engine.Runtime.Services;
     using System.Threading.Tasks;
+    using System;
+    using System.Reflection;
+    using System.Collections.Generic;
+
+
+
 
     /// <summary>
     /// The Mud Designer Telnet Server.
@@ -69,15 +76,18 @@ namespace Mud.Apps.Windows.Desktop.Server.App
         /// </summary>
         private static void RegisterContainerTypes()
         {
+            var assemblies = AppDomain.CurrentDomain.GetAssemblies();
+            var typeCollection = new List<Type>();
+            foreach(Assembly assembly in assemblies.Where(assem => !assem.FullName.Contains("System.")))
+            {
+                typeCollection.AddRange(assembly.GetTypes());
+            }
+
             var builder = new ContainerBuilder();
-            builder.RegisterType<LoggingService>().As<ILoggingService>();
-            builder.RegisterType<FileStorageService>().As<IFileStorageService>();
+            builder.RegisterTypes(typeCollection.Where(type => type.IsAssignableTo<IService>()).ToArray()).AsImplementedInterfaces();
+            builder.RegisterTypes(typeCollection.Where(type => type.IsAssignableTo<IComponent>()).ToArray()).AsImplementedInterfaces();
 
             // Engine runtime types
-            builder.RegisterType<DefaultPlayer>().As<IPlayer>();
-            builder.RegisterType<DefaultGame>().As<IGame>().SingleInstance();
-            builder.RegisterType<WorldService>().As<IWorldService>();
-
             builder.RegisterType<DefaultServer>().As<IServer>();
             builder.RegisterType<ServerConfiguration>().As<IServerConfiguration>();
 

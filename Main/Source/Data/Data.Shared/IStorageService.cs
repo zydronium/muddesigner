@@ -7,11 +7,13 @@ namespace Mud.Data.Shared
 {
     using System.Collections.Generic;
     using System.Threading.Tasks;
+    using Mud.Engine.Runtime.Services;
+
 
     /// <summary>
     /// Represents a storage service that can be used to save, load and delete data from files.
     /// </summary>
-    public interface IFileStorageService
+    public interface IFileStorageService : IService
     {
         /// <summary>
         /// Saves a collection of strings to a file, one line per item in the collection.
