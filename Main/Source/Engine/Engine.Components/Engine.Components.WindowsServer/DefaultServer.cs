@@ -20,7 +20,7 @@ namespace Mud.Engine.Components.WindowsServer
     /// <summary>
     /// The Default Desktop game Server
     /// </summary>
-    public class DefaultServer: IServer
+    public sealed class DefaultServer: IServer
     {
         /// <summary>
         /// The user connection buffer size
@@ -241,7 +241,7 @@ namespace Mud.Engine.Components.WindowsServer
         /// Called when a player connects.
         /// </summary>
         /// <param name="newPlayer">The new player.</param>
-        protected virtual void OnPlayerConnected(IPlayer newPlayer)
+        private void OnPlayerConnected(IPlayer newPlayer)
         {
             EventHandler<ServerConnectionEventArgs> handler = this.PlayerConnected;
             if (handler == null)
@@ -256,7 +256,7 @@ namespace Mud.Engine.Components.WindowsServer
         /// Called when a player disconnects.
         /// </summary>
         /// <param name="player">The player.</param>
-        protected virtual void OnPlayerDisconnected(IPlayer player)
+        private void OnPlayerDisconnected(IPlayer player)
         {
             EventHandler<ServerConnectionEventArgs> handler = this.PlayerDisconnected;
             if (handler == null)
@@ -286,28 +286,28 @@ namespace Mud.Engine.Components.WindowsServer
 
             // Initialize the player.
             IPlayer player = CharacterFactory.CreatePlayer(this.game);
-            Task task = player.Initialize();
+            player
+                .Initialize()
+                .ContinueWith(playerTask => CompletePlayerSetup(new PlayerConnectionState(player, connection, UserConnectionBufferSize)));
+        }
 
-            // Since we are running on a background thread to begin with, we will just wait for the 
-            // player initialization operation to complete.
-            task.Wait();
-
+        private void CompletePlayerSetup(PlayerConnectionState connectionState)
+        {
             lock (this.ConnectedPlayers)
             {
-                this.ConnectedPlayers.Add(player);
-                player.Information.Name = string.Format("Player {0}", this.ConnectedPlayers.Count);
+                this.ConnectedPlayers.Add(connectionState.Player);
+                connectionState.Player.Information.Name = string.Format("Player {0}", this.ConnectedPlayers.Count);
             }
 
             // Create a new connection state.
-            var connectionState = new PlayerConnectionState(player, connection, UserConnectionBufferSize);
             lock (this.playerConnections)
             {
-                this.playerConnections.Add(player, connectionState);
+                this.playerConnections.Add(connectionState.Player, connectionState);
             }
 
             // Start receiving data from the client.
             connectionState.StartListeningForData();
-            this.OnPlayerConnected(player);
+            this.OnPlayerConnected(connectionState.Player);
         }
 
         private string CreateWelcomeMessage()

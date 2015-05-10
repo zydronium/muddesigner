@@ -17,7 +17,7 @@ namespace Mud.Engine.Components.WindowsServer
     /// <summary>
     /// Handles the players networking state.
     /// </summary>
-    public class PlayerConnectionState
+    public sealed class PlayerConnectionState
     {
         /// <summary>
         /// The size of the buffer that will hold data sent from the client
