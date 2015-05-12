@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Autofac;
+using Autofac.Core;
 using Mud.Apps.Windows.Desktop.Server.App;
 using Mud.Data.Shared;
 using Mud.Engine.Runtime.Game;
@@ -34,6 +35,7 @@ namespace Mud.Engine.Components.WindowsServer
             base.RegisterAssemblies();
             Assembly.Load("MudDesigner.Data.Shared");
             Assembly.Load("MudDesigner.Data.FlatFile");
+            Assembly.Load("MudDesigner.Engine.Components.WindowsServer");
         }
 
         protected override void ConfigureServices()
@@ -49,15 +51,20 @@ namespace Mud.Engine.Components.WindowsServer
             // Marker Services
             builder.RegisterTypes(typeCollection.Where(type => type.IsAssignableTo<IRepository>()).ToArray()).AsImplementedInterfaces();
             builder.RegisterTypes(typeCollection.Where(type => type.IsAssignableTo<IService>()).ToArray()).AsImplementedInterfaces();
-            builder.RegisterTypes(typeCollection.Where(type => type.IsAssignableTo<IComponent>()).ToArray()).AsImplementedInterfaces();
+            builder
+                .RegisterTypes(typeCollection.Where(type => type.IsAssignableTo<IComponent>()).ToArray())
+                .AsImplementedInterfaces();
 
             // Server Services
             builder.RegisterType<DefaultServer>().As<IServer>();
             builder.RegisterType<ServerConfiguration>().As<IServerConfiguration>();
 
             container = builder.Build();
-            
-            CharacterFactory.SetFactory(game => container.Resolve<IPlayer>());
+
+            CommandManagerFactory.SetFactory(() => container.Resolve<ICommandManager>());
+            CharacterFactory.SetFactory(
+                game => this.container.Resolve<IPlayer>(
+                    new TypedParameter(typeof(IGame), game)));
         }
 
         protected override IServerConfiguration CreateServerConfiguration()
