@@ -6,8 +6,10 @@ namespace Mud.Engine.Runtime.Game.Character
     {
         bool IsAsyncCommand { get; }
 
-        void Execute();
+        bool CanExecuteCommand(ICharacter owner, string command, params string[] args);
 
-        Task ExecuteAsync();
+        void Execute(ICharacter owner, string command, params string[] args);
+
+        Task ExecuteAsync(ICharacter owner, string command, params string[] args);
     }
 }

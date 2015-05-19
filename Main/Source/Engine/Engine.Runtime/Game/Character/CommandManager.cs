@@ -13,27 +13,25 @@ namespace Mud.Engine.Runtime.Game.Character
 
         private IEnumerable<ISecurityRole> serverRoles;
 
+        private bool canProcessNonGlobalCommands;
+
         public CommandManager(IEnumerable<ISecurityRole> availableRoles)
         {
             this.serverRoles = availableRoles ?? Enumerable.Empty<ISecurityRole>();
             this.commandCollection = Enumerable.Empty<IInputCommand>();
         }
 
-        public Task Delete()
-        {
-            this.commandCollection = Enumerable.Empty<IInputCommand>();
-            return Task.FromResult(0);
-        }
-
-        public Task Initialize()
-        {
-            // TODO: Build the command cache
-            throw new NotImplementedException();
-        }
+        public event EventHandler<CommandCompletionArgs> CommandCompleted;
 
         public Task ProcessCommandForCharacter(ICharacter character, string command)
         {
-            // Look up a matching command, execute and return.
+            var handler = this.CommandCompleted;
+            if (handler == null)
+            {
+                return Task.FromResult(0);
+            }
+
+            handler(this, new CommandCompletionArgs(command, character, Enumerable.Empty<string>()));
             return Task.FromResult(0);
         }
 

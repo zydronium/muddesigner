@@ -82,6 +82,11 @@ namespace Mud.Engine.Components.WindowsServer
             return this.container.Resolve<IGame>();
         }
 
+        protected override IInputCommand InitialConnectionCommand()
+        {
+            return this.container.Resolve<PlayerLoginCommand>();
+        }
+
         protected override void RegisterAllowedSecurityRoles(IEnumerable<ISecurityRole> roles)
         {
             var builder = new ContainerBuilder();

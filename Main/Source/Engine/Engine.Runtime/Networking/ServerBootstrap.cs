@@ -53,6 +53,8 @@ namespace Mud.Apps.Windows.Desktop.Server.App
 
         protected abstract IGame CreateGame();
 
+        protected abstract IInputCommand InitialConnectionCommand();
+
         protected abstract void RegisterAllowedSecurityRoles(IEnumerable<ISecurityRole> roles);
 
         private async Task FinalizeConfiguration()

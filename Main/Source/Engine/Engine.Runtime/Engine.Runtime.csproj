@@ -38,9 +38,12 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="CachedTypeData.cs" />
     <Compile Include="Game\Character\CharacterInformation.cs" />
+    <Compile Include="Game\Character\CommandCompletionArgs.cs" />
     <Compile Include="Game\Character\CommandManagerFactory.cs" />
     <Compile Include="Game\Character\ICharacterInformation.cs" />
+    <Compile Include="Game\Character\InputCommands\InitialCommandAttribute.cs" />
     <Compile Include="Game\Character\ISecurityPermission.cs" />
     <Compile Include="Game\Character\IPlayer.cs" />
     <Compile Include="Game\Character\ISecurityRole.cs" />
@@ -48,6 +51,7 @@
     <Compile Include="Game\ChatFactory.cs" />
     <Compile Include="Game\ChatMessageBase.cs" />
     <Compile Include="Game\Character\CommandManager.cs" />
+    <Compile Include="Game\CommandMessage.cs" />
     <Compile Include="Game\Environment\IWorld.cs" />
     <Compile Include="Game\IChatMessage.cs" />
     <Compile Include="Game\Character\ICommandManager.cs" />
@@ -112,7 +116,9 @@
     <Compile Include="Services\IService.cs" />
     <Compile Include="Services\IWorldService.cs" />
     <Compile Include="Game\WhisperMessage.cs" />
+    <Compile Include="TypePool.cs" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

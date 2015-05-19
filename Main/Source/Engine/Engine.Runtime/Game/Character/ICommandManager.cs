@@ -5,8 +5,10 @@ using Mud.Engine.Runtime.Game.Character;
 
 namespace Mud.Engine.Runtime.Game.Character
 {
-    public interface ICommandManager : IInitializableComponent
+    public interface ICommandManager
     {
+        event EventHandler<CommandCompletionArgs> CommandCompleted;
+
         Task ProcessCommandForCharacter(ICharacter character, string command);
     }
 }
