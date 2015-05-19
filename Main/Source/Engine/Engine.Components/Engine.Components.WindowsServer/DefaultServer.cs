@@ -117,14 +117,12 @@ namespace Mud.Engine.Components.WindowsServer
 
         public async Task Start(IGame game, IServerConfiguration configuration)
         {
-            ExceptionFactory.ThrowIf<InvalidOperationException>(
-                this.Status != ServerStatus.Stopped,
-                "You can not start a server that has not been stopped.");
-
-            // Set up our game instance
-            ExceptionFactory.ThrowIf<InvalidCastException>(
-                (game == null),
-                "You can not star the server with a null game.");
+            ExceptionFactory
+                .ThrowIf<InvalidOperationException>(
+                    this.Status != ServerStatus.Stopped,
+                    "You can not start a server that has not been stopped.")
+                .Or(game == null,
+                    "You can not star the server with a null game.");
 
             this.game = game;
 
