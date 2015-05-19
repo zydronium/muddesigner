@@ -76,7 +76,7 @@ namespace Mud.Apps.Windows.Desktop.Server.App
 
             // Set up the World.
             IWorld world = new DefaultWorld();
-            world.GameDayToRealHourRatio = 0.2;
+            world.GameDayToRealHourRatio = 0.4;
             world.HoursPerDay = 10;
             world.Name = "Sample World";
 
