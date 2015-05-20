@@ -278,12 +278,18 @@ namespace Mud.Engine.Components.WindowsServer
             // Connect and register for network related events.
             Socket connection = this.serverSocket.EndAccept(result);
 
-            // Send our greeting
-            byte[] buffer = Encoding.ASCII.GetBytes(this.CreateWelcomeMessage());
-            connection.BeginSend(buffer, 0, buffer.Length, 0, new AsyncCallback(asyncResult => connection.EndReceive(asyncResult)), null);
-
             // Fetch the next incoming connection.
             this.serverSocket.BeginAccept(new AsyncCallback(this.ConnectClient), this.serverSocket);
+
+            // Send our greeting
+            byte[] buffer = Encoding.ASCII.GetBytes(this.CreateWelcomeMessage());
+            connection.BeginSend(buffer, 0, buffer.Length, 0, new AsyncCallback(CompleteClientConnection), connection);
+        }
+
+        private void CompleteClientConnection(IAsyncResult ar)
+        {
+            var connection = ar.AsyncState as Socket;
+            connection.EndSend(ar);
 
             // Initialize the player.
             IPlayer player = CharacterFactory.CreatePlayer(this.game);
