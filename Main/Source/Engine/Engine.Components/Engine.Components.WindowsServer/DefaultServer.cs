@@ -293,9 +293,22 @@ namespace Mud.Engine.Components.WindowsServer
 
             // Initialize the player.
             IPlayer player = CharacterFactory.CreatePlayer(this.game);
+
+            // We subscribe to the deleting event so that we can immediately disconnect the player from the server.
+            // This allows the engine to continue processing the delete of the player from itself without keeping the client around.
+            player.Deleting += PlayerDisconnecting;
             player
                 .Initialize()
                 .ContinueWith(playerTask => CompletePlayerSetup(new PlayerConnectionState(player, connection, UserConnectionBufferSize)));
+        }
+
+        private Task PlayerDisconnecting(IGameComponent arg)
+        {
+            var player = (IPlayer)arg;
+            player.Deleting -= this.PlayerDisconnecting;
+            this.Disconnect((IPlayer)arg);
+
+            return Task.FromResult(0);
         }
 
         private void CompletePlayerSetup(PlayerConnectionState connectionState)

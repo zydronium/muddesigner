@@ -43,7 +43,8 @@
     <Compile Include="Game\Character\CommandCompletionArgs.cs" />
     <Compile Include="Game\Character\CommandManagerFactory.cs" />
     <Compile Include="Game\Character\ICharacterInformation.cs" />
-    <Compile Include="Game\Character\InputCommands\InitialCommandAttribute.cs" />
+    <Compile Include="Game\Character\InputCommandResult.cs" />
+    <Compile Include="Game\Character\InputCommands\QuitCommand.cs" />
     <Compile Include="Game\Character\ISecurityPermission.cs" />
     <Compile Include="Game\Character\IPlayer.cs" />
     <Compile Include="Game\Character\ISecurityRole.cs" />

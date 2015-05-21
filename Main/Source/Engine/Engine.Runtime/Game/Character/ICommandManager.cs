@@ -10,5 +10,7 @@ namespace Mud.Engine.Runtime.Game.Character
         event EventHandler<CommandCompletionArgs> CommandCompleted;
 
         Task ProcessCommandForCharacter(ICharacter character, string command);
+
+        Task ProcessCommandForCharacter(ICharacter character, IInputCommand command);
     }
 }

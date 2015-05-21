@@ -10,12 +10,14 @@ namespace Mud.Apps.Windows.Desktop.Server.App
 {
     public class PlayerLoginCommand : IInputCommand
     {
-        private INotificationCenter notificationCenter;
-
-        public PlayerLoginCommand(INotificationCenter notificationCenter)
+        private enum LoginState
         {
-
+            FetchingCharacterName,
+            FetchingPassword,
+            Completed,
         }
+
+        private LoginState currentState = LoginState.FetchingCharacterName;
 
         public bool IsAsyncCommand
         {
@@ -25,17 +27,38 @@ namespace Mud.Apps.Windows.Desktop.Server.App
             }
         }
 
+        public string Command
+        {
+            get
+            {
+                return "Login";
+            }
+        }
+
         public bool CanExecuteCommand(ICharacter owner, string command, params string[] args)
         {
             return true;
         }
 
-        public void Execute(ICharacter owner, string command, params string[] args)
+        public InputCommandResult Execute(ICharacter owner, string command, params string[] args)
         {
-            notificationCenter.Publish(new CommandMessage(command, string.Empty));
+            InputCommandResult result = null;
+            switch(this.currentState)
+            {
+                case LoginState.FetchingCharacterName:
+                    result = new InputCommandResult("Please enter a character name:", false, this, owner);
+                    this.currentState = LoginState.FetchingPassword;
+                    break;
+                case LoginState.FetchingPassword:
+                    result = new InputCommandResult("Please enter your password:", true, this, owner);
+                    this.currentState = LoginState.Completed;
+                    break;
+            }
+
+            return result;
         }
 
-        public Task ExecuteAsync(ICharacter owner, string command, params string[] args)
+        public Task<InputCommandResult> ExecuteAsync(ICharacter owner, string command, params string[] args)
         {
             throw new NotImplementedException();
         }

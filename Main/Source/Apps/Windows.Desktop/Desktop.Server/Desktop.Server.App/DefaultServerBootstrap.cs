@@ -74,7 +74,14 @@ namespace Mud.Engine.Components.WindowsServer
 
         protected override IServer CreateServer()
         {
-            return this.container.Resolve<IServer>();
+            var server = this.container.Resolve<IServer>();
+            server.PlayerConnected += this.ExecuteInitialCommand;
+            return server;
+        }
+
+        private void ExecuteInitialCommand(object sender, ServerConnectionEventArgs e)
+        {
+            e.Player.CommandManager.ProcessCommandForCharacter(e.Player, new PlayerLoginCommand());
         }
 
         protected override IGame CreateGame()

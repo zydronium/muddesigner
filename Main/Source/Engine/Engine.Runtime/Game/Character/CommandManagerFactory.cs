@@ -20,7 +20,7 @@ namespace Mud.Engine.Runtime.Game.Character
             if (CommandManagerFactory.factoryDelegate == null)
             {
                 // TODO: Fetch a collection of security roles to pass in to our internal manager
-                return new CommandManager(Enumerable.Empty<ISecurityRole>());
+                return new CommandManager(Enumerable.Empty<ISecurityRole>(), Enumerable.Empty<IInputCommand>());
             }
 
             return CommandManagerFactory.factoryDelegate();

@@ -85,12 +85,22 @@ namespace Mud.Engine.Components.WindowsServer
 
         public void SendMessage(string message)
         {
+            if (!this.IsConnectionValid)
+            {
+                return;
+            }
+
             byte[] buffer = Encoding.ASCII.GetBytes(message);
             this.CurrentSocket.BeginSend(buffer, 0, buffer.Length, SocketFlags.None, new AsyncCallback(this.CompleteMessageSending), this.CurrentSocket);
         }
 
         private void CompleteMessageSending(IAsyncResult asyncResult)
         {
+            if (!this.IsConnectionValid)
+            {
+                return;
+            }
+
             var client = asyncResult.AsyncState as Socket;
 
             client.EndSend(asyncResult);
@@ -98,7 +108,12 @@ namespace Mud.Engine.Components.WindowsServer
 
         private void HandleCommandExecutionCompleted(object sender, CommandCompletionArgs e)
         {
-            this.SendMessage($"{e.Command} executed.\r\n");
+            if (e == null || e.CommandResult == null || string.IsNullOrEmpty(e.CommandResult.Result) || !this.IsConnectionValid)
+            {
+                return;
+            }
+
+            this.SendMessage($"{e.CommandResult.Result}");
         }
 
         /// <summary>
@@ -107,14 +122,8 @@ namespace Mud.Engine.Components.WindowsServer
         /// <param name="result">The result.</param>
         private void ReceiveData(IAsyncResult result)
         {
-            // If we are no longer in a valid state, dispose of the connection.
-            if (!this.IsConnectionValid)
-            {
-                this.CurrentSocket?.Dispose();
-                return;
-            }
-
             int bytesRead = this.CurrentSocket.EndReceive(result);
+
             if (bytesRead == 0 || !this.Buffer.Any())
             {
                 this.CurrentSocket.BeginReceive(this.Buffer, 0, bufferSize, 0, new AsyncCallback(this.ReceiveData), null);
@@ -122,6 +131,13 @@ namespace Mud.Engine.Components.WindowsServer
             }
 
             ProcessReceivedData(bytesRead);
+
+            // If we are no longer in a valid state after we have processed the results, abort.
+            if (!this.IsConnectionValid)
+            {
+                return;
+            }
+
             this.CurrentSocket.BeginReceive(this.Buffer, 0, bufferSize, 0, new AsyncCallback(this.ReceiveData), null);
         }
 
