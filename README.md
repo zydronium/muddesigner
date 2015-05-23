@@ -2,9 +2,9 @@ MudDesigner
 ===========
 [![Gitter](https://badges.gitter.im/Join Chat.svg)](https://gitter.im/scionwest/MudDesigner?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
-Development updates can be subscribed to from the developers blog at http://sullinger.us.
+Mud Designer has an IRC Channel! Join us at irc.freenode.net:6697 on #MudDesigner
 
-The source is also available at http://muddesigner.codeplex.com. This repository will always contain the latest changes. The project originally started on Codeplex and so I continue to sync changes to it. The Codeplex repository is always in sync with this repository. The GitHub repository is the new home and will hold all of the documentation and support.
+The source is also available at http://muddesigner.codeplex.com. This repository will always contain the latest changes. The project originally started on Codeplex and so I continue to sync changes to it. The GitHub repository is the new home and will hold all of the documentation and support. The Codeplex repository will only hold the source, documentation and support will not be provided there.
 
 About the project
 -------------------
@@ -15,4 +15,4 @@ The MUD Designer Engine is being developed with C# and .NET 4.5 portable class l
 
 The engine is being developed side-by-side with a client-side game editor that will provide mud developers a visual way to create their muds.
 
-For those wanting to try the current source code version of the engine, they can download and install Visual C# 2015 Preview, clone the repository, and compile it.
+For those wanting to try the current source code version of the engine, they can download and install Visual Studio 2015 Preview, clone the repository, and compile it.
