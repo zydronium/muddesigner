@@ -11,6 +11,7 @@ namespace Mud.Engine.Runtime.Game.Character
     using Mud.Engine.Runtime;
     using Mud.Engine.Runtime.Game.Environment;
 
+
     /// <summary>
     /// The Default Engine implementation of IPlayer.
     /// </summary>

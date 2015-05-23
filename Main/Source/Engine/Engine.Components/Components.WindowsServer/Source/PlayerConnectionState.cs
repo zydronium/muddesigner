@@ -41,7 +41,7 @@ namespace Mud.Engine.Components.WindowsServer
 
         private bool isSendingMessage;
 
-        private object sendingMessageLock;
+        private object sendingMessageLock = new object();
 
         /// <summary>
         /// Instances a new PlayerConnectionState.
@@ -53,9 +53,11 @@ namespace Mud.Engine.Components.WindowsServer
         {
             this.Player = player;
             this.notificationManager = player.NotificationCenter;
-            this.notificationManager.Subscribe<SystemMessage>((msg, sub) => this.SendMessage(msg.Content));
-            this.CurrentSocket = currentSocket;
+            this.notificationManager.Subscribe<SystemMessage>(
+                callback: (msg, sub) => this.SendMessage(msg.Content),
+                condition: (msg) => string.IsNullOrEmpty(msg.Content));
 
+            this.CurrentSocket = currentSocket;
             this.bufferSize = bufferSize;
             this.Buffer = new byte[bufferSize];
 
@@ -128,6 +130,7 @@ namespace Mud.Engine.Components.WindowsServer
 
         private void ProcessOutboundMessage(string message)
         {
+            this.isSendingMessage = true;
             byte[] buffer = Encoding.ASCII.GetBytes(message);
             this.CurrentSocket.BeginSend(buffer, 0, buffer.Length, SocketFlags.None, new AsyncCallback(this.CompleteMessageSending), message);
         }
@@ -142,7 +145,7 @@ namespace Mud.Engine.Components.WindowsServer
             this.CurrentSocket.EndSend(asyncResult);
             string content = asyncResult.AsyncState as string;
 
-            lock(this.outgoingMessageQueue)
+            lock(this.sendingMessageLock)
             {
                 this.outgoingMessageQueue.Remove(content);
             }
@@ -150,6 +153,10 @@ namespace Mud.Engine.Components.WindowsServer
             if (this.outgoingMessageQueue.Any())
             {
                 this.ProcessOutboundMessage(this.outgoingMessageQueue.First());
+            }
+            else
+            {
+                this.isSendingMessage = false;
             }
         }
 
@@ -218,10 +225,34 @@ namespace Mud.Engine.Components.WindowsServer
 
             foreach (string line in this.PruneReceivedMessages(messages))
             {
-                this.notificationManager.Publish<ProcessCommandRequestMessage>(
-                    new ProcessCommandRequestMessage(this.Player, line.Trim('\r', '\n')));
+                CommandRequestMessage commandRequest = this.ParseMessage(line);
+                this.notificationManager.Publish(commandRequest);
             }
         }
+
+        private CommandRequestMessage ParseMessage(string line)
+        {
+            // Split up the command and each of it's arguments from the line.
+            string[] content = line.Split(' ');
+
+            // Determine what the command and argument values we will provide the CommandRequestMessage.
+            string command = string.Empty;
+            string[] arguments = new string[0];
+            if (content.Length >= 1)
+            {
+                command = content.First().Trim('\r', '\n');
+            }
+
+            if (content.Length > 1)
+            {
+                // We skip the first element, as that is the command.
+                arguments = content.Skip(1).ToArray();
+            }
+
+            // Create the request and publish it
+            return new CommandRequestMessage(this.Player, command, arguments);
+        }
+
 
         /// <summary>
         /// Runs through the messages collection and prepends data from a previous, incomplete, message

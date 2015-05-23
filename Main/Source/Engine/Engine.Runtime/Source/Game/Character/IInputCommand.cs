@@ -4,14 +4,8 @@ namespace Mud.Engine.Runtime.Game.Character
 {
     public interface IInputCommand
     {
-        bool IsAsyncCommand { get; }
+        bool CanExecuteCommand(ICharacter owner, params string[] args);
 
-        string Command { get; }
-
-        bool CanExecuteCommand(ICharacter owner, string command, params string[] args);
-
-        InputCommandResult Execute(ICharacter owner, string command, params string[] args);
-
-        Task<InputCommandResult> ExecuteAsync(ICharacter owner, string command, params string[] args);
+        Task<InputCommandResult> ExecuteAsync(ICharacter owner, params string[] args);
     }
 }

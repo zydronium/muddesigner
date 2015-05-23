@@ -212,6 +212,7 @@ namespace Mud.Engine.Components.WindowsServer
                 this.ConnectedPlayers.Remove(player);
 
                 this.OnPlayerDisconnected(player);
+                this.GetCurrentGame().NotificationCenter.Publish<ServerMessage>(new ServerMessage($"{player.Information.Name} disconnected."));
             }
         }
 
@@ -324,7 +325,10 @@ namespace Mud.Engine.Components.WindowsServer
                 return Task.FromResult(0);
             }
 
-            foreach (IPlayer occupant in player.CurrentRoom.Occupants.Where(character => character is IPlayer).Cast<IPlayer>())
+            IEnumerable<IPlayer> remainingPlayersInRoom = player.CurrentRoom.Occupants
+                .Where(character => character is IPlayer && character != player)
+                .Cast<IPlayer>();
+            foreach (IPlayer occupant in remainingPlayersInRoom)
             {
                 this.playerConnections[occupant].SendMessage($"\r{player.Information.Name} left the realm.\r\n");
             }

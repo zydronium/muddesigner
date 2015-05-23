@@ -1,13 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Mud.Engine.Runtime.Game;
+﻿using System.Threading.Tasks;
 using Mud.Engine.Runtime.Game.Character;
+using Mud.Engine.Runtime.Game.Character.InputCommands;
 
 namespace Mud.Apps.Windows.Desktop.Server.App
 {
+    [CommandAlias("Login")]
     public class PlayerLoginCommand : IInputCommand
     {
         private enum LoginState
@@ -19,48 +16,30 @@ namespace Mud.Apps.Windows.Desktop.Server.App
 
         private LoginState currentState = LoginState.FetchingCharacterName;
 
-        public bool IsAsyncCommand
-        {
-            get
-            {
-                throw new NotImplementedException();
-            }
-        }
-
-        public string Command
-        {
-            get
-            {
-                return "Login";
-            }
-        }
-
-        public bool CanExecuteCommand(ICharacter owner, string command, params string[] args)
+        public bool CanExecuteCommand(ICharacter owner, params string[] args)
         {
             return true;
         }
 
-        public InputCommandResult Execute(ICharacter owner, string command, params string[] args)
+        public Task<InputCommandResult> ExecuteAsync(ICharacter owner, params string[] args)
         {
             InputCommandResult result = null;
-            switch(this.currentState)
+            switch (this.currentState)
             {
                 case LoginState.FetchingCharacterName:
                     result = new InputCommandResult("Please enter a character name:", false, this, owner);
                     this.currentState = LoginState.FetchingPassword;
                     break;
                 case LoginState.FetchingPassword:
-                    result = new InputCommandResult("Please enter your password:", true, this, owner);
+                    result = new InputCommandResult("Please enter your password:", false, this, owner);
                     this.currentState = LoginState.Completed;
+                    break;
+                case LoginState.Completed:
+                    result = new InputCommandResult("Logged in.\r\n", true, this, owner);
                     break;
             }
 
-            return result;
-        }
-
-        public Task<InputCommandResult> ExecuteAsync(ICharacter owner, string command, params string[] args)
-        {
-            throw new NotImplementedException();
+            return Task.FromResult(result);
         }
     }
 }

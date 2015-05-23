@@ -24,6 +24,7 @@ namespace Mud.Engine.Components.WindowsServer
 
         protected override void Run()
         {
+            this.Server.GetCurrentGame().NotificationCenter.Subscribe<ServerMessage>((msg, sub) => Console.Write(msg.Content));
             while (this.Server.Status != ServerStatus.Stopped)
             {
                 Thread.Sleep(100);
@@ -85,7 +86,7 @@ namespace Mud.Engine.Components.WindowsServer
 
         private void ExecuteInitialCommand(object sender, ServerConnectionEventArgs e)
         {
-            e.Player.CommandManager.ProcessCommandForCharacter(e.Player, new PlayerLoginCommand());
+            e.Player.CommandManager.ProcessCommandForCharacter(e.Player, new PlayerLoginCommand(), new string[0]);
         }
 
         protected override IGame CreateGame()
