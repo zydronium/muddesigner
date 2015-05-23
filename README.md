@@ -3,7 +3,9 @@ MudDesigner
 [![Gitter](https://badges.gitter.im/Join Chat.svg)](https://gitter.im/scionwest/MudDesigner?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 [![Build status](https://ci.appveyor.com/api/projects/status/kejda3at77a7104c/branch/master?svg=true)](https://ci.appveyor.com/project/JohnathonSullinger/muddesigner/branch/master)
 
-Mud Designer has an IRC Channel! Join us at irc.freenode.net:6697 on #MudDesigner
+##### Mud Designer has an IRC Channel! 
+
+Join us at _irc.freenode.net:6697_ on **#MudDesigner**
 
 The source is also available at http://muddesigner.codeplex.com. This repository will always contain the latest changes. The project originally started on Codeplex and so I continue to sync changes to it. The GitHub repository is the new home and will hold all of the documentation and support. The Codeplex repository will only hold the source, documentation and support will not be provided there.
 
