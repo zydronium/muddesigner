@@ -1,7 +1,7 @@
 MudDesigner
 ===========
 [![Gitter](https://badges.gitter.im/Join Chat.svg)](https://gitter.im/scionwest/MudDesigner?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
-[![Build status](https://ci.appveyor.com/api/projects/status/kejda3at77a7104c/branch/master?svg=true)](https://ci.appveyor.com/project/JohnathonSullinger/muddesigner/branch/master)
+[![Build status](https://codeship.com/projects/0c86bbf0-e31f-0132-d614-76e3d81118b5/status?branch=master)]
 
 ##### Mud Designer has an IRC Channel! 
 
