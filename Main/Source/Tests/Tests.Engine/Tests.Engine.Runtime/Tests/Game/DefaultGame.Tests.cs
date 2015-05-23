@@ -35,9 +35,9 @@ namespace Tests.Engine.Runtime.Game
                 .Returns(() =>
                 {
                     var world = new DefaultWorld();
-                    world.AddTimeOfDayState(new TimeOfDayState());
-                    var completionSource = new TaskCompletionSource<IEnumerable<IWorld>>(new List<IWorld> { world });
-
+                    //world.AddTimeOfDayState(new TimeOfDayState());
+                    var completionSource = new TaskCompletionSource<IEnumerable<IWorld>>();
+                    completionSource.SetResult(new[] { world });
                     return completionSource.Task;
                 });
             builder.RegisterInstance(worldServiceMock.Object).As<IWorldService>();
@@ -228,9 +228,22 @@ namespace Tests.Engine.Runtime.Game
         {
             // Arrange
             var logService = this.container.Resolve<ILoggingService>();
-            var worldService = this.container.Resolve<IWorldService>();
+            // A DefaultWorld mock is needed so we can verify DefaultWorld.Delete is called.
+            var worldMock = new Mock<DefaultWorld>();
 
-            var game = new DefaultGame(logService, worldService);
+            // Get our mocked instance and set up the time of day states needed
+            // by the Initialize method call.
+            var world = worldMock.Object;
+            world.AddTimeOfDayState(new TimeOfDayState());
+
+            // Set up the world service to return our mocked World
+            // and allow us to verify that save was called.
+            var worldServiceMock = new Mock<IWorldService>();
+            worldServiceMock
+                .Setup(service => service.GetAllWorlds())
+                .ReturnsAsync(new List<DefaultWorld> { worldMock.Object });
+
+            var game = new DefaultGame(logService, this.container.Resolve<IWorldService>());
             await game.Initialize();
 
             // Act
