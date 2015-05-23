@@ -48,12 +48,11 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\Engine.Runtime\Engine.Runtime.csproj">
+    <ProjectReference Include="..\..\..\Engine.Runtime\Source\Engine.Runtime.csproj">
       <Project>{f27c159b-6412-46dc-8239-f0841c6801dc}</Project>
       <Name>Engine.Runtime</Name>
     </ProjectReference>
   </ItemGroup>
-  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

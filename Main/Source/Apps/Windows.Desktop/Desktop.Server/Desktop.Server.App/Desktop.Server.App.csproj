@@ -64,7 +64,7 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\..\..\Data\Data.FlatFile\Data.FlatFile.csproj">
+    <ProjectReference Include="..\..\..\..\Data\Data.FlatFile\Source\Data.FlatFile.csproj">
       <Project>{08f8d203-05db-4a39-8124-6ea8596b12c2}</Project>
       <Name>Data.FlatFile</Name>
     </ProjectReference>
@@ -72,11 +72,11 @@
       <Project>{bd2d7902-0802-40a4-bfed-c821b0cb6410}</Project>
       <Name>Data.Shared</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\..\..\Engine\Engine.Components\Engine.Components.WindowsServer\Engine.Components.WindowsServer.csproj">
+    <ProjectReference Include="..\..\..\..\Engine\Engine.Components\Components.WindowsServer\Source\Components.WindowsServer.csproj">
       <Project>{efcd4f40-a2cb-440b-a1c1-bad78b784471}</Project>
-      <Name>Engine.Components.WindowsServer</Name>
+      <Name>Components.WindowsServer</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\..\..\Engine\Engine.Runtime\Engine.Runtime.csproj">
+    <ProjectReference Include="..\..\..\..\Engine\Engine.Runtime\Source\Engine.Runtime.csproj">
       <Project>{f27c159b-6412-46dc-8239-f0841c6801dc}</Project>
       <Name>Engine.Runtime</Name>
     </ProjectReference>

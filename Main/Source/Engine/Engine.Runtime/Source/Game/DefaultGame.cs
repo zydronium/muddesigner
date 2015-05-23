@@ -83,8 +83,7 @@ namespace Mud.Engine.Runtime.Game
         /// <returns>Returns an awaitable Task</returns>
         protected async override Task Load()
         {
-            IEnumerable<IWorld> fetchedWorlds = await this.worldService.GetAllWorlds();
-            this.worlds = new List<IWorld>(fetchedWorlds);
+            this.worlds = new List<IWorld>(await this.worldService.GetAllWorlds());
 
             if (!this.Worlds.Any())
             {

@@ -34,13 +34,6 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <!-- A reference to the entire .NET Framework is automatically included -->
-    <ProjectReference Include="..\..\Engine\Engine.Runtime\Engine.Runtime.csproj">
-      <Project>{f27c159b-6412-46dc-8239-f0841c6801dc}</Project>
-      <Name>Engine.Runtime</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
     <Compile Include="ICacheable.cs" />
     <Compile Include="IRepository.cs" />
     <Compile Include="ISecurityRoleRepository.cs" />
@@ -49,6 +42,12 @@
     <Compile Include="IWorldRepository.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="WorldService.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\Engine\Engine.Runtime\Source\Engine.Runtime.csproj">
+      <Project>{f27c159b-6412-46dc-8239-f0841c6801dc}</Project>
+      <Name>Engine.Runtime</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

@@ -35,13 +35,13 @@
   </PropertyGroup>
   <ItemGroup>
     <!-- A reference to the entire .NET Framework is automatically included -->
-    <ProjectReference Include="..\Data.Shared\Data.Shared.csproj">
-      <Project>{bd2d7902-0802-40a4-bfed-c821b0cb6410}</Project>
-      <Name>Data.Shared</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\Engine\Engine.Runtime\Engine.Runtime.csproj">
+    <ProjectReference Include="..\..\..\Engine\Engine.Runtime\Source\Engine.Runtime.csproj">
       <Project>{f27c159b-6412-46dc-8239-f0841c6801dc}</Project>
       <Name>Engine.Runtime</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Data.Shared\Data.Shared.csproj">
+      <Project>{bd2d7902-0802-40a4-bfed-c821b0cb6410}</Project>
+      <Name>Data.Shared</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

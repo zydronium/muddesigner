@@ -45,9 +45,6 @@
       <HintPath>..\..\..\packages\Moq.AutoMock.0.3.2.1\lib\net40\Moq.AutoMock.dll</HintPath>
     </Reference>
     <Reference Include="System" />
-    <Reference Include="ValidatableBase">
-      <HintPath>..\..\..\..\Resources\ValidatableBase.dll</HintPath>
-    </Reference>
   </ItemGroup>
   <Choose>
     <When Condition="('$(VisualStudioVersion)' == '10.0' or '$(VisualStudioVersion)' == '') and '$(TargetFrameworkVersion)' == 'v3.5'">
@@ -84,7 +81,11 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\..\Engine\Engine.Runtime\Engine.Runtime.csproj">
+    <ProjectReference Include="..\..\..\Data\Data.Shared\Data.Shared.csproj">
+      <Project>{bd2d7902-0802-40a4-bfed-c821b0cb6410}</Project>
+      <Name>Data.Shared</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Source\Engine.Runtime.csproj">
       <Project>{f27c159b-6412-46dc-8239-f0841c6801dc}</Project>
       <Name>Engine.Runtime</Name>
     </ProjectReference>
