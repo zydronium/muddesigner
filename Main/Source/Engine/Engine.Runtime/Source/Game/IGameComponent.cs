@@ -32,5 +32,17 @@ namespace Mud.Engine.Runtime.Game
         /// The Deleted event is fired once the object has finished processing it's unloading and clean up.
         /// </summary>
         event EventHandler<EventArgs> Deleted;
+
+        INotificationCenter NotificationCenter { get; }
+
+        void PublishMessage<TMessage>(TMessage message) where TMessage : class, IMessage;
+
+        void SubscribeToMessage<TMessage>(Action<TMessage, ISubscription> callback, Func<TMessage, bool> predicate = null) where TMessage : class, IMessage;
+
+        void UnsubscribeFromMessage<TMessage>() where TMessage : class, IMessage;
+
+        void UnsubscribeFromAllMessages();
+
+        void SetNotificationManager(INotificationCenter notificationManager);
     }
 }
