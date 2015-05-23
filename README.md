@@ -15,4 +15,4 @@ The MUD Designer Engine is being developed with C# and .NET 4.5 portable class l
 
 The engine is being developed side-by-side with a client-side game editor that will provide mud developers a visual way to create their muds.
 
-For those wanting to try the current source code version of the engine, they can download and install Visual C# 2015 Preview, clone the repository, and compile it.
+For those wanting to try the current source code version of the engine, they can download and install Visual Studio 2015 Preview, clone the repository, and compile it.
