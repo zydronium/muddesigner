@@ -44,7 +44,7 @@ namespace Mud.Engine.Runtime.Game.Character
                 currentCommand = this.commandCollection.FirstOrDefault(c => c.Command.ToLower().Equals(args.First().ToLower()));
                 if (currentCommand == null)
                 {
-                    result = new InputCommandResult("Unknown Command.", true, null, character);
+                    result = new InputCommandResult("Unknown Command.\r\n>>:", true, null, character);
                 }
 
                 else

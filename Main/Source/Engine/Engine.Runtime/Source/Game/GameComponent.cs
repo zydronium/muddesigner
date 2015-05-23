@@ -6,6 +6,7 @@
 namespace Mud.Engine.Runtime.Game
 {
     using System;
+    using System.Collections.Generic;
     using System.Threading.Tasks;
 
     /// <summary>
@@ -13,6 +14,13 @@ namespace Mud.Engine.Runtime.Game
     /// </summary>
     public abstract class GameComponent : IGameComponent
     {
+        private Dictionary<Type, ISubscription> subscriptions;
+
+        public GameComponent()
+        {
+            this.subscriptions = new Dictionary<Type, ISubscription>();
+        }
+
         /// <summary>
         /// The Loading event is fired during initialization of the component prior to being loaded.
         /// </summary>
@@ -38,6 +46,8 @@ namespace Mud.Engine.Runtime.Game
         /// </summary>
         public int Id { get; set; }
 
+        public INotificationCenter NotificationCenter { get; private set; }
+
         /// <summary>
         /// Initializes the game component.
         /// </summary>
@@ -59,6 +69,53 @@ namespace Mud.Engine.Runtime.Game
             await this.OnDeleteRequested();
             await this.Unload();
             this.OnDeleted();
+        }
+
+        public void PublishMessage<TMessage>(TMessage message) where TMessage : class, IMessage
+        {
+            if (this.NotificationCenter == null)
+            {
+                throw new NullReferenceException($"{this.GetType().Name} has a null INotificationCenter reference and can not use it to publish messages.");
+            }
+
+            this.NotificationCenter.Publish(message);
+        }
+
+        public void SubscribeToMessage<TMessage>(Action<TMessage, ISubscription> callback, Func<TMessage, bool> predicate = null) where TMessage : class, IMessage
+        {
+            if (this.NotificationCenter == null)
+            {
+                throw new NullReferenceException($"{this.GetType().Name} has a null INotificationCenter reference and can not use it to subscribe to publications.");
+            }
+
+            ISubscription subscription = null;
+            Type messageType = typeof(TMessage);
+            if (this.subscriptions.TryGetValue(messageType, out subscription))
+            {
+                subscription.Unsubscribe();
+                this.subscriptions.Remove(messageType);
+            }
+
+            subscription = this.NotificationCenter.Subscribe<TMessage>(callback, predicate);
+            this.subscriptions.Add(messageType, subscription);
+        }
+
+        public void UnsubscribeFromMessage<TMessage>() where TMessage : class, IMessage
+        {
+            Type messageType = typeof(TMessage);
+            ISubscription subscription = null;
+            if (!this.subscriptions.TryGetValue(messageType, out subscription))
+            {
+                return;
+            }
+
+            subscription.Unsubscribe();
+            this.subscriptions.Remove(messageType);
+        }
+
+        public void SetNotificationManager(INotificationCenter notificationManager)
+        {
+            this.NotificationCenter = notificationManager;
         }
 
         /// <summary>

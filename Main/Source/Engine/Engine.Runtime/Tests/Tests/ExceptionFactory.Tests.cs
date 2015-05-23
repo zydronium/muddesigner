@@ -199,7 +199,7 @@ namespace Tests.Engine.Runtime
 
             var componentMock = new Mock<IComponent>();
             componentMock.SetupGet(component => component.Id).Returns(id);
-            Assert.Fail();
+
             // Act
             try
             {

@@ -10,6 +10,7 @@ namespace Mud.Engine.Components.WindowsServer
     using System.Linq;
     using System.Net.Sockets;
     using System.Text;
+    using Mud.Engine.Runtime.Game;
     using Mud.Engine.Runtime.Game.Character;
 
     /// <summary>
@@ -32,6 +33,8 @@ namespace Mud.Engine.Components.WindowsServer
         /// </summary>
         private string lastChunk = string.Empty;
 
+        private INotificationCenter notificationManager;
+
         /// <summary>
         /// Instances a new PlayerConnectionState.
         /// </summary>
@@ -41,6 +44,7 @@ namespace Mud.Engine.Components.WindowsServer
         public PlayerConnectionState(IPlayer player, Socket currentSocket, int bufferSize)
         {
             this.Player = player;
+            this.notificationManager = player.NotificationCenter;
             this.CurrentSocket = currentSocket;
 
             this.bufferSize = bufferSize;

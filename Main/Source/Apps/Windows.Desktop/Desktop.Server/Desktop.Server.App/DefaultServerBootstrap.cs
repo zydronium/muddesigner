@@ -53,7 +53,8 @@ namespace Mud.Engine.Components.WindowsServer
             builder.RegisterTypes(typeCollection.Where(type => type.IsAssignableTo<IService>()).ToArray()).AsImplementedInterfaces();
             builder
                 .RegisterTypes(typeCollection.Where(type => type.IsAssignableTo<IComponent>()).ToArray())
-                .AsImplementedInterfaces();
+                .AsImplementedInterfaces()
+                .OnActivating(args => ((IComponent)args.Instance).SetNotificationManager(this.container.Resolve<INotificationCenter>()));
 
             // Server Services
             builder.RegisterType<DefaultServer>().As<IServer>();

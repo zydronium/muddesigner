@@ -10,17 +10,12 @@ namespace Mud.Engine.Runtime.Game
     /// <summary>
     /// Provides meta-information for the currently running game.
     /// </summary>
-    public class GameInformation : IComponent
+    public class GameInformation
     {
         public GameInformation()
         {
             this.Version = new Version("1.0.0.0");
         }
-
-        /// <summary>
-        /// Gets or sets the unique identifier.
-        /// </summary>
-        public int Id { get; set; }
 
         /// <summary>
         /// Gets or sets the name of the game being played.
