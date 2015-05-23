@@ -64,7 +64,7 @@ namespace Mud.Engine.Runtime.Game
         /// <summary>
         /// Gets or sets the last saved.
         /// </summary>
-        public DateTime LastSaved { get; }
+        public DateTime LastSaved { get; private set; }
 
         /// <summary>
         /// Gets the current World for the game. Contains all of the Realms, Zones and Rooms.

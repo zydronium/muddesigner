@@ -2,7 +2,7 @@
 
 namespace Mud.Engine.Runtime.Game.Character
 {
-    public class ISecurityRole
+    public interface ISecurityRole
     {
         string Name { get; }
 
