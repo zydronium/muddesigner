@@ -15,10 +15,15 @@ namespace Mud.Engine.Runtime.Game.Character
 
         private Dictionary<ICharacter, IInputCommand> characterCommandStates;
 
-        public CommandManager(IEnumerable<ISecurityRole> availableRoles, IEnumerable<IInputCommand> commands)
+        private INotificationCenter notificationCenter;
+
+        public CommandManager(IEnumerable<ISecurityRole> availableRoles, IEnumerable<IInputCommand> commands, INotificationCenter notificationCenter)
         {
             this.serverRoles = availableRoles ?? Enumerable.Empty<ISecurityRole>();
             this.commandCollection = commands;
+            this.notificationCenter = notificationCenter;
+            this.notificationCenter.Subscribe<ProcessCommandRequestMessage>(
+                async (message, subscription) => await this.ProcessCommandForCharacter(message.Sender, message.Content));
 
             this.characterCommandStates = new Dictionary<ICharacter, IInputCommand>();
         }
@@ -61,14 +66,7 @@ namespace Mud.Engine.Runtime.Game.Character
             }
 
             this.UpdateCommandState(result);
-
-            var handler = this.CommandCompleted;
-            if (handler == null)
-            {
-                return;
-            }
-
-            handler(this, new CommandCompletionArgs(command, character, Enumerable.Empty<string>(), result));
+            this.notificationCenter.Publish(new SystemMessage(result.Result));
         }
 
         public Task ProcessCommandForCharacter(ICharacter character, IInputCommand command)
@@ -76,13 +74,7 @@ namespace Mud.Engine.Runtime.Game.Character
             InputCommandResult result = command.Execute(character, command.Command);
             this.UpdateCommandState(result);
 
-            var handler = this.CommandCompleted;
-            if (handler == null)
-            {
-                return Task.FromResult(0);
-            }
-
-            handler(this, new CommandCompletionArgs(command.Command, character, Enumerable.Empty<string>(), result));
+            this.notificationCenter.Publish(new SystemMessage(result.Result));
             return Task.FromResult(0);
         }
 

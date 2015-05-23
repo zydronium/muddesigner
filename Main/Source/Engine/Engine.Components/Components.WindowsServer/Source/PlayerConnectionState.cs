@@ -7,6 +7,8 @@ namespace Mud.Engine.Components.WindowsServer
 {
     using System;
     using System.Collections.Generic;
+    using System.Collections.ObjectModel;
+    using System.Collections.Specialized;
     using System.Linq;
     using System.Net.Sockets;
     using System.Text;
@@ -35,6 +37,12 @@ namespace Mud.Engine.Components.WindowsServer
 
         private INotificationCenter notificationManager;
 
+        private readonly ObservableCollection<string> outgoingMessageQueue = new ObservableCollection<string>();
+
+        private bool isSendingMessage;
+
+        private object sendingMessageLock;
+
         /// <summary>
         /// Instances a new PlayerConnectionState.
         /// </summary>
@@ -45,10 +53,13 @@ namespace Mud.Engine.Components.WindowsServer
         {
             this.Player = player;
             this.notificationManager = player.NotificationCenter;
+            this.notificationManager.Subscribe<SystemMessage>((msg, sub) => this.SendMessage(msg.Content));
             this.CurrentSocket = currentSocket;
 
             this.bufferSize = bufferSize;
             this.Buffer = new byte[bufferSize];
+
+            this.outgoingMessageQueue.CollectionChanged += MessageAddedToOutboundQueue;
         }
 
         /// <summary>
@@ -84,7 +95,6 @@ namespace Mud.Engine.Components.WindowsServer
         {
             this.Buffer = new byte[bufferSize];
             this.CurrentSocket.BeginReceive(this.Buffer, 0, bufferSize, 0, new AsyncCallback(this.ReceiveData), null);
-            this.Player.CommandManager.CommandCompleted += this.HandleCommandExecutionCompleted;
         }
 
         public void SendMessage(string message)
@@ -94,8 +104,32 @@ namespace Mud.Engine.Components.WindowsServer
                 return;
             }
 
+            lock (this.outgoingMessageQueue)
+            {
+                this.outgoingMessageQueue.Add(message);
+            }
+        }
+
+        private void MessageAddedToOutboundQueue(object sender, NotifyCollectionChangedEventArgs e)
+        {
+            if (this.isSendingMessage)
+            {
+                return;
+            }
+
+            if ((e.Action == NotifyCollectionChangedAction.Add && e.NewItems.Count == 0) ||
+                e.Action != NotifyCollectionChangedAction.Add)
+            {
+                return;
+            }
+
+            this.ProcessOutboundMessage(e.NewItems[0] as string);
+        }
+
+        private void ProcessOutboundMessage(string message)
+        {
             byte[] buffer = Encoding.ASCII.GetBytes(message);
-            this.CurrentSocket.BeginSend(buffer, 0, buffer.Length, SocketFlags.None, new AsyncCallback(this.CompleteMessageSending), this.CurrentSocket);
+            this.CurrentSocket.BeginSend(buffer, 0, buffer.Length, SocketFlags.None, new AsyncCallback(this.CompleteMessageSending), message);
         }
 
         private void CompleteMessageSending(IAsyncResult asyncResult)
@@ -105,9 +139,18 @@ namespace Mud.Engine.Components.WindowsServer
                 return;
             }
 
-            var client = asyncResult.AsyncState as Socket;
+            this.CurrentSocket.EndSend(asyncResult);
+            string content = asyncResult.AsyncState as string;
 
-            client.EndSend(asyncResult);
+            lock(this.outgoingMessageQueue)
+            {
+                this.outgoingMessageQueue.Remove(content);
+            }
+
+            if (this.outgoingMessageQueue.Any())
+            {
+                this.ProcessOutboundMessage(this.outgoingMessageQueue.First());
+            }
         }
 
         private void HandleCommandExecutionCompleted(object sender, CommandCompletionArgs e)
@@ -175,7 +218,8 @@ namespace Mud.Engine.Components.WindowsServer
 
             foreach (string line in this.PruneReceivedMessages(messages))
             {
-                this.Player.CommandManager.ProcessCommandForCharacter(this.Player, line.Trim('\r', '\n'));
+                this.notificationManager.Publish<ProcessCommandRequestMessage>(
+                    new ProcessCommandRequestMessage(this.Player, line.Trim('\r', '\n')));
             }
         }
 

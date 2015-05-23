@@ -49,6 +49,7 @@
     <Compile Include="Game\Character\IPlayer.cs" />
     <Compile Include="Game\Character\ISecurityRole.cs" />
     <Compile Include="Game\Character\SecurityRole.cs" />
+    <Compile Include="Game\SystemMessage.cs" />
     <Compile Include="Game\ChatFactory.cs" />
     <Compile Include="Game\ChatMessageBase.cs" />
     <Compile Include="Game\Character\CommandManager.cs" />
@@ -58,6 +59,7 @@
     <Compile Include="Game\Character\ICommandManager.cs" />
     <Compile Include="Game\IGame.cs" />
     <Compile Include="Game\Character\IInputCommand.cs" />
+    <Compile Include="Game\ProcessCommandRequestMessage.cs" />
     <Compile Include="Networking\IServerConfiguration.cs" />
     <Compile Include="Networking\ServerBootstrap.cs" />
     <Compile Include="Networking\ServerConfig.cs" />

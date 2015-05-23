@@ -281,16 +281,6 @@ namespace Mud.Engine.Components.WindowsServer
             // Fetch the next incoming connection.
             this.serverSocket.BeginAccept(new AsyncCallback(this.ConnectClient), this.serverSocket);
 
-            // Send our greeting
-            byte[] buffer = Encoding.ASCII.GetBytes(this.CreateWelcomeMessage());
-            connection.BeginSend(buffer, 0, buffer.Length, 0, new AsyncCallback(CompleteClientConnection), connection);
-        }
-
-        private void CompleteClientConnection(IAsyncResult ar)
-        {
-            var connection = ar.AsyncState as Socket;
-            connection.EndSend(ar);
-
             // Initialize the player.
             IPlayer player = CharacterFactory.CreatePlayer(this.game);
 
@@ -300,25 +290,6 @@ namespace Mud.Engine.Components.WindowsServer
             player
                 .Initialize()
                 .ContinueWith(playerTask => CompletePlayerSetup(new PlayerConnectionState(player, connection, UserConnectionBufferSize)));
-        }
-
-        private Task PlayerDisconnecting(IGameComponent arg)
-        {
-            var player = (IPlayer)arg;
-            player.Deleting -= this.PlayerDisconnecting;
-            this.Disconnect((IPlayer)arg);
-
-            if (player.CurrentRoom == null)
-            {
-                return Task.FromResult(0);
-            }
-
-            foreach(IPlayer occupant in player.CurrentRoom.Occupants.Where(character => character is IPlayer).Cast<IPlayer>())
-            {
-                this.playerConnections[occupant].SendMessage($"\r{player.Information.Name} left the realm.\r\n");
-            }
-
-            return Task.FromResult(0);
         }
 
         private void CompletePlayerSetup(PlayerConnectionState connectionState)
@@ -337,8 +308,28 @@ namespace Mud.Engine.Components.WindowsServer
             }
 
             // Start receiving data from the client.
+            connectionState.SendMessage(this.CreateWelcomeMessage());
             connectionState.StartListeningForData();
             this.OnPlayerConnected(connectionState.Player);
+        }
+
+        private Task PlayerDisconnecting(IGameComponent arg)
+        {
+            var player = (IPlayer)arg;
+            player.Deleting -= this.PlayerDisconnecting;
+            this.Disconnect((IPlayer)arg);
+
+            if (player.CurrentRoom == null)
+            {
+                return Task.FromResult(0);
+            }
+
+            foreach (IPlayer occupant in player.CurrentRoom.Occupants.Where(character => character is IPlayer).Cast<IPlayer>())
+            {
+                this.playerConnections[occupant].SendMessage($"\r{player.Information.Name} left the realm.\r\n");
+            }
+
+            return Task.FromResult(0);
         }
 
         private string CreateWelcomeMessage()
