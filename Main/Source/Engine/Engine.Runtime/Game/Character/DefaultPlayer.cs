@@ -69,6 +69,7 @@ namespace Mud.Engine.Runtime.Game.Character
         /// <param name="newRoom">The new room.</param>
         public void Move(ITravelDirection directionEnteringFrom, DefaultRoom newRoom)
         {
+            this.CurrentRoom = newRoom;
             this.OnRoomChanged(directionEnteringFrom, this.CurrentRoom, newRoom);
         }
 
@@ -89,8 +90,25 @@ namespace Mud.Engine.Runtime.Game.Character
         /// <returns>Returns an awaitable Task</returns>
         protected override Task Unload()
         {
+            this.CurrentRoom.RemoveOccupantFromRoom(this);
             return Task.FromResult(true);
         }
+
+        /// <summary>
+        /// Event Handler for when another character enters the room that this character is currently in.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void OnCharacterEnteredRoom(object sender, OccupancyChangedEventArgs e)
+        {
+            throw new NotImplementedException();
+        }
+
+        private void OnCharacterLeftRoom(object sender, OccupancyChangedEventArgs e)
+        {
+            throw new NotImplementedException();
+        }
+
 
         /// <summary>
         /// Called when the character changes rooms.

@@ -8,6 +8,7 @@ namespace Mud.Engine.Runtime.Game.Environment
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using System.Threading.Tasks;
     using Mud.Engine.Runtime.Game.Character;
 
     /// <summary>
@@ -106,21 +107,36 @@ namespace Mud.Engine.Runtime.Game.Environment
             // Remove the character from their previous room.
             //Find the doorway that the character traveled through
             DefaultDoorway doorwayTraveledThrough = 
-                departingRoom.Doorways.FirstOrDefault(door => door.ArrivalRoom == this);
+                departingRoom?.Doorways.FirstOrDefault(door => door.ArrivalRoom == this);
 
             // Get the opposite direction of the doorways travel direction. This will be the direction that they entered from
             // within this instance's available entry points.
-            ITravelDirection enteredDirection = doorwayTraveledThrough.DepartureDirection.GetOppositeDirection();
+            ITravelDirection enteredDirection = doorwayTraveledThrough?.DepartureDirection.GetOppositeDirection();
 
             // Handle removing the occupant from the previous room. The character might handle this for us
             // so our RemoveOccupantFromRoom implementation will try to remove safely.
-            departingRoom.TryRemoveOccupantFromRoom(character, doorwayTraveledThrough.DepartureDirection, this);
+            departingRoom?.TryRemoveOccupantFromRoom(character, doorwayTraveledThrough.DepartureDirection, this);
 
             this.Occupants.Add(character);
-
+            character.Deleting += this.OnCharacterDeletingStarting;
             // Notify our event handles that the character has entered the room.
             this.OnEnteringRoom(character, enteredDirection, departingRoom);
             character.Move(enteredDirection, this);
+        }
+
+        private Task OnCharacterDeletingStarting(IGameComponent arg)
+        {
+            var character = (ICharacter)arg;
+            character.Deleting -= this.OnCharacterDeletingStarting;
+            this.RemoveOccupantFromRoom(character);
+
+            return Task.FromResult(0);
+        }
+
+        public void RemoveOccupantFromRoom(ICharacter character)
+        {
+            this.Occupants.Remove(character);
+            this.OnLeavingRoom(character, null, null);
         }
 
         /// <summary>

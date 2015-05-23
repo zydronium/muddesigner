@@ -61,15 +61,21 @@ namespace Mud.Apps.Windows.Desktop.Server.App
         /// <param name="game">The game.</param>
         private async Task ConstructWorld(IGame game)
         {
+            // Set up the Room
+            var bedroom = new DefaultRoom { IsEnabled = true };
+            var hallway = new DefaultRoom { IsEnabled = true };
+
             // Set up the Zone            
             var weatherStates = new List<IWeatherState> { new ClearWeather(), new RainyWeather(), new ThunderstormWeather() };
             DefaultZone zone = new DefaultZone();
             zone.Name = "Country Side";
+            zone.Rooms = new List<DefaultRoom>() { bedroom };
             zone.WeatherStates = weatherStates;
             zone.WeatherUpdateFrequency = 6;
             zone.WeatherChanged += (sender, weatherArgs) => Console.WriteLine($"{zone.Name} zone weather has changed to {weatherArgs.CurrentState.Name}");
             DefaultZone zone2 = new DefaultZone();
             zone2.Name = "Castle Rock";
+            zone2.Rooms = new List<DefaultRoom> { hallway };
             zone2.WeatherStates = weatherStates;
             zone2.WeatherUpdateFrequency = 2;
             zone2.WeatherChanged += (sender, weatherArgs) => Console.WriteLine($"{zone2.Name} zone weather has changed to {weatherArgs.CurrentState.Name}");

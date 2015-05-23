@@ -308,11 +308,22 @@ namespace Mud.Engine.Components.WindowsServer
             player.Deleting -= this.PlayerDisconnecting;
             this.Disconnect((IPlayer)arg);
 
+            if (player.CurrentRoom == null)
+            {
+                return Task.FromResult(0);
+            }
+
+            foreach(IPlayer occupant in player.CurrentRoom.Occupants.Where(character => character is IPlayer).Cast<IPlayer>())
+            {
+                this.playerConnections[occupant].SendMessage($"\r{player.Information.Name} left the realm.\r\n");
+            }
+
             return Task.FromResult(0);
         }
 
         private void CompletePlayerSetup(PlayerConnectionState connectionState)
         {
+            this.game.Worlds.First().Realms.First().Zones.First().Rooms.First().MoveOccupantToRoom(connectionState.Player, null);
             lock (this.ConnectedPlayers)
             {
                 this.ConnectedPlayers.Add(connectionState.Player);

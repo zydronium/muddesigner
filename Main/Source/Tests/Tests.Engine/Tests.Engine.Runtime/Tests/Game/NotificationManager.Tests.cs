@@ -32,21 +32,13 @@ namespace Tests.Engine.Runtime.Tests.Game
             bool callbackCalled = false;
             string messageContent = "Test";
             var notificationCenter = new NotificationManager();
-            notificationCenter.Subscribe<ShoutMessage>((msg, sub) =>
-                {
-                    if (msg.Content == messageContent)
-                    {
-                        callbackCalled = true;
-                    }
-                });
+            ISubscription subscription = notificationCenter.Subscribe<ShoutMessage>((msg, sub) =>  callbackCalled = msg.Content == messageContent);
 
             // Act
-            //notificationCenter.Publish(new ShoutMessage(
-            //    messageContent,
-            //    new DefaultPlayer(null, notificationCenter)));  
+            notificationCenter.Publish(new ShoutMessage(messageContent, null));
 
             // Assert
-            Assert.IsTrue(callbackCalled);
+            Assert.IsTrue(callbackCalled, "The subscriber did not have its callback invoked.");
         }
 
         [TestMethod]
@@ -70,7 +62,7 @@ namespace Tests.Engine.Runtime.Tests.Game
         {
             var notificationCenter = new NotificationManager();
             int callCount = 0;
-            
+
             // Build our notification.
             ISubscription subscriber = notificationCenter.Subscribe<MessageFixture>(
                 (message, sub) => callCount++);
