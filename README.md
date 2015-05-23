@@ -1,6 +1,6 @@
 MudDesigner
 ===========
-[![Documentation Status](https://readthedocs.org/projects/muddesigner/badge/?version=latest)](https://readthedocs.org/projects/muddesigner/?badge=latest)   [![Gitter](https://badges.gitter.im/Join Chat.svg)](https://gitter.im/scionwest/MudDesigner?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+[![Documentation Status](https://readthedocs.org/projects/muddesigner/badge/?version=latest)](http://muddesigner.readthedocs.org/en/latest/)   [![Gitter](https://badges.gitter.im/Join Chat.svg)](https://gitter.im/scionwest/MudDesigner?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
 ##### Mud Designer has an IRC Channel! 
 
