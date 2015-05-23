@@ -12,6 +12,11 @@ namespace Mud.Engine.Runtime.Game
     /// </summary>
     public class GameInformation : IComponent
     {
+        public GameInformation()
+        {
+            this.Version = new Version("1.0.0.0");
+        }
+
         /// <summary>
         /// Gets or sets the unique identifier.
         /// </summary>
@@ -30,7 +35,7 @@ namespace Mud.Engine.Runtime.Game
         /// <summary>
         /// Gets or sets the current version of the game.
         /// </summary>
-        public Version Version { get; set; } = new Version("0.0.0.1");
+        public Version Version { get; set; }
 
         /// <summary>
         /// Gets or sets the website that users can visit to get information on the game.
