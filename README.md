@@ -1,7 +1,6 @@
 MudDesigner
 ===========
 [![Gitter](https://badges.gitter.im/Join Chat.svg)](https://gitter.im/scionwest/MudDesigner?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
-[![Build status](https://ci.appveyor.com/api/projects/status/kejda3at77a7104c?svg=true)](https://ci.appveyor.com/project/JohnathonSullinger/muddesigner)
 [![Build status](https://ci.appveyor.com/api/projects/status/kejda3at77a7104c/branch/master?svg=true)](https://ci.appveyor.com/project/JohnathonSullinger/muddesigner/branch/master)
 
 Mud Designer has an IRC Channel! Join us at irc.freenode.net:6697 on #MudDesigner
