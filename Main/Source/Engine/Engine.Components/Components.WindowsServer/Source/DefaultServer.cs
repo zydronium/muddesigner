@@ -299,7 +299,6 @@ namespace Mud.Engine.Components.WindowsServer
             lock (this.ConnectedPlayers)
             {
                 this.ConnectedPlayers.Add(connectionState.Player);
-                connectionState.Player.Information.Name = string.Format("Player {0}", this.ConnectedPlayers.Count);
             }
 
             // Create a new connection state.

@@ -41,5 +41,7 @@ namespace Mud.Engine.Runtime.Game.Character
         /// <param name="directionEnteringFrom">The direction.</param>
         /// <param name="newRoom">The new room.</param>
         void Move(ITravelDirection directionEnteringFrom, DefaultRoom newRoom);
+
+        void SetCharacterInformation(ICharacterInformation characterInformation);
     }
 }

@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 using Mud.Engine.Runtime.Game.Character;
 using Mud.Engine.Runtime.Game.Character.InputCommands;
 
@@ -7,14 +8,25 @@ namespace Mud.Apps.Windows.Desktop.Server.App
     [CommandAlias("Login")]
     public class PlayerLoginCommand : IInputCommand
     {
-        private enum LoginState
-        {
-            FetchingCharacterName,
-            FetchingPassword,
-            Completed,
-        }
+        private LoginProcessor currentProcessor;
 
-        private LoginState currentState = LoginState.FetchingCharacterName;
+        private CharacterNameRequestor nameRequestor;
+
+        private CharacterNameProcessor nameProcessor;
+
+        private CharacterPasswordRequestor passwordRequestor;
+
+        private CharacterPasswordProcessor passwordProcessor;
+
+        public PlayerLoginCommand()
+        {
+            this.passwordProcessor = new CharacterPasswordProcessor();
+            this.passwordRequestor = new CharacterPasswordRequestor(this.passwordProcessor);
+            this.nameProcessor = new CharacterNameProcessor(this.passwordRequestor);
+            this.nameRequestor = new CharacterNameRequestor(this.nameProcessor);
+
+            this.currentProcessor = this.nameRequestor;
+        }
 
         public bool CanExecuteCommand(ICharacter owner, params string[] args)
         {
@@ -24,22 +36,124 @@ namespace Mud.Apps.Windows.Desktop.Server.App
         public Task<InputCommandResult> ExecuteAsync(ICharacter owner, params string[] args)
         {
             InputCommandResult result = null;
-            switch (this.currentState)
+            if (this.currentProcessor.Process(owner, this, args, out result))
             {
-                case LoginState.FetchingCharacterName:
-                    result = new InputCommandResult("Please enter a character name:", false, this, owner);
-                    this.currentState = LoginState.FetchingPassword;
-                    break;
-                case LoginState.FetchingPassword:
-                    result = new InputCommandResult("Please enter your password:", false, this, owner);
-                    this.currentState = LoginState.Completed;
-                    break;
-                case LoginState.Completed:
-                    result = new InputCommandResult("Logged in.\r\n", true, this, owner);
-                    break;
+                bool autoProcess = this.currentProcessor.AutoProgressToNextProcessor;
+                this.currentProcessor = this.currentProcessor.GetNextProcessor();
+                while(autoProcess)
+                {
+                    autoProcess = this.currentProcessor.AutoProgressToNextProcessor;
+
+                    if (this.currentProcessor.Process(owner, this, args, out result))
+                    {
+                        this.currentProcessor = this.currentProcessor.GetNextProcessor();
+                    }
+                }
+
+                return Task.FromResult(result);
+            }
+            
+            return Task.FromResult(result);
+        }
+
+        private abstract class LoginProcessor
+        {
+            private LoginProcessor nextProcessor;
+
+            public LoginProcessor()
+            {
             }
 
-            return Task.FromResult(result);
+            public LoginProcessor(LoginProcessor nextProcessor)
+            {
+                this.nextProcessor = nextProcessor;
+            }
+
+            protected bool HasNextStep
+            {
+                get
+                {
+                    return this.nextProcessor != null;
+                }
+            }
+
+            public bool AutoProgressToNextProcessor { get; protected set; }
+
+            public LoginProcessor GetNextProcessor()
+            {
+                return this.nextProcessor;
+            }
+
+            public abstract bool Process(ICharacter owner, IInputCommand command, string[] args, out InputCommandResult result);
+        }
+
+        private class CharacterNameRequestor : LoginProcessor
+        {
+            public CharacterNameRequestor() { }
+
+            public CharacterNameRequestor(LoginProcessor nextProcessor) : base(nextProcessor) { }
+
+            public override bool Process(ICharacter owner, IInputCommand command, string[] args, out InputCommandResult result)
+            {
+                result = new InputCommandResult("Please enter your character name: ", !this.HasNextStep, command, owner);
+                return true;
+            }
+        }
+
+        private class CharacterNameProcessor : LoginProcessor
+        {
+            public CharacterNameProcessor() { }
+
+            public CharacterNameProcessor(LoginProcessor nextProcessor) : base(nextProcessor) { }
+
+            public string CharacterName { get; private set; }
+
+            public override bool Process(ICharacter owner, IInputCommand command, string[] args, out InputCommandResult result)
+            {
+                if (args.Length == 0 || string.IsNullOrWhiteSpace(args[0]))
+                {
+                    result = new InputCommandResult("You must enter a character name.", !this.HasNextStep, command, owner);
+                    return false;
+                }
+
+                result = new InputCommandResult(!this.HasNextStep, command, owner);
+                this.AutoProgressToNextProcessor = true;
+                return true;
+            }
+        }
+
+        private class CharacterPasswordRequestor: LoginProcessor
+        {
+            public CharacterPasswordRequestor() { }
+
+            public CharacterPasswordRequestor(LoginProcessor nextProcessor) : base(nextProcessor) { }
+
+            public override bool Process(ICharacter owner, IInputCommand command, string[] args, out InputCommandResult result)
+            {
+                result = new InputCommandResult("Please enter your character's password: ", !this.HasNextStep, command, owner);
+                return true;
+            }
+        }
+
+        private class CharacterPasswordProcessor : LoginProcessor
+        {
+            public CharacterPasswordProcessor() { }
+
+            public CharacterPasswordProcessor(LoginProcessor nextProcessor) : base(nextProcessor) { }
+
+            public string CharacterPassword { get; private set; }
+
+            public override bool Process(ICharacter owner, IInputCommand command, string[] args, out InputCommandResult result)
+            {
+                if (args.Length == 0)
+                {
+                    result = new InputCommandResult("Invalid password\r\n name: ", !this.HasNextStep, command, owner);
+                    return false;
+                }
+
+                result = new InputCommandResult("Login Successful\r\n", !this.HasNextStep, command, owner);
+                return true;
+            }
         }
     }
 }

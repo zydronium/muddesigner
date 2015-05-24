@@ -38,7 +38,11 @@ namespace Mud.Engine.Runtime.Game.Character
             // if we are resuming from a previous command state, we send all of the command contents in to the current command.
             if (hasKey)
             {
-                result = await currentCommand.ExecuteAsync(character, args);
+                // If we are in the middle of a command, we assume the command given is an argument to progress
+                // the current command along, so we union the command and args.
+                var commandArguments = new List<string>(args);
+                commandArguments.Insert(0, command);
+                result = await currentCommand.ExecuteAsync(character, commandArguments.ToArray());
                 this.CompleteProcessing(currentCommand, result);
                 return;
             }

@@ -74,6 +74,11 @@ namespace Mud.Engine.Runtime.Game.Character
             this.OnRoomChanged(directionEnteringFrom, this.CurrentRoom, newRoom);
         }
 
+        public void SetCharacterInformation(ICharacterInformation information)
+        {
+            this.Information = information;
+        }
+
         /// <summary>
         /// Loads the component and any resources or dependencies it might have.
         /// Called during initialization of the component

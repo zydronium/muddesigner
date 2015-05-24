@@ -19,7 +19,7 @@ namespace Mud.Engine.Runtime.Game.Character
         public InputCommandResult(bool isCommandCompleted, IInputCommand command, ICharacter executor)
         {
             this.Result = string.Empty;
-            this.IsCommandCompleted = IsCommandCompleted;
+            this.IsCommandCompleted = isCommandCompleted;
             this.CommandExecuted = command;
             this.Executor = executor;
         }

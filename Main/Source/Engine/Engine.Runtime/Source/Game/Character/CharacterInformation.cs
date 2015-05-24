@@ -8,6 +8,6 @@ namespace Mud.Engine.Runtime.Game.Character
 {
     public class CharacterInformation : ICharacterInformation
     {
-        public virtual string Name { get; set; }
+        public string Name { get; private set; }
     }
 }
