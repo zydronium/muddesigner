@@ -9,8 +9,10 @@ using Autofac;
 using Autofac.Core;
 using Mud.Apps.Windows.Desktop.Server.App;
 using Mud.Data.Shared;
+using Mud.Engine.Runtime;
 using Mud.Engine.Runtime.Game;
 using Mud.Engine.Runtime.Game.Character;
+using Mud.Engine.Runtime.Game.Character.InputCommands;
 using Mud.Engine.Runtime.Networking;
 using Mud.Engine.Runtime.Services;
 
@@ -47,7 +49,9 @@ namespace Mud.Engine.Components.WindowsServer
             // Runtime Services
             builder.RegisterType<CommandManager>().As<ICommandManager>();
             builder.RegisterType<NotificationManager>().As<INotificationCenter>().SingleInstance();
-            builder.RegisterTypes(typeCollection.Where(type => type.IsAssignableTo<IInputCommand>()).ToArray()).AsImplementedInterfaces();
+            builder.RegisterTypes(typeCollection.Where(type => type.IsAssignableTo<IInputCommand>()).ToArray())
+                .AsImplementedInterfaces()
+                .AsSelf();
 
             // Marker Services
             builder.RegisterTypes(typeCollection.Where(type => type.IsAssignableTo<IRepository>()).ToArray()).AsImplementedInterfaces();
@@ -68,8 +72,9 @@ namespace Mud.Engine.Components.WindowsServer
 
             CommandManagerFactory.SetFactory(() => container.Resolve<ICommandManager>());
             CharacterFactory.SetFactory(
-                game => this.container.Resolve<IPlayer>(
-                    new TypedParameter(typeof(IGame), game)));
+                game => this.container.Resolve<IPlayer>(new TypedParameter(typeof(IGame), game)));
+
+            CommandFactory.SetFactory(CreateCommandFromAlias);
         }
 
         protected override IServerConfiguration CreateServerConfiguration()
@@ -84,9 +89,28 @@ namespace Mud.Engine.Components.WindowsServer
             return server;
         }
 
+        private IInputCommand CreateCommandFromAlias(string alias)
+        {
+            // Get all of the IInputCommand Types that have been registered.
+            IEnumerable<Type> commandTypes = this.container.ComponentRegistry.Registrations
+                .Where(service => typeof(IInputCommand).IsAssignableFrom(service.Activator.LimitType))
+                .Select(service => service.Activator.LimitType);
+
+            Type commandToInstance = commandTypes
+                .FirstOrDefault(type => TypePool.GetAttribute<CommandAliasAttribute>(
+                    type: type,
+                    property: null,
+                    predicate: attribute => attribute.Alias.ToLower().Equals(alias.ToLower())) != null);
+
+            return commandToInstance == null ? null : this.container.Resolve(commandToInstance) as IInputCommand;
+        }
+
         private void ExecuteInitialCommand(object sender, ServerConnectionEventArgs e)
         {
-            e.Player.CommandManager.ProcessCommandForCharacter(e.Player, new PlayerLoginCommand(), new string[0]);
+            e.Player.CommandManager.ProcessCommandForCharacter(
+                e.Player, 
+                CommandFactory.CreateCommandFromAlias("Login"), 
+                new string[0]);
         }
 
         protected override IGame CreateGame()

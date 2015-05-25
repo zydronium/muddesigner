@@ -69,10 +69,19 @@ namespace Mud.Data.FlatFile
                         file, 
                         world.GetPropertyName(p => p.HoursPerDay)));
 
-                world.Id = Convert.ToInt32(
+                Guid parsedGuid = Guid.Empty;
+                if (!Guid.TryParse(
                     await this.storageService.LoadValueFromKeyAsync(
                         file,
-                        world.GetPropertyName(p => p.Id)));
+                        world.GetPropertyName(p => p.Id)),
+                    out parsedGuid))
+                {
+                    throw new InvalidOperationException($"Unable to restore the Id for {file}");
+                }
+                else
+                {
+                    world.Id = parsedGuid;
+                }
 
                 world.IsEnabled = Convert.ToBoolean(
                     await this.storageService.LoadValueFromKeyAsync(

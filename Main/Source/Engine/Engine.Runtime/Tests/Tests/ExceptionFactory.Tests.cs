@@ -195,7 +195,7 @@ namespace Tests.Engine.Runtime
         {
             // Arrange
             NullReferenceException exception = null;
-            int id = 55;
+            Guid id = Guid.NewGuid();
 
             var componentMock = new Mock<IComponent>();
             componentMock.SetupGet(component => component.Id).Returns(id);

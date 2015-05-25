@@ -19,6 +19,7 @@ namespace Mud.Engine.Runtime.Game
         public GameComponent()
         {
             this.subscriptions = new Dictionary<Type, ISubscription>();
+            this.Id = Guid.NewGuid();
         }
 
         /// <summary>
@@ -41,12 +42,17 @@ namespace Mud.Engine.Runtime.Game
         /// </summary>
         public event EventHandler<EventArgs> Deleted;
 
+        public INotificationCenter NotificationCenter { get; private set; }
+        
         /// <summary>
         /// Gets or sets the unique identifier.
         /// </summary>
-        public int Id { get; set; }
+        public Guid Id { get; set; }
 
-        public INotificationCenter NotificationCenter { get; private set; }
+        public DateTime CreatedDate { get; set; }
+
+        public DateTime LastUpdatedDate { get; set; }
+
 
         /// <summary>
         /// Initializes the game component.

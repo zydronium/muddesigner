@@ -7,6 +7,10 @@ namespace Mud.Engine.Runtime.Game
         /// <summary>
         /// Gets or sets the unique identifier.
         /// </summary>
-        int Id { get; set; }
+        Guid Id { get; set; }
+
+        DateTime CreatedDate { get; set; }
+
+        DateTime LastUpdatedDate { get; set; }
     }
 }

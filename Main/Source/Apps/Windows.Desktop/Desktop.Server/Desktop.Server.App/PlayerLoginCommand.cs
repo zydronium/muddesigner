@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
+using Mud.Engine.Runtime.Game;
 using Mud.Engine.Runtime.Game.Character;
 using Mud.Engine.Runtime.Game.Character.InputCommands;
 
@@ -18,7 +19,9 @@ namespace Mud.Apps.Windows.Desktop.Server.App
 
         private CharacterPasswordProcessor passwordProcessor;
 
-        public PlayerLoginCommand()
+        private INotificationCenter notificationManager;
+
+        public PlayerLoginCommand(INotificationCenter notificationManager)
         {
             this.passwordProcessor = new CharacterPasswordProcessor();
             this.passwordRequestor = new CharacterPasswordRequestor(this.passwordProcessor);
@@ -26,6 +29,7 @@ namespace Mud.Apps.Windows.Desktop.Server.App
             this.nameRequestor = new CharacterNameRequestor(this.nameProcessor);
 
             this.currentProcessor = this.nameRequestor;
+            this.notificationManager = notificationManager;
         }
 
         public bool CanExecuteCommand(ICharacter owner, params string[] args)
@@ -48,6 +52,11 @@ namespace Mud.Apps.Windows.Desktop.Server.App
                     {
                         this.currentProcessor = this.currentProcessor.GetNextProcessor();
                     }
+                }
+
+                if (result.IsCommandCompleted)
+                {
+                    this.notificationManager.Publish(new NewCharacterCreatedMessage(owner));
                 }
 
                 return Task.FromResult(result);
