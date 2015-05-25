@@ -25,6 +25,7 @@ namespace Mud.Engine.Runtime.Game.Character
             this.Game = game;
             this.Information = new CharacterInformation();
 
+            commandManager.SetOwner(this);
             this.CommandManager = commandManager;
         }
 

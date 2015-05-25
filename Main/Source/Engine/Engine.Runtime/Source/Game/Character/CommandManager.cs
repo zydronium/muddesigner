@@ -14,120 +14,128 @@ namespace Mud.Engine.Runtime.Game.Character
 
         private IEnumerable<ISecurityRole> serverRoles;
 
-        private Dictionary<ICharacter, IInputCommand> characterCommandStates;
+        private Stack<IInputCommand> currentlyExecutingCommands;
 
         private INotificationCenter notificationCenter;
+
+        private ISubscription commandRequestSubscription;
 
         public CommandManager(IEnumerable<ISecurityRole> availableRoles, IEnumerable<IInputCommand> commands, INotificationCenter notificationCenter)
         {
             this.serverRoles = availableRoles ?? Enumerable.Empty<ISecurityRole>();
             this.commandCollection = commands;
             this.notificationCenter = notificationCenter;
-            this.notificationCenter.Subscribe<CommandRequestMessage>(
-                async (message, subscription) => await this.ProcessCommandForCharacter(message.Sender, message.Content, message.Arguments));
-
-            this.characterCommandStates = new Dictionary<ICharacter, IInputCommand>();
+            this.currentlyExecutingCommands = new Stack<IInputCommand>();
         }
 
-        public async Task ProcessCommandForCharacter(ICharacter character, string command, string[] args)
-        {
-            IInputCommand currentCommand = null;
-            InputCommandResult result = null;
-            bool hasKey = this.characterCommandStates.TryGetValue(character, out currentCommand);
+        public ICharacter Owner { get; private set; }
 
-            // if we are resuming from a previous command state, we send all of the command contents in to the current command.
-            if (hasKey)
+        public void SetOwner(ICharacter owningCharacter)
+        {
+            if (this.commandRequestSubscription != null)
             {
+                this.commandRequestSubscription.Unsubscribe();
+            }
+
+            if (owningCharacter == null)
+            {
+                return;
+            }
+
+            this.Owner = owningCharacter;
+            this.Owner.Deleting += this.OnOwnerDeleting;
+            this.commandRequestSubscription = this.notificationCenter.Subscribe<CommandRequestMessage>(
+                (message, subscription) => this.ProcessCommandForCharacter(message.Content, message.Arguments),
+                message => message.Sender == this.Owner);
+        }
+
+        public Task ProcessCommandForCharacter(string command, string[] args)
+        {
+            if (string.IsNullOrEmpty(command))
+            {
+                return Task.FromResult(0);
+            }
+
+            IInputCommand currentCommand = CommandFactory.CreateCommandFromAlias(command);
+            InputCommandResult commandResult = null;
+            string[] commandArguments = null;
+
+            // Only enumerate over this collection once.
+            bool hasCurrentlyExecutingCommands = this.currentlyExecutingCommands.Any();
+
+            if (currentCommand == null && !hasCurrentlyExecutingCommands)
+            {
+                // No command was found and we have no state, so tell the user they've entered something invalid.
+                commandResult = new InputCommandResult("Unknown Command.\r\n", true, null, this.Owner);
+                this.CompleteProcessing(commandResult);
+            }
+            else if (currentCommand != null && (!hasCurrentlyExecutingCommands || (hasCurrentlyExecutingCommands && !this.currentlyExecutingCommands.Peek().ExclusiveCommand)))
+            {
+                // If the command currently being executed, but not completed, is not exclusive, then run
+                // the command requested by the user.
+                commandArguments = args;
+            }
+            else if (hasCurrentlyExecutingCommands)
+            {
+                currentCommand = this.currentlyExecutingCommands.Pop();
+
                 // If we are in the middle of a command, we assume the command given is an argument to progress
                 // the current command along, so we union the command and args.
-                var commandArguments = new List<string>(args);
-                commandArguments.Insert(0, command);
-                result = await currentCommand.ExecuteAsync(character, commandArguments.ToArray());
-                this.CompleteProcessing(currentCommand, result);
-                return;
+                commandArguments = Enumerable
+                    .Concat(new string[] { command }, args)
+                    .ToArray();
             }
-            else if (string.IsNullOrEmpty(command))
-            {
-                return;
-            }
-
-            // If we are not resuming from a previous state, we find a command that maps to the first word given to us
-            // in our command string param.
-            currentCommand = this.commandCollection.FirstOrDefault(
-                c => TypePool
-                    .GetAttributes<CommandAliasAttribute>(c.GetType())
-                    .Any(attribute => attribute.Alias.ToLower().Equals(command.ToLower())));
-
-            if (currentCommand == null)
-            {
-                result = new InputCommandResult("Unknown Command.\r\n", true, null, character);
-            }
-
-            else
-            {
-                // We execute the command, skiping the first arg as it is the command word itself.
-                result = await currentCommand.ExecuteAsync(character, args.ToArray());
-            }
-
-            this.CompleteProcessing(currentCommand, result);
+            return this.ProcessCommandForCharacter(currentCommand, commandArguments);
         }
 
-        private void CompleteProcessing(IInputCommand command, InputCommandResult result)
+        public async Task ProcessCommandForCharacter(IInputCommand command, string[] args)
+        {
+            if (this.Owner == null)
+            {
+                this.SetOwner(null);
+            }
+
+            InputCommandResult result = await command.ExecuteAsync(this.Owner, args);
+            this.CompleteProcessing(result);
+        }
+
+        private void CompleteProcessing(InputCommandResult result)
         {
             if (result == null)
             {
-                throw new NullReferenceException($"{command.GetType().Name} returned a null InputCommandResult when it shouldn't have!");
+                throw new NullReferenceException($"{result.CommandExecuted.GetType().Name} returned a null InputCommandResult when it shouldn't have!");
             }
 
-            this.UpdateCommandState(result);
-            this.notificationCenter.Publish(new SystemMessage(result.Result));
+            this.EvaluateCommandState(result);
+            this.notificationCenter.Publish(new InformationMessage(result.Result, this.Owner));
             if (result.IsCommandCompleted)
             {
-                this.notificationCenter.Publish(new SystemMessage(">>:"));
+                this.notificationCenter.Publish(new InformationMessage(">>:", this.Owner));
             }
         }
 
-        public async Task ProcessCommandForCharacter(ICharacter character, IInputCommand command, string[] args)
+        private void EvaluateCommandState(InputCommandResult commandResult)
         {
-            InputCommandResult result = await command.ExecuteAsync(character, args);
-            this.UpdateCommandState(result);
-
-            this.notificationCenter.Publish(new SystemMessage(result.Result));
-        }
-
-        private void UpdateCommandState(InputCommandResult commandResult)
-        {
-            if (commandResult == null)
+            if (commandResult == null || commandResult.IsCommandCompleted)
             {
                 return;
             }
 
-            IInputCommand command = null;
-            bool hasKey = this.characterCommandStates.TryGetValue(commandResult.Executor, out command);
-            if (!commandResult.IsCommandCompleted)
-            {
-                if (hasKey)
-                {
-                    this.characterCommandStates[commandResult.Executor] = command;
-                }
-                else
-                {
-                    this.characterCommandStates.Add(commandResult.Executor, commandResult.CommandExecuted);
-                }
-            }
-            else
-            {
-                if (hasKey)
-                {
-                    this.characterCommandStates.Remove(commandResult.Executor);
-                }
-            }
+            this.currentlyExecutingCommands.Push(commandResult.CommandExecuted);
         }
 
         private IEnumerable<IInputCommand> SetInitialCharacterCommands(ICharacter character)
         {
             // TODO: Build out command collection
             return Enumerable.Empty<IInputCommand>();
+        }
+
+        private Task OnOwnerDeleting(IGameComponent arg)
+        {
+            this.commandRequestSubscription.Unsubscribe();
+            IPlayer player = (IPlayer)arg;
+            player.Deleting -= this.OnOwnerDeleting;
+            return Task.FromResult(0);
         }
     }
 }

@@ -118,19 +118,17 @@ namespace Mud.Engine.Runtime.Game.Environment
             departingRoom?.TryRemoveOccupantFromRoom(character, doorwayTraveledThrough.DepartureDirection, this);
 
             this.Occupants.Add(character);
-            character.Deleting += this.OnCharacterDeletingStarting;
+            character.Deleted += this.OnCharacterDeletingStarting;
             // Notify our event handles that the character has entered the room.
             this.OnEnteringRoom(character, enteredDirection, departingRoom);
             character.Move(enteredDirection, this);
         }
 
-        private Task OnCharacterDeletingStarting(IGameComponent arg)
+        private void OnCharacterDeletingStarting(object sender, EventArgs args)
         {
-            var character = (ICharacter)arg;
-            character.Deleting -= this.OnCharacterDeletingStarting;
+            var character = (ICharacter)sender;
+            character.Deleted -= this.OnCharacterDeletingStarting;
             this.RemoveOccupantFromRoom(character);
-
-            return Task.FromResult(0);
         }
 
         public void RemoveOccupantFromRoom(ICharacter character)

@@ -72,7 +72,6 @@ namespace Mud.Engine.Runtime.Game
         {
             if (this.condition != null && !this.condition(message))
             {
-                this.callback(message, this);
                 return;
             }
 

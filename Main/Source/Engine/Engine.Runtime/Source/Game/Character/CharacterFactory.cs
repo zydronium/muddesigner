@@ -24,13 +24,22 @@ namespace Mud.Engine.Runtime.Game.Character
         /// <returns></returns>
         public static IPlayer CreatePlayer(IGame game)
         {
+            IPlayer player = null;
             if (factoryDelegate == null)
             {
                 ICommandManager commandManager = CommandManagerFactory.CreateManager();
-                return new DefaultPlayer(game, commandManager);
+                player = new DefaultPlayer(game, commandManager);
+            }
+            else
+            {
+                player = factoryDelegate(game);
             }
 
-            return factoryDelegate(game);
+            // This is a fail-safe. The DefaultPlayer assigns the owner for us, but we 
+            // force ownership of the command manager on the player regardless. In the event
+            // a different IPlayer implementation is used that forgets to do this, the engine is still usable.
+            player.CommandManager.SetOwner(player);
+            return player;
         }
 
         /// <summary>

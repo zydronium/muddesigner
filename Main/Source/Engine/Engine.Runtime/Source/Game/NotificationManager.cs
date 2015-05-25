@@ -70,7 +70,10 @@ namespace Mud.Engine.Runtime.Game
                 return;
             }
 
-            foreach (INotification<T> handler in listeners[typeof(T)])
+            // Create a local reference of the collection to protect us against the collection
+            // adding a new subscriber while we're enumerating
+            var listenersToPublishTo = this.listeners[typeof(T)].ToArray();
+            foreach (INotification<T> handler in listenersToPublishTo)
             {
                 handler.ProcessMessage(message);
             }

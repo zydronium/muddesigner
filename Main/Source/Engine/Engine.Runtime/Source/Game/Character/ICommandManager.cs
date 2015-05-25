@@ -7,8 +7,10 @@ namespace Mud.Engine.Runtime.Game.Character
 {
     public interface ICommandManager
     {
-        Task ProcessCommandForCharacter(ICharacter character, string command, string[] args);
+        void SetOwner(ICharacter owningCharacter);
 
-        Task ProcessCommandForCharacter(ICharacter character, IInputCommand command, string[] args);
+        Task ProcessCommandForCharacter(string command, string[] args);
+
+        Task ProcessCommandForCharacter(IInputCommand command, string[] args);
     }
 }

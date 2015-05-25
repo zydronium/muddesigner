@@ -21,6 +21,8 @@ namespace Mud.Apps.Windows.Desktop.Server.App
 
         private INotificationCenter notificationManager;
 
+        public bool ExclusiveCommand { get { return true; } }
+
         public PlayerLoginCommand(INotificationCenter notificationManager)
         {
             this.passwordProcessor = new CharacterPasswordProcessor();
@@ -56,7 +58,7 @@ namespace Mud.Apps.Windows.Desktop.Server.App
 
                 if (result.IsCommandCompleted)
                 {
-                    this.notificationManager.Publish(new NewCharacterCreatedMessage(owner));
+                    this.notificationManager.Publish(new NewCharacterCreatedMessage("Character created.", owner));
                 }
 
                 return Task.FromResult(result);

@@ -6,18 +6,11 @@ using System.Threading.Tasks;
 
 namespace Mud.Engine.Runtime.Game.Character.InputCommands
 {
-    public class NewCharacterCreatedMessage : IMessage<ICharacter>
+    public class NewCharacterCreatedMessage : CharacterMessage
     {
-        public NewCharacterCreatedMessage(ICharacter character)
+        public NewCharacterCreatedMessage(string message, ICharacter targetCharacter)
+            : base(message, targetCharacter)
         {
-            this.Content = character;
-        }
-
-        public ICharacter Content { get; private set; }
-
-        public object GetContent()
-        {
-            return this.Content;
         }
     }
 }

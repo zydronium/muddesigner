@@ -39,7 +39,9 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="CachedTypeData.cs" />
+    <Compile Include="Game\ComponentRequest.cs" />
     <Compile Include="Game\Character\CharacterInformation.cs" />
+    <Compile Include="Game\Character\CharacterMessage.cs" />
     <Compile Include="Game\Character\CommandCompletionArgs.cs" />
     <Compile Include="Game\Character\CommandManagerFactory.cs" />
     <Compile Include="Game\Character\ICharacterInformation.cs" />
@@ -52,7 +54,7 @@
     <Compile Include="Game\Character\IPlayer.cs" />
     <Compile Include="Game\Character\ISecurityRole.cs" />
     <Compile Include="Game\Character\SecurityRole.cs" />
-    <Compile Include="Game\SystemMessage.cs" />
+    <Compile Include="Game\Character\InformationMessage.cs" />
     <Compile Include="Game\ChatFactory.cs" />
     <Compile Include="Game\ChatMessageBase.cs" />
     <Compile Include="Game\Character\CommandManager.cs" />

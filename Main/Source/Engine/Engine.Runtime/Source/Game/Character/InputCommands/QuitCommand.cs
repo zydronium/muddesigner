@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 
 namespace Mud.Engine.Runtime.Game.Character.InputCommands
 {
@@ -7,6 +8,8 @@ namespace Mud.Engine.Runtime.Game.Character.InputCommands
     [CommandAlias("DC")]
     public class QuitCommand : IInputCommand
     {
+        public bool ExclusiveCommand { get { return false; } }
+
         public bool CanExecuteCommand(ICharacter owner, params string[] args)
         {
             return owner != null;

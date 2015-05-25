@@ -108,7 +108,6 @@ namespace Mud.Engine.Components.WindowsServer
         private void ExecuteInitialCommand(object sender, ServerConnectionEventArgs e)
         {
             e.Player.CommandManager.ProcessCommandForCharacter(
-                e.Player, 
                 CommandFactory.CreateCommandFromAlias("Login"), 
                 new string[0]);
         }

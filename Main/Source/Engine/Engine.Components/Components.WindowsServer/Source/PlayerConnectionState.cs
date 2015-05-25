@@ -37,6 +37,8 @@ namespace Mud.Engine.Components.WindowsServer
 
         private INotificationCenter notificationManager;
 
+        private ISubscription systemMessageSubscription;
+
         private readonly ObservableCollection<string> outgoingMessageQueue = new ObservableCollection<string>();
 
         private bool isSendingMessage;
@@ -53,9 +55,10 @@ namespace Mud.Engine.Components.WindowsServer
         {
             this.Player = player;
             this.notificationManager = player.NotificationCenter;
-            this.notificationManager.Subscribe<SystemMessage>(
+            this.systemMessageSubscription = this.notificationManager.Subscribe<InformationMessage>(
                 callback: (msg, sub) => this.SendMessage(msg.Content),
-                condition: (msg) => string.IsNullOrEmpty(msg.Content));
+                condition: msg => !string.IsNullOrEmpty(msg.Content) && msg.Target == this.Player);
+            this.Player.Deleted += this.PlayerDeleted;
 
             this.CurrentSocket = currentSocket;
             this.bufferSize = bufferSize;
@@ -279,6 +282,12 @@ namespace Mud.Engine.Components.WindowsServer
             }
 
             return messages;
+        }
+
+        private void PlayerDeleted(object sender, EventArgs e)
+        {
+            this.systemMessageSubscription.Unsubscribe();
+            this.Player.Deleted -= this.PlayerDeleted;
         }
     }
 }
