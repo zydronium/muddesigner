@@ -25,9 +25,6 @@ namespace Mud.Engine.Runtime.Networking
         /// <summary>
         /// Gets the player.
         /// </summary>
-        /// <value>
-        /// The player.
-        /// </value>
         public IPlayer Player { get; private set; }
     }
 }
