@@ -32,11 +32,7 @@ namespace Mud.Engine.Runtime.Game.Character
 
         public void SetOwner(ICharacter owningCharacter)
         {
-            if (this.commandRequestSubscription != null)
-            {
-                this.commandRequestSubscription.Unsubscribe();
-            }
-
+            this.ResetOwner();
             if (owningCharacter == null)
             {
                 return;
@@ -49,16 +45,23 @@ namespace Mud.Engine.Runtime.Game.Character
                 message => message.Sender == this.Owner);
         }
 
-        public Task ProcessCommandForCharacter(string command, string[] args)
+        private void ResetOwner()
         {
-            if (string.IsNullOrEmpty(command))
+            this.Owner = null;
+            if (this.commandRequestSubscription != null)
             {
-                return Task.FromResult(0);
+                this.commandRequestSubscription.Unsubscribe();
+            }
+        }
+
+        private async Task ExecuteCharacterCommand(IInputCommand currentCommand, string[] args)
+        {
+            if (this.Owner == null)
+            {
+                this.ResetOwner();
             }
 
-            IInputCommand currentCommand = CommandFactory.CreateCommandFromAlias(command);
             InputCommandResult commandResult = null;
-            string[] commandArguments = null;
 
             // Only enumerate over this collection once.
             bool hasCurrentlyExecutingCommands = this.currentlyExecutingCommands.Any();
@@ -69,34 +72,37 @@ namespace Mud.Engine.Runtime.Game.Character
                 commandResult = new InputCommandResult("Unknown Command.\r\n", true, null, this.Owner);
                 this.CompleteProcessing(commandResult);
             }
-            else if (currentCommand != null && (!hasCurrentlyExecutingCommands || (hasCurrentlyExecutingCommands && !this.currentlyExecutingCommands.Peek().ExclusiveCommand)))
+            else if (currentCommand == null && hasCurrentlyExecutingCommands || hasCurrentlyExecutingCommands && this.currentlyExecutingCommands.Peek().ExclusiveCommand)
             {
-                // If the command currently being executed, but not completed, is not exclusive, then run
-                // the command requested by the user.
-                commandArguments = args;
-            }
-            else if (hasCurrentlyExecutingCommands)
-            {
+                // If we have a command already being processed, we continue to process it
                 currentCommand = this.currentlyExecutingCommands.Pop();
-
-                // If we are in the middle of a command, we assume the command given is an argument to progress
-                // the current command along, so we union the command and args.
-                commandArguments = Enumerable
-                    .Concat(new string[] { command }, args)
-                    .ToArray();
             }
-            return this.ProcessCommandForCharacter(currentCommand, commandArguments);
+            
+            InputCommandResult result = await currentCommand.ExecuteAsync(this.Owner, args);
+            this.CompleteProcessing(result);
         }
 
-        public async Task ProcessCommandForCharacter(IInputCommand command, string[] args)
+        public Task ProcessCommandForCharacter(string command, string[] args)
         {
-            if (this.Owner == null)
+            if (string.IsNullOrEmpty(command))
             {
-                this.SetOwner(null);
+                return Task.FromResult(0);
             }
 
-            InputCommandResult result = await command.ExecuteAsync(this.Owner, args);
-            this.CompleteProcessing(result);
+            IInputCommand currentCommand = CommandFactory.CreateCommandFromAlias(command);
+
+            string[] correctedArguments = null;
+            if (this.currentlyExecutingCommands.Any())
+            {
+                correctedArguments = Enumerable.Concat(new string[] { command, }, args).ToArray();
+            }
+
+            return this.ProcessCommandForCharacter(currentCommand, correctedArguments);
+        }
+
+        public Task ProcessCommandForCharacter(IInputCommand command, string[] args)
+        {
+            return this.ExecuteCharacterCommand(command, args);
         }
 
         private void CompleteProcessing(InputCommandResult result)

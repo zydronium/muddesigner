@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
+using Mud.Engine.Runtime;
 using Mud.Engine.Runtime.Game;
 using Mud.Engine.Runtime.Game.Character;
 using Mud.Engine.Runtime.Game.Character.InputCommands;
@@ -9,13 +10,11 @@ namespace Mud.Apps.Windows.Desktop.Server.App
     [CommandAlias("Login")]
     public class PlayerLoginCommand : IInputCommand
     {
-        private LoginProcessor currentProcessor;
+        private CommandProcess currentProcessor;
 
         private CharacterNameRequestor nameRequestor;
 
         private CharacterNameProcessor nameProcessor;
-
-        private CharacterPasswordRequestor passwordRequestor;
 
         private CharacterPasswordProcessor passwordProcessor;
 
@@ -26,9 +25,8 @@ namespace Mud.Apps.Windows.Desktop.Server.App
         public PlayerLoginCommand(INotificationCenter notificationManager)
         {
             this.passwordProcessor = new CharacterPasswordProcessor();
-            this.passwordRequestor = new CharacterPasswordRequestor(this.passwordProcessor);
-            this.nameProcessor = new CharacterNameProcessor(this.passwordRequestor);
-            this.nameRequestor = new CharacterNameRequestor(this.nameProcessor);
+            this.nameProcessor = new CharacterNameProcessor(notificationManager, this.passwordProcessor);
+            this.nameRequestor = new CharacterNameRequestor(notificationManager, this.nameProcessor);
 
             this.currentProcessor = this.nameRequestor;
             this.notificationManager = notificationManager;
@@ -44,17 +42,17 @@ namespace Mud.Apps.Windows.Desktop.Server.App
             InputCommandResult result = null;
             if (this.currentProcessor.Process(owner, this, args, out result))
             {
-                bool autoProcess = this.currentProcessor.AutoProgressToNextProcessor;
                 this.currentProcessor = this.currentProcessor.GetNextProcessor();
-                while(autoProcess)
-                {
-                    autoProcess = this.currentProcessor.AutoProgressToNextProcessor;
 
-                    if (this.currentProcessor.Process(owner, this, args, out result))
-                    {
-                        this.currentProcessor = this.currentProcessor.GetNextProcessor();
-                    }
-                }
+                //while(autoProcess)
+                //{
+                //    autoProcess = this.currentProcessor.AutoProgressToNextProcessor;
+
+                //    if (this.currentProcessor.Process(owner, this, args, out result))
+                //    {
+                //        this.currentProcessor = this.currentProcessor.GetNextProcessor();
+                //    }
+                //}
 
                 if (result.IsCommandCompleted)
                 {
@@ -67,55 +65,72 @@ namespace Mud.Apps.Windows.Desktop.Server.App
             return Task.FromResult(result);
         }
 
-        private abstract class LoginProcessor
+        private abstract class CommandProcess
         {
-            private LoginProcessor nextProcessor;
+            private CommandProcess nextProcess;
 
-            public LoginProcessor()
+            public CommandProcess()
             {
             }
 
-            public LoginProcessor(LoginProcessor nextProcessor)
+            public CommandProcess(CommandProcess nextProcess)
             {
-                this.nextProcessor = nextProcessor;
+                this.nextProcess = nextProcess;
             }
 
             protected bool HasNextStep
             {
                 get
                 {
-                    return this.nextProcessor != null;
+                    return this.nextProcess != null;
                 }
             }
 
             public bool AutoProgressToNextProcessor { get; protected set; }
 
-            public LoginProcessor GetNextProcessor()
+            public CommandProcess GetNextProcessor()
             {
-                return this.nextProcessor;
+                return this.nextProcess;
             }
 
             public abstract bool Process(ICharacter owner, IInputCommand command, string[] args, out InputCommandResult result);
         }
 
-        private class CharacterNameRequestor : LoginProcessor
+        private class CharacterNameRequestor : CommandProcess
         {
-            public CharacterNameRequestor() { }
+            private INotificationCenter notificationCenter;
 
-            public CharacterNameRequestor(LoginProcessor nextProcessor) : base(nextProcessor) { }
+            public CharacterNameRequestor(INotificationCenter notificationManager) : base()
+            {
+                this.notificationCenter = notificationManager;
+            }
+
+            public CharacterNameRequestor(INotificationCenter notificationManager, CommandProcess nextProcessor) : base(nextProcessor)
+            {
+                this.notificationCenter = notificationManager;
+            }
 
             public override bool Process(ICharacter owner, IInputCommand command, string[] args, out InputCommandResult result)
             {
-                result = new InputCommandResult("Please enter your character name: ", !this.HasNextStep, command, owner);
+                this.notificationCenter.Publish(new InformationMessage("Please enter your character name: ", owner));
+                result = new InputCommandResult(false, command, owner);
                 return true;
             }
         }
 
-        private class CharacterNameProcessor : LoginProcessor
+        private class CharacterNameProcessor : CommandProcess
         {
-            public CharacterNameProcessor() { }
+            private INotificationCenter notificationManager;
 
-            public CharacterNameProcessor(LoginProcessor nextProcessor) : base(nextProcessor) { }
+            public CharacterNameProcessor(INotificationCenter notificationCenter)
+            {
+                this.notificationManager = notificationCenter;
+            }
+
+            public CharacterNameProcessor(INotificationCenter notificationCenter, CommandProcess nextProcessor) : base(nextProcessor)
+            {
+                this.notificationManager = notificationCenter;
+            }
 
             public string CharacterName { get; private set; }
 
@@ -127,30 +142,17 @@ namespace Mud.Apps.Windows.Desktop.Server.App
                     return false;
                 }
 
-                result = new InputCommandResult(!this.HasNextStep, command, owner);
-                this.AutoProgressToNextProcessor = true;
+                this.notificationManager.Publish(new InformationMessage("Please enter your character's password: ", owner));
+                result = new InputCommandResult(false, command, owner);
                 return true;
             }
         }
 
-        private class CharacterPasswordRequestor: LoginProcessor
-        {
-            public CharacterPasswordRequestor() { }
-
-            public CharacterPasswordRequestor(LoginProcessor nextProcessor) : base(nextProcessor) { }
-
-            public override bool Process(ICharacter owner, IInputCommand command, string[] args, out InputCommandResult result)
-            {
-                result = new InputCommandResult("Please enter your character's password: ", !this.HasNextStep, command, owner);
-                return true;
-            }
-        }
-
-        private class CharacterPasswordProcessor : LoginProcessor
+        private class CharacterPasswordProcessor : CommandProcess
         {
             public CharacterPasswordProcessor() { }
 
-            public CharacterPasswordProcessor(LoginProcessor nextProcessor) : base(nextProcessor) { }
+            public CharacterPasswordProcessor(CommandProcess nextProcessor) : base(nextProcessor) { }
 
             public string CharacterPassword { get; private set; }
 
