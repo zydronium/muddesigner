@@ -43,57 +43,13 @@ namespace Mud.Apps.Windows.Desktop.Server.App
             if (this.currentProcessor.Process(owner, this, args, out result))
             {
                 this.currentProcessor = this.currentProcessor.GetNextProcessor();
-
-                //while(autoProcess)
-                //{
-                //    autoProcess = this.currentProcessor.AutoProgressToNextProcessor;
-
-                //    if (this.currentProcessor.Process(owner, this, args, out result))
-                //    {
-                //        this.currentProcessor = this.currentProcessor.GetNextProcessor();
-                //    }
-                //}
-
                 if (result.IsCommandCompleted)
                 {
                     this.notificationManager.Publish(new NewCharacterCreatedMessage("Character created.", owner));
                 }
-
-                return Task.FromResult(result);
             }
             
             return Task.FromResult(result);
-        }
-
-        private abstract class CommandProcess
-        {
-            private CommandProcess nextProcess;
-
-            public CommandProcess()
-            {
-            }
-
-            public CommandProcess(CommandProcess nextProcess)
-            {
-                this.nextProcess = nextProcess;
-            }
-
-            protected bool HasNextStep
-            {
-                get
-                {
-                    return this.nextProcess != null;
-                }
-            }
-
-            public bool AutoProgressToNextProcessor { get; protected set; }
-
-            public CommandProcess GetNextProcessor()
-            {
-                return this.nextProcess;
-            }
-
-            public abstract bool Process(ICharacter owner, IInputCommand command, string[] args, out InputCommandResult result);
         }
 
         private class CharacterNameRequestor : CommandProcess
@@ -138,7 +94,7 @@ namespace Mud.Apps.Windows.Desktop.Server.App
             {
                 if (args.Length == 0 || string.IsNullOrWhiteSpace(args[0]))
                 {
-                    result = new InputCommandResult("You must enter a character name.", !this.HasNextStep, command, owner);
+                    result = new InputCommandResult("You must enter a character name.", false, command, owner);
                     return false;
                 }
 
@@ -160,11 +116,11 @@ namespace Mud.Apps.Windows.Desktop.Server.App
             {
                 if (args.Length == 0)
                 {
-                    result = new InputCommandResult("Invalid password\r\n name: ", !this.HasNextStep, command, owner);
+                    result = new InputCommandResult("Invalid password\r\n name: ", false, command, owner);
                     return false;
                 }
 
-                result = new InputCommandResult("Login Successful\r\n", !this.HasNextStep, command, owner);
+                result = new InputCommandResult("Login Successful\r\n", this.GetNextProcessor() != null, command, owner);
                 return true;
             }
         }

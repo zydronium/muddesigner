@@ -84,11 +84,6 @@ namespace Mud.Engine.Runtime.Game.Character
 
         public Task ProcessCommandForCharacter(string command, string[] args)
         {
-            if (string.IsNullOrEmpty(command))
-            {
-                return Task.FromResult(0);
-            }
-
             IInputCommand currentCommand = CommandFactory.CreateCommandFromAlias(command);
 
             string[] correctedArguments = null;

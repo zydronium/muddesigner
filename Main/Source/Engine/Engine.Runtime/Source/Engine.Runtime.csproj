@@ -39,6 +39,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="CachedTypeData.cs" />
+    <Compile Include="Game\Character\InputCommands\CommandProcess.cs" />
     <Compile Include="Game\ComponentRequest.cs" />
     <Compile Include="Game\Character\CharacterInformation.cs" />
     <Compile Include="Game\Character\CharacterMessage.cs" />
