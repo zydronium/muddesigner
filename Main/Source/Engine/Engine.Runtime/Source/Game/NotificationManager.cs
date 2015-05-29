@@ -22,6 +22,14 @@ namespace Mud.Engine.Runtime.Game
 
         /// <summary>
         /// Subscribe publications for the message type specified.
+        /// @code
+        /// private ISubscription whisperSubscription;
+        /// 
+        /// public void Initialize()
+        /// {
+        ///     this.whisperSubscription = notificationManager.Subscribe<WhisperMessage>((msg, sub) => DoStuff);
+        /// }
+        /// @endcode
         /// </summary>
         /// <typeparam name="TMessageType">A concrete implementation of IMessage</typeparam>
         /// <returns></returns>

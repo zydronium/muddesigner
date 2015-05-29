@@ -1,9 +1,8 @@
-﻿using System;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-
+﻿//-----------------------------------------------------------------------
+// <copyright file="CachedTypeData.cs" company="Sully">
+//     Copyright (c) Johnathon Sullinger. All rights reserved.
+// </copyright>
+//-----------------------------------------------------------------------
 namespace Mud.Engine.Runtime
 {
     using System;
@@ -13,29 +12,31 @@ namespace Mud.Engine.Runtime
     using System.Reflection;
 
     /// <summary>
-    /// Represents a Type, its properties and attributes
+    /// Represents a Type, its properties and attributes. This class holds cached reflection meta-data. 
+    /// This lets objects ask for reflected meta-data without having to use reflection each time it needs to access the data.
     /// </summary>
     internal class CachedTypeData
     {
         /// <summary>
-        /// The attributes bag
+        /// The attributes bag holds a cached collection of attributse for each property for the Type associated with an instance of CachedTypeData.
         /// </summary>
         private readonly ConcurrentDictionary<PropertyInfo, IEnumerable<Attribute>> propertyAttributesBag;
 
         /// <summary>
-        /// The properties bag
+        /// The properties bag holds a cached collection of properties for the Type associated with an instance of CachedTypeData.
         /// </summary>
         private ConcurrentBag<PropertyInfo> propertiesBag;
 
         /// <summary>
-        /// A thread-safe collection of attributes for a Type
+        /// A thread-safe collection of every attribute associated with the Type associated with an instance of CachedTypeData.
+        /// This collection includes all attributes for the Type including those that are stored in the propertyAttributesBag collection.
         /// </summary>
         private ConcurrentBag<Attribute> typeAttributes;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="CachedTypeData"/> class.
+        /// Initializes a new instance of the <see cref="CachedTypeData"/> class for caching reflected meta-data for a given Type.
         /// </summary>
-        /// <param name="type">The type.</param>
+        /// <param name="type">The Type provided will have its reflected PropertyInfo and Attributes cached.</param>
         internal CachedTypeData(Type type)
         {
             ExceptionFactory.ThrowIf<ArgumentNullException>(type == null, "Type is required.");
@@ -46,16 +47,30 @@ namespace Mud.Engine.Runtime
         }
 
         /// <summary>
-        /// Gets the type.
+        /// Gets the type that has its reflected PropertyInfo and Attributes cached.
         /// </summary>
         internal Type Type { get; private set; }
 
         /// <summary>
-        /// Gets all of the attributes for the Type that is associated with an optional property and optionally filtered.
+        /// <para>
+        /// Gets all of the attributes for the Type that is associated with an instance of CachedTypeData.
+        /// If no property is specified then the method will return all attributes for the associated Type.
+        /// </para>
+        /// @code
+        /// var cachedData = new CachedTypeData(typeof(DefaultGame));
+        /// IEnumerable<Attribute> attributesForType = cachedData.GetAttributes();
+        /// @endcode
+        /// <para>
+        /// You may optionally provided a predicate that will be used to filter out the results returned from the method.
+        /// </para>
+        /// @code
+        /// var cachedData = new CachedTypeData(typeof(DefaultGame));
+        /// IEnumerable<Attribute> attributesForType = cachedData.GetAttributes(null, attribute => attribute is CommandAliasAttribute);
+        /// @endcode
         /// </summary>
-        /// <param name="property">The property.</param>
-        /// <param name="predicate">The predicate.</param>
-        /// <returns>Returns a collection of Attributes</returns>
+        /// <param name="property">The optional property that you want to pull attributes from.</param>
+        /// <param name="predicate">The optional predicate used to filter the attribute collection results.</param>
+        /// <returns>Returns a collection of Attributes for the property specified.</returns>
         internal IEnumerable<Attribute> GetAttributes(PropertyInfo property = null, Func<Attribute, bool> predicate = null)
         {
             this.SetupAttributesBag();
@@ -90,11 +105,33 @@ namespace Mud.Engine.Runtime
         }
 
         /// <summary>
-        /// Gets the attribute.
+        /// <param>
+        /// Gets the first attribute available on the Type. You may provide an optional PropertyInfo to pull the Attribute off of. 
+        /// In that case, the first Attribute on the given PropertyInfo will be returned.
+        /// </param>
+        /// @code
+        /// var cachedData = new CachedTypeData(typeof(DefaultGame));
+        /// var property = typeof(DefaultGame).GetProperties().First();
+        /// Attribute fetchedAttribute = cachedData.GetAttribute(property);
+        /// @endcode
+        /// <param>
+        /// An optional predicate can be provided in order to filter the attributes returned to you.
+        /// </param>
+        /// @code
+        /// var cachedData = new CachedTypeData(typeof(DefaultGame));
+        /// CommandAliasAttribute fetchedAttribute = (CommandAliasAttribute)cachedData.GetAttribute(attribute => attribute is CommandAliasAttribute);
+        /// @endcode
+        /// <para>
+        /// If no attribute is found, null will be returned.
+        /// </para>
         /// </summary>
-        /// <param name="property">The property.</param>
-        /// <param name="predicate">The predicate.</param>
-        /// <returns>Returns an Attribute</returns>
+        /// <param name="property">
+        /// The optional property on the Type. 
+        /// The attribute will be pulled off of this property. 
+        /// If no property is specified, the attributes are pulled off of the Type.
+        /// </param>
+        /// <param name="predicate">The predicate used to filter the results returned from the method.</param>
+        /// <returns>Returns the first Attribute found matching the parameters provided. If no parameters are given, the first Attribute on the Type is returned.</returns>
         internal Attribute GetAttribute(PropertyInfo property = null, Func<Attribute, bool> predicate = null)
         {
             return this.GetAttributes(property, predicate).FirstOrDefault();
